@@ -1,0 +1,553 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - gecko_taskgraph.transforms.test_apk:transforms
+    # While not a build, the build optimization works well for these tasks.
+    - gecko_taskgraph.transforms.build_schedules:transforms
+    - gecko_taskgraph.transforms.job:transforms
+    - gecko_taskgraph.transforms.task:transforms
+
+kind-dependencies:
+    - toolchain
+    - signing-apk
+
+task-defaults:
+    run-on-repo-type: [hg]
+    attributes:
+        build_platform: android
+        build-type: debug
+        retrigger: true
+    fetches:
+        toolchain:
+            - android-sdk-linux
+            - linux64-embedded-uniffi-bindgen
+            - linux64-nimbus-fml
+    worker-type: b-linux-medium
+    worker:
+        docker-image: {in-tree: android-ui-tests}
+        max-run-time: 7200
+        env:
+            GOOGLE_APPLICATION_CREDENTIALS: '.firebase_token.json'
+            ANDROID_SDK_ROOT: /builds/worker/fetches/android-sdk-linux
+        artifacts:
+            - name: public
+              path: /builds/worker/artifacts
+              type: directory
+        retry-exit-status: [20]
+    treeherder:
+        kind: test
+        tier: 2
+    run:
+        using: run-commands
+        dummy-secrets:
+            - content: "faketoken"
+              path: .adjust_token
+    routes:
+        by-level:
+            '3':
+                - notify.slack-channel.C0134KJ4JHL.on-failed
+            'default': []
+    scopes:
+        by-level:
+            '3':
+                - queue:route:notify.slack-channel.C0134KJ4JHL.on-failed
+                - notify:slack-channel:C0134KJ4JHL
+            'default': []
+    extra:
+        notify:
+            by-level:
+                '3':
+                    by-shipping-product:
+                        fenix:
+                            slackText: '<https://firefox-ci-tc.services.mozilla.com/tasks/${status.taskId}|${task.metadata.name}>'
+                            slackAttachments: |
+                              [
+                                    {
+                                        "color": "#FF0000",
+                                        "blocks": [
+                                        {
+                                            "type": "header",
+                                            "text": {
+                                                "type": "plain_text",
+                                                "text": "Firefox for Android :firefox:"
+                                            }
+                                        },
+                                        {
+                                            "type": "header",
+                                            "text": {
+                                            "type": "plain_text",
+                                            "text": "${task.metadata.name}"
+                                            }
+                                        },
+                                        {
+                                            "type": "section",
+                                            "fields": [
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Task:*\n<https://firefox-ci-tc.services.mozilla.com/tasks/${status.taskId}|Taskcluster>"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Owner:*\n${task.metadata.owner}"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Project:*\n${task.tags.project}"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Treeherder:*\n<https://treeherder.mozilla.org/jobs?repo=${task.tags.project}&revision=${task.payload.env.GECKO_HEAD_REV}|View Jobs>"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Source:*\n<${task.payload.env.GECKO_BASE_REPOSITORY}/rev/${task.payload.env.GECKO_HEAD_REV}|Commit> :hg:"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Report:*\n<https://firefoxci.taskcluster-artifacts.net/${status.taskId}/0/public/results/HtmlErrorReport.html|View Report>"
+                                            }
+                                            ]
+                                        },
+                                        {
+                                            "type": "divider"
+                                        },
+                                        {
+                                            "type": "context",
+                                            "elements": [
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": ":testops-notify: Mobile Test Engineering"
+                                            }
+                                            ]
+                                        }
+                                        ]
+                                    }
+                              ]
+                        focus:
+                            slackText: '<https://firefox-ci-tc.services.mozilla.com/tasks/${status.taskId}|${task.metadata.name}>'
+                            slackAttachments: |
+                                [
+                                    {
+                                        "color": "#FF0000",
+                                        "blocks": [
+                                        {
+                                            "type": "header",
+                                            "text": {
+                                                "type": "plain_text",
+                                                "text": "Focus for Android :focusandroid:"
+                                            }
+                                        },
+                                        {
+                                            "type": "header",
+                                            "text": {
+                                            "type": "plain_text",
+                                            "text": "${task.metadata.name}"
+                                            }
+                                        },
+                                        {
+                                            "type": "section",
+                                            "fields": [
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Task:*\n<https://firefox-ci-tc.services.mozilla.com/tasks/${status.taskId}|Taskcluster>"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Owner:*\n${task.metadata.owner}"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Project:*\n${task.tags.project}"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Treeherder:*\n<https://treeherder.mozilla.org/jobs?repo=${task.tags.project}&revision=${task.payload.env.GECKO_HEAD_REV}|View Jobs>"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Source:*\n<${task.payload.env.GECKO_BASE_REPOSITORY}/rev/${task.payload.env.GECKO_HEAD_REV}|Commit> :hg:"
+                                            },
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": "*Report:*\n<https://firefoxci.taskcluster-artifacts.net/${status.taskId}/0/public/results/HtmlErrorReport.html|View Report>"
+                                            }
+                                            ]
+                                        },
+                                        {
+                                            "type": "divider"
+                                        },
+                                        {
+                                            "type": "context",
+                                            "elements": [
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": ":testops-notify: Mobile Test Engineering"
+                                            }
+                                            ]
+                                        }
+                                        ]
+                                    }
+                                ]
+                        default: {}
+                'default': {}
+
+tasks:
+    focus-arm-debug:
+        attributes:
+            build-type: focus-debug-firebase
+            shipping-product: focus
+        description: 'Focus UI tests with firebase'
+        dependencies:
+            signed-apk-debug-apk: signing-apk-focus-debug
+            signed-apk-android-test: signing-apk-focus-android-test-debug
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/focus-android/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, focus/arm64-v8a.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        treeherder:
+            platform: 'focus-android-all/opt'
+            symbol: focus-debug(ui-test-arm)
+        worker:
+            env:
+                GOOGLE_PROJECT: 'moz-focus-android'
+
+    focus-arm-nightly:
+        attributes:
+            build-type: focus-nightly-firebase
+            shipping-product: focus
+        description: 'UI tests on Nightly with firebase'
+        dependencies:
+            signed-apk-debug-apk: signing-apk-focus-nightly-firebase
+            signed-apk-android-test: signing-apk-focus-android-test-nightly
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run-on-projects: [trunk]
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/focus-android/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, focus/arm-start-test.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        treeherder:
+            platform: 'focus-android-all/opt'
+            symbol: focus-nightly(ui-test-arm-nightly)
+        worker:
+            env:
+                GOOGLE_PROJECT: 'moz-focus-android'
+
+    focus-arm-beta:
+        attributes:
+            build-type: focus-beta-firebase
+            shipping-product: focus
+        description: 'UI tests on Beta with firebase'
+        dependencies:
+            signed-apk-debug-apk: signing-apk-focus-beta-firebase
+            signed-apk-android-test: signing-apk-focus-android-test-beta
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run-on-projects: [release]
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/focus-android/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, focus/arm-beta.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        treeherder:
+            platform: 'focus-android-all/opt'
+            symbol: focus-beta(ui-test-arm-beta)
+        worker:
+            env:
+                GOOGLE_PROJECT: 'moz-focus-android'
+
+    fenix-arm-debug:
+        attributes:
+            build-type: fenix-debug-firebase
+            shipping-product: fenix
+        description: Test Fenix
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-debug
+            signed-apk-android-test: signing-apk-fenix-android-test-debug
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm64-v8a.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-debug(ui-test-arm)
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix
+
+    fenix-detect-leaks-arm-debug:
+        attributes:
+            build-type: fenix-debug-firebase
+            shipping-product: fenix
+        description: Run Fenix tests with memory leak detection enabled
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-debug
+            signed-apk-android-test: signing-apk-fenix-android-test-debug
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run-on-projects: [trunk]
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm64-v8a-detect-leaks.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk, --artifact_type, "memory_leaks"]
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-debug(detect-leaks-arm)
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix
+
+    fenix-arm-beta:
+        attributes:
+            build-type: fenix-beta-firebase
+            shipping-product: fenix
+        description: Test Fenix
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-beta-firebase
+            signed-apk-android-test: signing-apk-fenix-android-test-beta
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run-on-projects: [release]
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm-beta.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-beta(ui-test-arm-beta)
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix
+
+    fenix-arm-nightly:
+        attributes:
+            build-type: fenix-nightly-firebase
+            shipping-product: fenix
+        description: Test Fenix
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-nightly-firebase
+            signed-apk-android-test: signing-apk-fenix-android-test-nightly
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run-on-projects: [trunk]
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm-start-test.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-nightly(ui-test-arm-nightly)
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix
+
+    fenix-legacy-arm:
+        attributes:
+            build-type: fenix-legacy
+            legacy: true
+            shipping-product: fenix
+        description: Run select UI tests on legacy Android devices and API levels
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-debug
+            signed-apk-android-test: signing-apk-fenix-android-test-debug
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm-legacy-api-tests.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-debug(legacy-arm)
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix
+
+    fenix-robo-arm-debug:
+        attributes:
+            build-type: fenix-robo
+            shipping-product: fenix
+        description: Run Robo test on ARM devices
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-debug
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm-robo-test.yml, /builds/worker/fetches/target.arm64-v8a.apk]
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-debug(robo-arm)
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix
+
+    fenix-experimental-arm-debug:
+        attributes:
+            build-type: fenix-debug-firebase
+            shipping-product: fenix
+        description: Run Fenix tests using experimental POM design
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-debug
+            signed-apk-android-test: signing-apk-fenix-android-test-debug
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization:
+            skip-unless-backstop: null
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm-experimental-api-tests.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        run-on-projects: [trunk]
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-debug(experimental-arm)
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix
+
+    fenix-arm-debug-smoke:
+        attributes:
+            build-type: fenix-debug-firebase
+            shipping-product: fenix
+        description: Run smoke tests on ARM devices
+        dependencies:
+            signed-apk-debug-apk: signing-apk-fenix-debug
+            signed-apk-android-test: signing-apk-fenix-android-test-debug
+        fetches:
+            signed-apk-debug-apk:
+                - artifact: target.arm64-v8a.apk
+                  extract: false
+            signed-apk-android-test:
+                - artifact: target.noarch.apk
+                  extract: false
+        optimization: {"test": ["android", "fenix"]}
+        run:
+            secrets:
+                - name: project/gecko/level-any/firefox-android/fenix/firebase
+                  key: firebaseToken
+                  path: mobile/android/test_infra/.firebase_token.json
+                  json: true
+            commands:
+                - [python3, taskcluster/scripts/tests/test-lab.py, fenix/arm-smoke-tests.yml, /builds/worker/fetches/target.arm64-v8a.apk, --apk_test, /builds/worker/fetches/target.noarch.apk]
+        run-on-projects: ['autoland', 'mozilla-central']
+        treeherder:
+            platform: 'fenix-android-all/opt'
+            symbol: fenix-debug(smoke-arm)
+            tier: 1
+        worker:
+            env:
+                GOOGLE_PROJECT: moz-fenix

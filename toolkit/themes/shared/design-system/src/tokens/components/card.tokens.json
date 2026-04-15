@@ -1,0 +1,25 @@
+{
+  "border": {
+    "color": {
+      "value": {
+        "light": "color-mix(in srgb, currentColor 10%, transparent)",
+        "dark": "color-mix(in srgb, currentColor 6%, transparent)",
+        "prefersContrast": "color-mix(in srgb, currentColor 41%, transparent)",
+        "forcedColors": "CanvasText"
+      }
+    },
+    "radius": {
+      "value": "{border.radius.large}"
+    }
+  },
+  "box": {
+    "shadow": {
+      "@base": {
+        "value": "{box-shadow.level-2}"
+      },
+      "hover": {
+        "value": "{box-shadow.level-4}"
+      }
+    }
+  }
+}
