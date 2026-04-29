@@ -1,0 +1,17 @@
+{
+  "name": "@micah/github",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node --enable-source-maps dist/index.js"
+  },
+  "dependencies": {
+    "@micah/core": "*",
+    "@octokit/auth-app": "^7.1.0",
+    "@octokit/rest": "^21.0.0",
+    "@octokit/webhooks": "^13.4.0"
+  }
+}
