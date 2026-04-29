@@ -2,6 +2,8 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 import { buildSystemPrompt } from "./persona.js";
 import { gate } from "./safety.js";
 import { getMcpServers } from "./mcp.js";
+import { buildMicahToolServer } from "./tools.js";
+import { preToolUseHook } from "./hooks.js";
 
 export interface MicahInput {
   prompt: string;
@@ -21,6 +23,8 @@ const ALLOWED_TOOLS = [
   "Glob",
   "WebFetch",
   "WebSearch",
+  "mcp__moz",
+  "mcp__micah-tools",
 ];
 
 export async function* runMicah(
@@ -31,13 +35,32 @@ export async function* runMicah(
     .filter(Boolean)
     .join("\n\n");
 
+  const mcpServers = {
+    ...getMcpServers(),
+    "micah-tools": buildMicahToolServer(),
+  };
+
   const options: Record<string, unknown> = {
     cwd,
     systemPrompt: { type: "preset", preset: "claude_code", append },
-    mcpServers: getMcpServers(),
+    mcpServers,
     allowedTools: ALLOWED_TOOLS,
     canUseTool: gate,
     permissionMode: "default",
+    hooks: {
+      PreToolUse: [
+        {
+          hooks: [
+            async (hookInput: unknown) => {
+              const result = await preToolUseHook(
+                hookInput as { tool_name: string; tool_input: unknown },
+              );
+              return result;
+            },
+          ],
+        },
+      ],
+    },
   };
   if (input.resumeSessionId) options.resume = input.resumeSessionId;
 
