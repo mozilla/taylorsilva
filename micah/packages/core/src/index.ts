@@ -10,3 +10,5 @@ export {
   buildGitHubPrompt,
   buildSlackPrompt,
 } from "./sanitize.js";
+export { agents, listAgents } from "./agents.js";
+export type { AgentDefinition } from "./agents.js";

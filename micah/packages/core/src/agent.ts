@@ -4,6 +4,7 @@ import { gate } from "./safety.js";
 import { getMcpServers } from "./mcp.js";
 import { buildMicahToolServer } from "./tools.js";
 import { preToolUseHook } from "./hooks.js";
+import { agents } from "./agents.js";
 
 export interface MicahInput {
   prompt: string;
@@ -44,6 +45,7 @@ export async function* runMicah(
     cwd,
     systemPrompt: { type: "preset", preset: "claude_code", append },
     mcpServers,
+    agents,
     allowedTools: ALLOWED_TOOLS,
     canUseTool: gate,
     permissionMode: "default",
