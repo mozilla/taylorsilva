@@ -50,7 +50,7 @@ webhooks.on("issue_comment.created", async ({ payload }) => {
   if (!installationId) return;
   const octokit = octokitFor(installationId);
   const reply = await collect(
-    `GitHub issue comment in ${payload.repository.full_name}#${payload.issue.number} from @${payload.comment.user.login}:\n\n${body}\n\nIssue title: ${payload.issue.title}\nIssue body:\n${payload.issue.body ?? ""}`,
+    `GitHub issue comment in ${payload.repository.full_name}#${payload.issue.number} from @${payload.comment.user?.login ?? "unknown"}:\n\n${body}\n\nIssue title: ${payload.issue.title}\nIssue body:\n${payload.issue.body ?? ""}`,
   );
   await octokit.issues.createComment({
     owner: payload.repository.owner.login,

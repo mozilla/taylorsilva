@@ -3,7 +3,7 @@ type CanUseToolResult =
   | { behavior: "deny"; message: string; interrupt?: boolean };
 
 const WRITE_BASH_PATTERNS: RegExp[] = [
-  /\bmoz-phab\s+(submit|patch|land)\b/,
+  /\bmoz-phab\s+(submit|land)\b/,
   /\bmach\s+try\b/,
   /\bgit\s+push\b/,
   /\bgit\s+(commit|tag)\s+.*--sign/,
