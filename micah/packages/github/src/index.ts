@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
 import { Octokit } from "@octokit/rest";
 import { createAppAuth } from "@octokit/auth-app";
-import { runMicah, buildGitHubPrompt } from "@micah/core";
+import { runMicah, buildGitHubPrompt, githubKey } from "@micah/core";
 
 const MENTION = /(^|\s)@micah(\b|\s)/i;
 
@@ -37,9 +37,9 @@ function extractText(msg: unknown): string {
     .join("");
 }
 
-async function collect(prompt: string): Promise<string> {
+async function collect(prompt: string, sessionKey: string): Promise<string> {
   let out = "";
-  for await (const msg of runMicah({ prompt })) out += extractText(msg);
+  for await (const msg of runMicah({ prompt, sessionKey })) out += extractText(msg);
   return out.trim();
 }
 
@@ -59,7 +59,10 @@ webhooks.on("issue_comment.created", async ({ payload }) => {
     body,
     issueBody: payload.issue.body ?? undefined,
   });
-  const reply = await collect(prompt);
+  const reply = await collect(
+    prompt,
+    githubKey(payload.repository.full_name, payload.issue.number),
+  );
   await octokit.issues.createComment({
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
@@ -84,7 +87,10 @@ webhooks.on("pull_request_review_comment.created", async ({ payload }) => {
     diffHunk: payload.comment.diff_hunk,
     body,
   });
-  const reply = await collect(prompt);
+  const reply = await collect(
+    prompt,
+    githubKey(payload.repository.full_name, payload.pull_request.number),
+  );
   await octokit.pulls.createReplyForReviewComment({
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
@@ -109,7 +115,10 @@ webhooks.on("issues.assigned", async ({ payload }) => {
     followup:
       "You've been assigned this issue. Post a brief plan as the first comment, then wait for go-ahead before doing the work.",
   });
-  const reply = await collect(prompt);
+  const reply = await collect(
+    prompt,
+    githubKey(payload.repository.full_name, payload.issue.number),
+  );
   await octokit.issues.createComment({
     owner: payload.repository.owner.login,
     repo: payload.repository.name,

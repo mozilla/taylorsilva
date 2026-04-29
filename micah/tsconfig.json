@@ -4,6 +4,7 @@
     { "path": "./packages/core" },
     { "path": "./packages/cli" },
     { "path": "./packages/slack" },
-    { "path": "./packages/github" }
+    { "path": "./packages/github" },
+    { "path": "./packages/matrix" }
   ]
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { runMicah } from "@micah/core";
+import { auditCommand } from "./audit.js";
 
 async function readStdin(): Promise<string> {
   if (process.stdin.isTTY) return "";
@@ -23,27 +24,50 @@ function renderMessage(msg: unknown): string {
         .join("");
     }
   }
-  if (m.type === "result" && typeof m.result === "string") return "";
   return "";
 }
 
-async function main() {
-  const argv = process.argv.slice(2);
+function usage(code: number): never {
+  console.error(
+    [
+      "usage: micah <prompt>            run a one-shot prompt",
+      "       micah audit show [opts]   pretty-print audit log entries",
+      "                                   --session=<id>",
+      "                                   --kind=<tool_call|dry_run|blocked|...>",
+      "                                   --last=<n>",
+      "                                   --path=<file>",
+      "",
+      "env:   MICAH_CWD                  path to your mozilla-central checkout",
+      "       MICAH_WRITE_ENABLED=1      enable external pushes (default off)",
+      "       ANTHROPIC_API_KEY          (or use the `claude` CLI's SSO login)",
+    ].join("\n"),
+  );
+  process.exit(code);
+}
+
+async function runPromptCommand(argv: string[]) {
   const stdin = await readStdin();
   const prompt = [argv.join(" ").trim(), stdin].filter(Boolean).join("\n\n");
-  if (!prompt) {
-    console.error(
-      "usage: micah <prompt>   (or pipe prompt on stdin)\n" +
-        "       MICAH_CWD=/path/to/mozilla-central micah '<prompt>'",
-    );
-    process.exit(2);
-  }
+  if (!prompt) usage(2);
 
   for await (const msg of runMicah({ prompt })) {
     const text = renderMessage(msg);
     if (text) process.stdout.write(text);
   }
   process.stdout.write("\n");
+}
+
+async function main() {
+  const argv = process.argv.slice(2);
+  if (argv.length === 0) usage(2);
+  if (argv[0] === "-h" || argv[0] === "--help" || argv[0] === "help") usage(0);
+
+  if (argv[0] === "audit") {
+    await auditCommand(argv.slice(1));
+    return;
+  }
+
+  await runPromptCommand(argv);
 }
 
 main().catch((err) => {

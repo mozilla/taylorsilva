@@ -14,3 +14,14 @@ export { agents, listAgents } from "./agents.js";
 export type { AgentDefinition } from "./agents.js";
 export { createAuditLogger, redact } from "./audit.js";
 export type { AuditLogger } from "./audit.js";
+export {
+  configureSessions,
+  getSessionId,
+  setSessionId,
+  clearSession,
+  clearAllSessions,
+  listSessions,
+  slackKey,
+  githubKey,
+  matrixKey,
+} from "./sessions.js";

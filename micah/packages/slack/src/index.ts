@@ -1,5 +1,5 @@
 import bolt from "@slack/bolt";
-import { runMicah, buildSlackPrompt } from "@micah/core";
+import { runMicah, buildSlackPrompt, slackKey } from "@micah/core";
 
 const { App } = bolt;
 
@@ -26,10 +26,14 @@ function extractText(msg: unknown): string {
     .join("");
 }
 
-async function handle(prompt: string, postUpdate: (text: string) => Promise<void>) {
+async function handle(
+  prompt: string,
+  sessionKey: string,
+  postUpdate: (text: string) => Promise<void>,
+) {
   let buffer = "";
   let lastFlush = Date.now();
-  for await (const msg of runMicah({ prompt })) {
+  for await (const msg of runMicah({ prompt, sessionKey })) {
     const text = extractText(msg);
     if (!text) continue;
     buffer += text;
@@ -61,7 +65,7 @@ app.event("app_mention", async ({ event, client }) => {
     thread_ts,
     text: "_thinking…_",
   });
-  await handle(prompt, async (out) => {
+  await handle(prompt, slackKey(e.channel, thread_ts), async (out) => {
     await client.chat.update({
       channel: e.channel,
       ts: placeholder.ts!,
@@ -89,7 +93,7 @@ app.message(async ({ message, client }) => {
     channel: m.channel,
     text: "_thinking…_",
   });
-  await handle(prompt, async (out) => {
+  await handle(prompt, slackKey(m.channel, undefined, m.user), async (out) => {
     await client.chat.update({
       channel: m.channel,
       ts: placeholder.ts!,
