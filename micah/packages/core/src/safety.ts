@@ -1,6 +1,19 @@
+import { createAuditLogger, type AuditLogger } from "./audit.js";
+
 type CanUseToolResult =
   | { behavior: "allow"; updatedInput: Record<string, unknown> }
   | { behavior: "deny"; message: string; interrupt?: boolean };
+
+let sharedAudit: AuditLogger | null = null;
+
+function audit(): AuditLogger {
+  if (!sharedAudit) sharedAudit = createAuditLogger();
+  return sharedAudit;
+}
+
+export function setAuditLogger(logger: AuditLogger | null): void {
+  sharedAudit = logger;
+}
 
 const WRITE_BASH_PATTERNS: RegExp[] = [
   /\bmoz-phab\s+(submit|land)\b/,
@@ -62,14 +75,17 @@ export const gate = async (
   if (toolName === "Bash" && typeof input?.command === "string") {
     const cmd = input.command as string;
     if (isWriteCommand(cmd)) {
+      const action = `shell: ${cmd}`;
+      audit().dryRun(action, input);
       return {
         behavior: "deny",
-        message: dryRunMessage(`Would have run shell: ${cmd}`),
+        message: dryRunMessage(`Would have run ${action}`),
       };
     }
   }
 
   if (isWriteToolName(toolName)) {
+    audit().dryRun(toolName, input);
     return {
       behavior: "deny",
       message: dryRunMessage(

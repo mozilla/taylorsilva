@@ -1,0 +1,2 @@
+{"ts":"2026-04-29T05:51:34.645Z","session":"1777441894645-6iwtxq","kind":"dry_run","data":{"action":"shell: moz-phab submit","input":{"command":"moz-phab submit"}}}
+{"ts":"2026-04-29T05:51:34.647Z","session":"1777441894645-6iwtxq","kind":"dry_run","data":{"action":"create_issue","input":{"title":"foo"}}}
