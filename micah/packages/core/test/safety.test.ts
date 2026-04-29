@@ -1,3 +1,5 @@
+process.env.MICAH_AUDIT_LOG = "0";
+
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isWriteCommand, isWriteToolName, gate } from "../src/safety.js";

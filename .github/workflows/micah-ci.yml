@@ -19,16 +19,26 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: micah/package-lock.json
 
-      - run: npm ci
+      - name: Install
+        run: npm ci
 
-      - run: npm run typecheck
+      - name: Build
+        run: npm run build
 
-      - run: npm test
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        env:
+          MICAH_AUDIT_LOG: "0"
+        run: npm test
