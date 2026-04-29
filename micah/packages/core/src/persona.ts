@@ -1,9 +1,20 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { dirname, resolve, parse } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(here, "../../..");
+
+function findRepoRoot(start: string): string {
+  let dir = start;
+  const { root } = parse(dir);
+  while (dir !== root) {
+    if (existsSync(resolve(dir, "MICAH.md"))) return dir;
+    dir = dirname(dir);
+  }
+  return start;
+}
+
+const repoRoot = findRepoRoot(here);
 
 function tryRead(path: string): string {
   try {

@@ -1,5 +1,5 @@
 import bolt from "@slack/bolt";
-import { runMicah } from "@micah/core";
+import { runMicah, buildSlackPrompt } from "@micah/core";
 
 const { App } = bolt;
 
@@ -42,19 +42,30 @@ async function handle(prompt: string, postUpdate: (text: string) => Promise<void
 }
 
 app.event("app_mention", async ({ event, client }) => {
-  const e = event as { text: string; channel: string; thread_ts?: string; ts: string };
-  const prompt = e.text.replace(/<@[^>]+>\s*/g, "").trim();
+  const e = event as {
+    text: string;
+    channel: string;
+    user?: string;
+    thread_ts?: string;
+    ts: string;
+  };
+  const text = e.text.replace(/<@[^>]+>\s*/g, "").trim();
+  const prompt = buildSlackPrompt({
+    user: e.user,
+    channel: e.channel,
+    text,
+  });
   const thread_ts = e.thread_ts ?? e.ts;
   const placeholder = await client.chat.postMessage({
     channel: e.channel,
     thread_ts,
     text: "_thinking…_",
   });
-  await handle(prompt, async (text) => {
+  await handle(prompt, async (out) => {
     await client.chat.update({
       channel: e.channel,
       ts: placeholder.ts!,
-      text,
+      text: out,
     });
   });
 });
@@ -68,15 +79,21 @@ app.message(async ({ message, client }) => {
     bot_id?: string;
   };
   if (m.channel_type !== "im" || !m.text || m.bot_id) return;
+  const prompt = buildSlackPrompt({
+    user: m.user,
+    channel: m.channel,
+    text: m.text,
+    isDm: true,
+  });
   const placeholder = await client.chat.postMessage({
     channel: m.channel,
     text: "_thinking…_",
   });
-  await handle(m.text, async (text) => {
+  await handle(prompt, async (out) => {
     await client.chat.update({
       channel: m.channel,
       ts: placeholder.ts!,
-      text,
+      text: out,
     });
   });
 });
