@@ -72,7 +72,11 @@ test("redact leaves benign text alone", () => {
 test("createAuditLogger writes redacted JSONL events", () => {
   const dir = mkdtempSync(join(tmpdir(), "micah-audit-"));
   const path = join(dir, "session.jsonl");
-  const log = createAuditLogger({ sessionId: "test-1", filePath: path });
+  const log = createAuditLogger({
+    sessionId: "test-1",
+    filePath: path,
+    enabled: true,
+  });
 
   log.toolCall("Bash", { command: "git status" });
   log.dryRun("shell: git push origin main", { command: "git push origin main" });
