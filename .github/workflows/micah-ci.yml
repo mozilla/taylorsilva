@@ -35,9 +35,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Typecheck
-        run: npm run typecheck
-
       - name: Test
         env:
           MICAH_AUDIT_LOG: "0"

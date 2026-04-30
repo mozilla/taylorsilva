@@ -9,7 +9,6 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "tsc -b --clean",
-    "typecheck": "tsc -b --noEmit",
     "test": "npm run build && node --test packages/core/dist/test/*.test.js",
     "cli": "node --enable-source-maps packages/cli/dist/index.js",
     "slack": "node --enable-source-maps packages/slack/dist/index.js",
