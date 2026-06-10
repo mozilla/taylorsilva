@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q3 Agent Surfaces — Monitor · Scout · Research | Smart Window</title>
+<style>
+/* ================================================================
+   Q3 AGENT SURFACES — PRODUCT EXPLORATION & UX RECOMMENDATION
+   Monitor · Scout · Research
+   Taylor Silva · Staff Product Designer, AI UX
+   Companion to: Smart Window Motion Design System
+   ================================================================ */
+:root {
+  --violet-60:#623ac3; --violet-50:#7542e5; --violet-40:#976eff;
+  --violet-30:#b295ff; --violet-20:#d0bfff; --violet-10:#ede6ff;
+  --grey-100:#15141a; --grey-80:#2b2a33; --grey-70:#52525e;
+  --grey-50:#6b6b7b; --grey-40:#8f8f9d; --grey-30:#b1b1b9;
+  --orange:#e66000; --green:#058b00; --blue:#0060df; --red:#e22850;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  --mono:'SF Mono','Menlo','Consolas',monospace;
+  --bg:#15141a; --panel:#1f1e26; --panel2:#26242e;
+  --text:rgba(255,255,255,0.86); --text-dim:rgba(255,255,255,0.55); --text-faint:rgba(255,255,255,0.38);
+  --line:rgba(255,255,255,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.6; }
+.layout { display:flex; max-width:1280px; margin:0 auto; }
+
+/* nav */
+.sidenav { width:230px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; padding:34px 20px; border-right:1px solid var(--line); }
+.sn-brand { font-size:14px; font-weight:700; margin-bottom:2px; }
+.sn-sub { font-size:10.5px; color:var(--text-faint); margin-bottom:26px; line-height:1.45; }
+.sn-label { font-size:9.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-faint); margin:18px 0 7px; }
+.sn-link { display:block; font-size:12px; color:var(--text-dim); text-decoration:none; padding:5px 9px; border-radius:6px; }
+.sn-link:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+.sn-proto { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--violet-30); text-decoration:none; padding:7px 9px; border-radius:8px; border:1px solid rgba(151,110,255,0.2); margin-bottom:7px; background:rgba(151,110,255,0.06); }
+.sn-proto:hover { background:rgba(151,110,255,0.13); }
+.sn-proto .k { font-size:9px; font-weight:800; background:rgba(151,110,255,0.2); padding:1px 6px; border-radius:4px; }
+
+main { flex:1; padding:44px 52px 100px; min-width:0; }
+h1 { font-size:27px; font-weight:800; letter-spacing:-0.5px; line-height:1.25; }
+.intro { font-size:14px; color:var(--text-dim); max-width:680px; margin:12px 0 6px; }
+.meta-line { font-size:11px; color:var(--text-faint); margin-bottom:38px; }
+section { margin-bottom:56px; scroll-margin-top:30px; }
+h2 { font-size:19px; font-weight:700; letter-spacing:-0.3px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+h3 { font-size:14.5px; font-weight:700; margin:24px 0 9px; }
+p { font-size:13px; color:var(--text-dim); max-width:720px; margin-bottom:11px; }
+p b, li b { color:var(--text); }
+ul,ol { margin:8px 0 14px 22px; }
+li { font-size:13px; color:var(--text-dim); margin-bottom:7px; max-width:690px; }
+em { color:var(--violet-30); font-style:normal; }
+.callout { border-left:3px solid var(--violet-50); background:rgba(117,66,229,0.08); border-radius:0 10px 10px 0; padding:13px 18px; margin:16px 0; max-width:720px; }
+.callout p { margin:0; font-size:12.5px; }
+.callout.amber { border-color:var(--orange); background:rgba(230,96,0,0.08); }
+.callout.green { border-color:var(--green); background:rgba(5,139,0,0.08); }
+
+table { width:100%; border-collapse:collapse; font-size:12px; margin:14px 0 6px; }
+th { text-align:left; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-faint); padding:8px 11px; border-bottom:1px solid var(--line); }
+td { padding:9px 11px; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--text-dim); vertical-align:top; }
+td:first-child { color:var(--text); font-weight:600; white-space:nowrap; }
+.good { color:#5dd55a; font-weight:600; }
+.bad { color:#ff7a93; font-weight:600; }
+.mid { color:#ffb95e; font-weight:600; }
+
+.concept-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:18px 0; }
+.concept-card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; display:flex; flex-direction:column; }
+.concept-card.star { border-color:rgba(5,139,0,0.45); background:linear-gradient(180deg,rgba(5,139,0,0.07),var(--panel)); }
+.cc-tag { font-size:9.5px; font-weight:800; letter-spacing:0.8px; padding:3px 10px; border-radius:99px; width:fit-content; margin-bottom:10px; }
+.cc-a { background:rgba(151,110,255,0.16); color:var(--violet-30); }
+.cc-b { background:rgba(230,96,0,0.16); color:#ff9c4a; }
+.cc-c { background:rgba(5,139,0,0.18); color:#5dd55a; }
+.cc-name { font-size:16px; font-weight:800; }
+.cc-thesis { font-size:11.5px; color:var(--text-dim); margin:7px 0 13px; line-height:1.55; flex:1; }
+.cc-mini { font-size:10.5px; color:var(--text-faint); border-top:1px solid var(--line); padding-top:10px; margin-bottom:13px; }
+.cc-mini b { color:var(--text-dim); }
+.cc-btn { display:block; text-align:center; font-size:12px; font-weight:700; text-decoration:none; padding:9px; border-radius:99px; }
+.cc-btn.a { background:var(--violet-50); color:#fff; }
+.cc-btn.b { background:var(--orange); color:#fff; }
+.cc-btn.c { background:var(--green); color:#fff; }
+.cc-btn:hover { filter:brightness(1.12); }
+
+.pro-con { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:12px 0 4px; max-width:780px; }
+.pc-col { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 17px; }
+.pc-col h4 { font-size:10.5px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:9px; }
+.pc-col.pro h4 { color:#5dd55a; } .pc-col.con h4 { color:#ff7a93; }
+.pc-col li { font-size:12px; margin-bottom:6px; }
+.pc-col ul { margin:0 0 0 17px; }
+
+.verdict { background:linear-gradient(135deg,rgba(5,139,0,0.12),rgba(117,66,229,0.1)); border:1px solid rgba(5,139,0,0.35); border-radius:16px; padding:24px 28px; margin:20px 0; max-width:780px; }
+.verdict h3 { margin-top:0; font-size:16px; }
+.score-bar { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.score-name { width:190px; font-size:11.5px; color:var(--text-dim); flex-shrink:0; }
+.score-track { flex:1; display:flex; gap:3px; }
+.score-seg { height:8px; flex:1; border-radius:3px; background:rgba(255,255,255,0.07); }
+.score-seg.fa { background:var(--violet-40); } .score-seg.fb { background:var(--orange); } .score-seg.fc { background:var(--green); }
+.legend { display:flex; gap:18px; font-size:10.5px; color:var(--text-faint); margin:12px 0 18px; }
+.legend span::before { content:"●"; margin-right:5px; }
+.legend .la::before { color:var(--violet-40); } .legend .lb::before { color:var(--orange); } .legend .lc::before { color:var(--green); }
+code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07); padding:1.5px 6px; border-radius:4px; color:var(--violet-30); }
+.qa { margin-bottom:13px; max-width:720px; }
+.qa .q { font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.qa .a { font-size:12.5px; color:var(--text-dim); }
+.src { font-size:10.5px; color:var(--text-faint); }
+@media (max-width:900px){ .sidenav{display:none;} .concept-grid{grid-template-columns:1fr;} .pro-con{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidenav">
+  <div class="sn-brand">Q3 Agent Surfaces</div>
+  <div class="sn-sub">Monitor · Scout · Research<br>Product exploration &amp; UX recommendation</div>
+  <div class="sn-label">Prototypes</div>
+  <a class="sn-proto" href="concept-a.html"><span class="k">A</span> Threadline</a>
+  <a class="sn-proto" href="concept-b.html"><span class="k">B</span> Mission Control</a>
+  <a class="sn-proto" href="concept-c.html"><span class="k">C</span> The Shelf ★</a>
+  <div class="sn-label">Document</div>
+  <a class="sn-link" href="#framing">The two layers</a>
+  <a class="sn-link" href="#llm">Why an LLM at all</a>
+  <a class="sn-link" href="#landscape">Competitive landscape</a>
+  <a class="sn-link" href="#concepts">Three concepts</a>
+  <a class="sn-link" href="#matrix">Decision matrix</a>
+  <a class="sn-link" href="#recommendation">Recommendation</a>
+  <a class="sn-link" href="#questions">Open questions, answered</a>
+  <a class="sn-link" href="#next">What I'd do next</a>
+</nav>
+
+<main>
+  <h1>Where should the agents live —<br>and why should they exist?</h1>
+  <p class="intro">Three end-to-end concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation.</p>
+  <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
+
+  <section id="framing">
+    <h2>The problem is two-layered</h2>
+    <p>The 1:1 surfaced two questions that get conflated but must be answered separately:</p>
+    <ol>
+      <li><b>The surface layer</b> — where do agents and their outputs live so they're discoverable, retrievable, and don't sprawl? Candidate homes from the meeting: slash panel, sidebar, FAB widget, chat history, new tab.</li>
+      <li><b>The value layer</b> — what do these agents do that a classic browser window can't, and how do Monitor / Scout / Research stay distinct from each other and from the general assistant?</li>
+    </ol>
+    <p>The surface question can't be answered before the value question, because <em>what an agent produces determines where it must live</em>. The meeting's sharpest insight was exactly this: <b>reports and live artifacts are different objects.</b> A live watch has state ("checked 14m ago, still $82"); a report is a finished document you'll want in two weeks. Surfaces that treat them identically — pure chat history — fail one or the other.</p>
+    <div class="callout"><p><b>Working principle from the meeting, kept:</b> redundancy is good. An object can live in its chat thread <em>and</em> have a dedicated retrievable home. The Claude-artifacts anecdote (user couldn't find the artifact because the icon was hidden) is a documented failure mode — and Anthropic's own answer was a dedicated artifacts space, while OpenAI retrofitted a fullscreen report viewer in Feb 2026 because Deep Research reports were getting buried in chat history. The industry has already paid for this lesson twice.</p></div>
+
+    <h3>Resolving the agent taxonomy first</h3>
+    <p>The meeting flagged that Monitor vs. Scout is blurry from the user's side — possibly the same behavior with different backends. I'd go further: <b>shipping three named agents is a vocabulary tax the user shouldn't pay.</b> (Arc died of novelty tax; Dia's whole design strategy is hiding new concepts inside familiar UI.) The user-facing model in all three concepts is two verbs:</p>
+    <table>
+      <thead><tr><th>User-facing verb</th><th>Backend</th><th>What it is</th><th>Output object</th></tr></thead>
+      <tbody>
+        <tr><td>Watch</td><td>Monitor + Scout</td><td>"Tell me when something I care about becomes true" — price hits $75, restock, working promo code, refundable fare under $850. Scout is a Watch whose condition is "a better deal exists."</td><td><b>Live artifact</b> — has state, breathes, ends</td></tr>
+        <tr><td>Research</td><td>Research</td><td>"I don't know what I want yet — compare options and tell me what you'd do."</td><td><b>Report</b> — finished document, kept</td></tr>
+      </tbody>
+    </table>
+    <p>This collapses the Monitor/Scout ambiguity (it becomes an implementation detail, exactly as the meeting suspected), and it answers the Research-overlap worry: <b>Research is distinguished from the general assistant by its output contract</b> — it always produces a kept, citable, retrievable report, not an answer that evaporates upward in a scroll. If it doesn't deserve a report, it's just chat, and that's fine.</p>
+  </section>
+
+  <section id="llm">
+    <h2>Why an LLM at all — the bar each concept must clear</h2>
+    <p>The open question from the meeting (for Tyler): a classic browser can scan pages, so why does this need an LLM? The answer is concrete, and the prototypes each demonstrate it. A classic watcher (CamelCamelCamel, Distill.io, Honey) binds to <b>pixels and selectors</b>. The LLM binds to <b>meaning</b>. That difference shows up in four places:</p>
+    <ul>
+      <li><b>Semantic conditions.</b> "Refundable, under $850, weekday departures" — three soft constraints judged across 47 results. No DOM-diff can know "refundable" from "basic economy." This is Concept C, step 3.</li>
+      <li><b>Resilience.</b> Site redesigns break selector-based watchers silently. An LLM reading the page like a person survives the redesign — and knows a "sale" banner, member pricing, or a bundle counts as a price change.</li>
+      <li><b>Synthesis across pages.</b> "Watch these 3 retailers as a group, alert me once with the best" is one judgment over multiple sources — grouped monitoring with minimal input, the exact requirement from the meeting.</li>
+      <li><b>The notification layer.</b> A classic watcher says "page changed." The agent says <em>"$834 refundable, Tuesday, $16 under your cap — fares at this level lasted ~2 days last month."</em> The meeting's hunch that the value is in the experience/notification layer is right, but it's downstream of the capability: judgment is what makes the notification worth sending.</li>
+    </ul>
+    <div class="callout amber"><p><b>The honest counterpoint:</b> if an agent's alerts aren't better than Honey's, users will correctly treat it as a worse Honey. The quality bar lives in the notification: every alert must carry a sentence of judgment a scanner couldn't write. That's a content/eval problem as much as a design one — flagging for KD's content questions.</p></div>
+  </section>
+
+  <section id="landscape">
+    <h2>Competitive landscape — what ten products already learned</h2>
+    <p>Full research sweep across AI browsers (Dia, Comet, Brave Leo, Arc, Opera, Edge) and assistants (ChatGPT/Atlas, Claude, Gemini, Grok). The convergences are unusually clean:</p>
+    <table>
+      <thead><tr><th>Pattern</th><th>Evidence</th><th>Implication for us</th></tr></thead>
+      <tbody>
+        <tr><td>The sidebar won</td><td>Comet, Atlas, Leo, Dia, Claude-in-Chrome, Edge all use a right-side panel; <b>Google migrated Gemini from a floating window to a sidebar</b> (Jan 2026)</td><td>Smart Window's existing panel is the right chassis. The FAB option from the meeting is a pattern the market just abandoned — cut it.</td></tr>
+        <tr><td>Launch in chat, manage in a list</td><td>ChatGPT Tasks page, Grok Tasks, Comet's background-assistant dashboard, Gemini Scheduled Actions</td><td>Nobody launches agents from forms (validates "minimal input, not a form"). Everyone needs a list view for live agents.</td></tr>
+        <tr><td>Outputs promote to artifacts</td><td>Claude Artifacts panel; <b>OpenAI retrofitted a fullscreen Deep Research viewer (Feb 2026)</b> because reports-as-chat-bubbles failed; Gemini exports to Canvas/Docs</td><td>Reports need a canvas + durable library. The meeting's sidebar→canvas→linked-chat proposal matches the industry's converged answer.</td></tr>
+        <tr><td>Teaser → full artifact delivery</td><td>Grok's email digest links into the full report; ChatGPT notifies then lands the report in a viewer; Comet pings when background tasks finish</td><td>Push/desktop/watch notification carries the judgment sentence; the full object lives on the surface.</td></tr>
+        <tr><td>Plan before run</td><td>Gemini Deep Research shows an editable plan; Claude "Ask before acting"; Atlas confirms sensitive actions</td><td>Near-mandatory for Mozilla: Smart Window's public promise is restraint, opt-in, kill switch, no page interaction.</td></tr>
+        <tr><td>Push-proactivity burns trust</td><td><b>Microsoft retired Edge "Copilot Mode" (May 2026)</b> after "feature fatigue" backlash; Brave/Dia stay pull-only; users love proactive digests <em>they scheduled</em></td><td>Contextual offers must be quiet, dismissible, capped. The meeting's "offer while browsing flights" is right — as a whisper, not a takeover.</td></tr>
+        <tr><td>Novelty tax kills</td><td>Arc was killed by its own maker for demanding too much new learning; Dia hides skills behind auto-invocation + slash commands</td><td>Two verbs, not three agent names. Familiar chassis, not a new mode.</td></tr>
+        <tr><td>Agents that read &gt; agents that act</td><td>Prompt injection unsolved (OpenAI's own admission; Brave's disclosures on Comet); Mozilla publicly cited this restraint</td><td>Read-only watching is defensible today and on-brand; end-to-end shopping (payments, IAP rules, cart/auth state — the WhatsApp precedent) stays an architecture consideration, not a v1 promise.</td></tr>
+      </tbody>
+    </table>
+    <p class="src">Sources compiled June 2026: Mozilla AI Window announcements; The Browser Company design essays; Perplexity Comet docs; OpenAI Tasks/Deep Research/Atlas docs; Anthropic Artifacts docs; Google Workspace updates; Grok Tasks; Opera Operator press; Edge Copilot coverage (Windows Latest, gHacks).</p>
+  </section>
+
+  <section id="concepts">
+    <h2>Three concepts, prototyped end-to-end</h2>
+    <p>All three share the resolved taxonomy (Watch + Research), the same scenario set (price watch at $75, grouped retailers, semantic fare condition, two-week-old report retrieval, contextual flight offer), and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b></p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="cc-tag cc-a">CONCEPT A · MINIMUM FOOTPRINT</div>
+        <div class="cc-name">Threadline</div>
+        <div class="cc-thesis">The chat thread is the surface. Agents invoke from the slash panel in the existing composer; a pinned strip shows live watches; one new "Agents" filter in history is the entire retrieval story.</div>
+        <div class="cc-mini"><b>Footprint:</b> 1 slash menu · 1 pinned strip · 1 history filter<br><b>Ships in:</b> ~1 sprint of UI work</div>
+        <a class="cc-btn a" href="concept-a.html">Open prototype →</a>
+      </div>
+      <div class="concept-card">
+        <div class="cc-tag cc-b">CONCEPT B · NO CONSTRAINTS</div>
+        <div class="cc-name">Mission Control</div>
+        <div class="cc-thesis">Agents as a first-class destination: an Agent Hub off the new tab with live tiles (sparklines, grouped watches), a reports library opening into canvas, an activity feed, and a gallery with slots for the proactive future.</div>
+        <div class="cc-mini"><b>Footprint:</b> new about: page · tile system · feed · gallery · canvas<br><b>Ships in:</b> multi-sprint, cross-squad</div>
+        <a class="cc-btn b" href="concept-b.html">Open prototype →</a>
+      </div>
+      <div class="concept-card star">
+        <div class="cc-tag cc-c">CONCEPT C · RECOMMENDED</div>
+        <div class="cc-name">The Shelf</div>
+        <div class="cc-thesis">Extend the surface users already have. A quiet offer chip where intent happens; a second segment in the Smart Window panel holding typed objects — Live watches and kept Reports; reports open as canvas with linked chat.</div>
+        <div class="cc-mini"><b>Footprint:</b> 1 offer chip · 1 panel segment · 1 canvas template<br><b>Ships in:</b> ~2 sprints; grows into B later</div>
+        <a class="cc-btn c" href="concept-c.html">Open prototype →</a>
+      </div>
+    </div>
+
+    <h3>Concept A — Threadline</h3>
+    <p>The strongest version of "chat history is enough." Monitor and Scout collapse into <code>/watch</code>; confirmation is an in-thread card edited by replying; the one concession to persistence is a pinned strip of live agents atop the panel. Delivery deep-links into the originating thread.</p>
+    <div class="pro-con">
+      <div class="pc-col pro"><h4>Pros</h4><ul>
+        <li>Near-zero maintenance cost; no new surface to localize, test, or sunset</li>
+        <li>Fastest to ship — pressure-relief for the scoping vacuum in the Discover sprint</li>
+        <li>No novelty tax; the composer is already understood</li>
+        <li>Honest fit with "avoid new surfaces without clear justification"</li>
+      </ul></div>
+      <div class="pc-col con"><h4>Cons</h4><ul>
+        <li>Retrieval re-runs the Claude-artifacts failure: reports buried in history behind a filter users must remember exists</li>
+        <li>Live state invisible when the panel is closed</li>
+        <li>Pinned strip stops scaling past ~3 concurrent watches</li>
+        <li>No natural home for contextual offers or future habit-learned agents — the roadmap hits a wall</li>
+      </ul></div>
+    </div>
+
+    <h3>Concept B — Mission Control</h3>
+    <p>The "no constraints" direction, built honestly rather than as a strawman: it's genuinely the best home agents could have, with structural discoverability (the new tab is visited daily), full transparency via the activity feed, and obvious slots for Routine digests and someday Errands.</p>
+    <div class="pro-con">
+      <div class="pc-col pro"><h4>Pros</h4><ul>
+        <li>Best-in-class discoverability and retrieval; nothing is ever buried</li>
+        <li>Activity feed = radical transparency, the strongest trust story</li>
+        <li>Scales indefinitely — proactive/habit agents have an obvious home</li>
+        <li>Matches the proven "manage in a list" pattern (ChatGPT Tasks, Comet dashboard)</li>
+      </ul></div>
+      <div class="pc-col con"><h4>Cons</h4><ul>
+        <li>Maximum maintenance cost: a new about: page, tile system, feed, gallery, canvas — designed, built, localized, maintained</li>
+        <li>One click <em>away</em> from where intent happens; agents feel like a separate app</li>
+        <li>Empty-state problem: a dashboard with zero agents is dead weight for every new user</li>
+        <li>Echoes the Edge mode-ification failure — heavyweight AI real estate before usage justifies it</li>
+      </ul></div>
+    </div>
+
+    <h3>Concept C — The Shelf</h3>
+    <p>The synthesis. Entry: a quiet, dismissible chip in the URL bar when context warrants ("I can watch these fares") — pull-first proactivity. Confirmation: a plan-before-run card, read-only promise explicit. Home: a <b>Shelf</b> segment inside the existing Smart Window panel holding exactly two object types — Live and Reports. Reports open as canvas in the content area with the linked chat rail. Everything is redundantly reachable from its original thread.</p>
+    <div class="pro-con">
+      <div class="pc-col pro"><h4>Pros</h4><ul>
+        <li>Discoverability without sprawl: extends the panel users already open, no new window-level surface</li>
+        <li>Honors the reports-vs-live distinction structurally (two typed sections)</li>
+        <li>Offer chip puts invocation at the moment of intent — the meeting's flights scenario, shipped quietly</li>
+        <li>Scales by adding <em>object types</em>, not surfaces; "View all" becomes Mission Control when usage demands it</li>
+        <li>Plan-before-run + activity log + pause-all = the Firefox restraint story made visible</li>
+      </ul></div>
+      <div class="pc-col con"><h4>Cons</h4><ul>
+        <li>Panel real estate is contested; Chat vs. Shelf segmentation must stay ruthlessly simple</li>
+        <li>Offer-chip frequency capping is a real tuning problem (too chatty = Edge backlash; too quiet = never found)</li>
+        <li>More design surface than A: segment, object cards, canvas template, chip behavior</li>
+        <li>Canvas-in-content-area needs a story for "I closed the tab" (answer: it's on the Shelf)</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section id="matrix">
+    <h2>Decision matrix</h2>
+    <div class="legend"><span class="la">A · Threadline</span><span class="lb">B · Mission Control</span><span class="lc">C · The Shelf</span></div>
+    <div id="scores"></div>
+    <script>
+    const crit=[
+      ['Discoverability of outputs',2,5,4],['Retrieval two weeks later',2,5,4],
+      ['Maintenance / surface cost (5 = cheapest)',5,1,4],['Scales to future agents',1,5,4],
+      ['Proximity to browsing intent',3,2,5],['Trust & restraint fit (Firefox brand)',4,3,5],
+      ['Time to ship Q3',5,1,4],['Live-state visibility',2,5,4]];
+    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c])=>`
+      <div style="margin-bottom:14px">
+        <div class="score-name" style="width:auto;margin-bottom:4px">${n}</div>
+        ${[['fa',a],['fb',b],['fc',c]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
+          [1,2,3,4,5].map(i=>`<div class="score-seg ${i<=v?cls:''}"></div>`).join('')}</div></div>`).join('')}
+      </div>`).join('');
+    </script>
+    <table>
+      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · The Shelf</th></tr></thead>
+      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td></tr></tbody>
+    </table>
+  </section>
+
+  <section id="recommendation">
+    <h2>Final recommendation</h2>
+    <div class="verdict">
+      <h3>Ship Concept C — The Shelf — as the Q3 architecture, with A's slash invocation inside it and B as the documented growth path.</h3>
+      <p style="max-width:none">The Shelf is the only option that satisfies all three of the meeting's governing constraints at once: <b>reports get a dedicated retrievable home</b> (typed Reports section → canvas → linked chat, exactly the model proposed in the 1:1), <b>no new window-level surface is created</b> (it's a segment inside the panel Smart Window already owns — the justification bar for new surfaces stays unbreached), and <b>the architecture points where the product is heading</b> (object types absorb Routine digests and eventually Errands; "View all" graduates into Mission Control when — and only when — usage proves the need).</p>
+      <p style="max-width:none">It is also the only concept that puts invocation <em>at the moment of intent</em>. The competitive record is unambiguous: sidebars won, floating widgets lost, push-proactivity burned Microsoft, and both Anthropic and OpenAI had to bolt on dedicated artifact homes after burying outputs in chat. C is the design those ten products' scar tissue points to.</p>
+      <p style="max-width:none;margin-bottom:0"><b>Sequencing:</b> Sprint 1 — Shelf segment + Watch objects + OS notifications (Monitor/Scout value loop complete). Sprint 2 — Report objects + canvas + linked chat (Research loop complete). Sprint 3 — offer chip, shipped dark behind a frequency cap and tuned. The slash panel (A) ships in Sprint 1 for free since it's composer-only. B is explicitly <em>not</em> built until shelf objects per active user crosses a threshold that makes a dashboard earn its rent.</p>
+    </div>
+    <div class="callout green"><p><b>Why not A, in one line:</b> it re-runs the exact discoverability failure (hidden artifacts) that the meeting itself used as evidence — we'd be shipping the anecdote. <b>Why not B, in one line:</b> it spends the team's scarcest resource (a new permanent surface) before a single user has proven they'll keep three agents alive at once.</p></div>
+  </section>
+
+  <section id="questions">
+    <h2>The meeting's open questions, answered</h2>
+    <div class="qa"><div class="q">Where should these agents live?</div><div class="a">In the Smart Window panel the user already has: a second segment ("Shelf") holding typed objects, with a quiet offer chip in the URL bar as the contextual entry. No FAB (market abandoned it), no new tab destination yet (premature), no new mode (Edge's lesson).</div></div>
+    <div class="qa"><div class="q">Do they need a dedicated surface, or is chat history enough?</div><div class="a">Chat history alone is not enough — two competitors already paid to learn that. But "dedicated surface" ≠ "new surface": a segment inside the existing panel is dedicated without being new.</div></div>
+    <div class="qa"><div class="q">Should reports and live artifacts be treated as different things?</div><div class="a">Yes — structurally. They're different object types with different lifecycles (state-and-ends vs. finished-and-kept), different sections, different motion (Breathe vs. settled), different retrieval promises.</div></div>
+    <div class="qa"><div class="q">Are Monitor and Scout actually distinct?</div><div class="a">Not to users. One verb — Watch — with the backend choosing scan vs. deal-hunt per the stated condition. Scout is a Watch whose condition is "a better deal exists." The distinction survives as implementation, dies as vocabulary.</div></div>
+    <div class="qa"><div class="q">Does Research overlap too much with the assistant?</div><div class="a">Only if it's defined by effort. Define it by output contract: Research always yields a kept report on the Shelf with linked chat. No report needed → it was just chat → no overlap anxiety.</div></div>
+    <div class="qa"><div class="q">How little input can Monitor require?</div><div class="a">One click from the offer chip (page context pre-filled, plan-before-run shown), or one sentence from the composer. Refinement is conversational, never a form. Grouped targets are one sentence: "also watch Best Buy and the manufacturer."</div></div>
+    <div class="qa"><div class="q">Should agents be offered contextually?</div><div class="a">Yes, but pull-first: a dismissible chip, one offer per context, silent when ignored, frequency-capped. Habit-learned suggestions (weekly events digest) come later and live as Shelf offers, never notifications.</div></div>
+    <div class="qa"><div class="q">Why LLM over a classic window?</div><div class="a">Semantic conditions, redesign resilience, cross-page synthesis, and judgment-bearing notifications — see the value-layer section. This is the answer to take to Tyler, with Concept C step 3 as the demo.</div></div>
+    <div class="qa"><div class="q">What should v1 not promise, given shopping blockers?</div><div class="a">Anything past the read-only line. Payment processors, IAP rules, and cart/auth state (the WhatsApp US-fallback precedent) make end-to-end checkout a non-promise. The Shelf's object model leaves an "Errand" type parked for when that changes — visible in Concept B's gallery as a dashed future slot.</div></div>
+  </section>
+
+  <section id="next">
+    <h2>What I'd do next</h2>
+    <ul>
+      <li><b>Walk Derek + Justin + squad leads through this page</b> as the trajectory artifact the Jira vacuum needs — the three prototypes give the sync something concrete to argue against.</li>
+      <li><b>Answer Punam's Figma questions</b> against Concept C's object model (Live vs. Reports cards, chip behavior, canvas template) — that should unblock most of the non-Brian items.</li>
+      <li><b>Bring Tyler the LLM-value section</b> + Concept C step 3 as the "why not classic window" answer, and confirm grouped watches against backend feasibility.</li>
+      <li><b>Hand KD the notification quality bar</b> ("every alert carries a sentence of judgment") as the content principle the trigger placeholders are waiting on.</li>
+      <li><b>Define the Shelf-to-Mission-Control graduation metric</b> (e.g., median live objects per weekly active user ≥ 3) so Concept B has an evidence-based trigger instead of a debate.</li>
+    </ul>
+  </section>
+</main>
+</div>
+</body>
+</html>
