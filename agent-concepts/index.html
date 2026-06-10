@@ -114,13 +114,15 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <div class="sn-label">Prototypes</div>
   <a class="sn-proto" href="concept-a.html"><span class="k">A</span> Threadline</a>
   <a class="sn-proto" href="concept-b.html"><span class="k">B</span> Mission Control</a>
-  <a class="sn-proto" href="concept-c.html"><span class="k">C</span> The Shelf ★</a>
+  <a class="sn-proto" href="concept-c.html"><span class="k">C</span> The Shelf</a>
+  <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">C+D</span> Waypoints ★ FINAL</a>
   <div class="sn-label">Document</div>
   <a class="sn-link" href="#framing">The two layers</a>
   <a class="sn-link" href="#llm">Why an LLM at all</a>
   <a class="sn-link" href="#landscape">Competitive landscape</a>
   <a class="sn-link" href="#concepts">Three concepts</a>
   <a class="sn-link" href="#matrix">Decision matrix</a>
+  <a class="sn-link" href="#redteam">Red team + Concept D</a>
   <a class="sn-link" href="#recommendation">Recommendation</a>
   <a class="sn-link" href="#questions">Open questions, answered</a>
   <a class="sn-link" href="#next">What I'd do next</a>
@@ -204,7 +206,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <a class="cc-btn b" href="concept-b.html">Open prototype →</a>
       </div>
       <div class="concept-card star">
-        <div class="cc-tag cc-c">CONCEPT C · RECOMMENDED</div>
+        <div class="cc-tag cc-c">CONCEPT C · BASE OF FINAL (SEE C+D)</div>
         <div class="cc-name">The Shelf</div>
         <div class="cc-thesis">Extend the surface users already have. A quiet offer chip where intent happens; a second segment in the Smart Window panel holding typed objects — Live watches and kept Reports; reports open as canvas with linked chat.</div>
         <div class="cc-mini"><b>Footprint:</b> 1 offer chip · 1 panel segment · 1 canvas template<br><b>Ships in:</b> ~2 sprints; grows into B later</div>
@@ -288,10 +290,30 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     </table>
   </section>
 
+  <section id="redteam">
+    <h2>Red team — the breaks that survive a surface choice, and the fourth concept</h2>
+    <p>Adversarial pass against all three concepts. The dangerous findings are the ones no surface choice fixes:</p>
+    <table>
+      <thead><tr><th>Break</th><th>What it threatens</th><th>Required amendment</th></tr></thead>
+      <tbody>
+        <tr><td>Execution problem</td><td>"Checks a few times a day" implies always-running browser or server-side checks — which can't see member prices, carts, session fares. Auth state bites read-only monitoring, not just shopping.</td><td>Scope Monitor honestly to public, unpersonalized pages in v1. First question for Tyler, ahead of "why LLM."</td></tr>
+        <tr><td>Notification-permission cliff</td><td>Monitor's entire value loop ends in a push notification users decline or never see.</td><td>A fallback channel that can't be denied — solved structurally by Concept D's waking tab.</td></tr>
+        <tr><td>Prompt injection via watched pages</td><td>The agent converts arbitrary page text into trusted-looking Firefox notifications; a hostile page can make the browser lie. Read-only ≠ injection-proof.</td><td>Alerts fire only on validated structured extraction (price as number); judgment text never decides an alert alone.</td></tr>
+        <tr><td>The Honey precedent cuts both ways</td><td>Scout-as-Honey inherits Honey's scandal baggage, retailer bot-blocking, and a quiet contradiction: "verifying a code against a cart" is page interaction — it crosses Mozilla's read-only line.</td><td>Scout v1 finds and reports codes; it does not apply them. The read-only promise stays unbroken.</td></tr>
+        <tr><td>Inference cost</td><td>LLM-reading N retailers × daily × users is a real bill; cadence becomes a cost knob users feel.</td><td>Hybrid checking: cheap structural scan per check, LLM judgment only on change.</td></tr>
+        <tr><td>Mode-scoping break</td><td>Agents are user-level objects; Smart Window is an opt-in mode. Concept C binds user-level state to a mode-scoped surface and inherits its adoption ceiling.</td><td>The fourth concept, below.</td></tr>
+      </tbody>
+    </table>
+    <h3>Concept D — Waypoints: the assumption A, B, and C all shared</h3>
+    <p>All three concepts assume agents live in <b>browser chrome</b>. The fourth answer: they live <b>on the web itself</b>. A watch is pinned to the thing being watched — the price element carries a Tab Context Badge with live state on revisit; the fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps only a thin index (the Shelf). It works in Classic windows — dissolving the mode-scoping break — and it's the one design no competitor can copy: ChatGPT, Comet, and Gemini bolt panels <em>beside</em> the web; only the rendering engine's owner can annotate <em>into</em> it.</p>
+    <p>D alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. The final design is <b>C amended with D's manifestation layer</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept C+D — Waypoints →</a></p>
+  </section>
+
   <section id="recommendation">
     <h2>Final recommendation</h2>
     <div class="verdict">
-      <h3>Ship Concept C — The Shelf — as the Q3 architecture, with A's slash invocation inside it and B as the documented growth path.</h3>
+      <h3>Ship Concept C+D — the Shelf as index, watches manifested as waypoints and sleeping tabs on the web itself — with A's slash invocation inside it and B as the documented growth path.</h3>
+      <p style="max-width:none">The amendment came from trying to break C: the waking tab bridges the notification-permission cliff, the waypoint works in Classic windows (dissolving the mode-scoping ceiling), and reports-as-real-pages fixes canvas shareability. The object model is the architecture: <b>one user-level object, three projections</b> (waypoint · sleeping tab · Shelf card) — new agent types add object types, never surfaces. Everything below about C's rationale stands, strengthened.</p>
       <p style="max-width:none">The Shelf is the only option that satisfies all three of the meeting's governing constraints at once: <b>reports get a dedicated retrievable home</b> (typed Reports section → canvas → linked chat, exactly the model proposed in the 1:1), <b>no new window-level surface is created</b> (it's a segment inside the panel Smart Window already owns — the justification bar for new surfaces stays unbreached), and <b>the architecture points where the product is heading</b> (object types absorb Routine digests and eventually Errands; "View all" graduates into Mission Control when — and only when — usage proves the need).</p>
       <p style="max-width:none">It is also the only concept that puts invocation <em>at the moment of intent</em>. The competitive record is unambiguous: sidebars won, floating widgets lost, push-proactivity burned Microsoft, and both Anthropic and OpenAI had to bolt on dedicated artifact homes after burying outputs in chat. C is the design those ten products' scar tissue points to.</p>
       <p style="max-width:none;margin-bottom:0"><b>Sequencing:</b> Sprint 1 — Shelf segment + Watch objects + OS notifications (Monitor/Scout value loop complete). Sprint 2 — Report objects + canvas + linked chat (Research loop complete). Sprint 3 — offer chip, shipped dark behind a frequency cap and tuned. The slash panel (A) ships in Sprint 1 for free since it's composer-only. B is explicitly <em>not</em> built until shelf objects per active user crosses a threshold that makes a dashboard earn its rent.</p>
