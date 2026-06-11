@@ -1425,22 +1425,10 @@ $("sbClose").onclick = () => { S.sidebarOpen = false; renderAll(); };
 $("sbToggle").onclick = () => { S.sidebarOpen = !S.sidebarOpen; if (S.sidebarOpen) { setSbView("chat"); renderAll(); greetSidebar(); } else renderAll(); };
 /* cold entry: opening the sidebar greets with what the agent can see on THIS page */
 function greetSidebar() {
+  // empty state: no greeting text — the suggestion chips (user side) carry the cold start
   if (S.sbGreeted[S.activeTab] || $("sbThread").children.length) return;
   S.sbGreeted[S.activeTab] = true;
-  if (S.activeTab === "soundhub") {
-    const pw = S.watches.find(w => w.kind === "price");
-    if (pw) aiMsg(`I'm already watching this page — ${statusLine(pw)}`);
-    else aiMsg(`I'm reading this page — <b>Aurora ANC Headphones, $89</b> (down from $129). I can keep an eye on it for you, or compare it against everything else out there. I read pages; I never click, fill, or buy.`,
-      ["Watch this price for me", "Find me the best deal on these", "Help me pick ANC headphones under $100"]);
-  } else if (S.activeTab === "report") {
-    const r = S.reports.find(r => r.id === S.openReportId);
-    if (r) aiMsg(`This is your report — <b>${r.title}</b>. Its conversation is attached on the right, and it stays in your Den.`, ["Watch the top pick for a price drop"]);
-  } else if (S.activeTab === "flights") {
-    const fw = S.watches.find(w => w.kind === "fare");
-    if (fw) aiMsg(`I'm already watching these fares — ${statusLine(fw)}`);
-    else aiMsg(`I'm reading this search — <b>47 fares, YVR → NRT in March</b>, best is $867 non-refundable. I can watch it against rules a price tracker can't read, like "refundable" or "weekday only."`,
-      ["Watch these fares — refundable, under $850"]);
-  }
+  renderFollowups();
 }
 document.querySelectorAll(".sb-seg button").forEach(b => b.onclick = () => setSbView(b.dataset.v));
 document.querySelectorAll("[data-pa]").forEach(p => p.onclick = () => { S.watches.forEach(w => { if (w.status === "live") w.status = "paused"; }); log("Paused all watches."); renderAll(); });
@@ -1702,6 +1690,12 @@ const _onBtn=document.querySelector('.cbtn-on');
 if(_onBtn) _onBtn.style.background=CONCEPT_COLOR[S.concept]||'#9959FF';
 renderAll();
 if(S.sidebarOpen && S.activeTab!=='sw') greetSidebar();
+if(S.concept==='A' && S.sidebarOpen){
+  const inp=$("sbInput");
+  inp.value='/';
+  inp.dispatchEvent(new Event('input'));
+  inp.focus();
+}
 </script>
 </body>
 </html>
