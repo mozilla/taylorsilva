@@ -1149,6 +1149,7 @@ function renderUrlEye() {
   if (!w) return;
   const eye = el(`<span class="tb-eye${w.status === "met" ? " met" : ""}"><span class="pulse"></span>${w.status === "met" ? "Hit " + fmt(w.price) : "Watching"}</span>`);
   eye.onclick = e => { e.stopPropagation(); toggleWatchPopover(w); };
+  eye.onmouseenter = () => { if (!document.querySelector(".watch-popover")) toggleWatchPopover(w); };
   slot.appendChild(eye);
 }
 function toggleWatchPopover(w) {

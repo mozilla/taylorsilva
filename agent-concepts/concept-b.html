@@ -414,9 +414,35 @@ const steps=[
     run(){ show('hub'); setTimeout(()=>{ document.querySelectorAll('.agent-tile')[3].style.boxShadow='0 0 0 3px rgba(0,96,223,0.25)'; },400); } },
   { cap:'<strong>4 · The gallery.</strong> "New agent" opens a gallery: Watch (Monitor + Scout unified), Research, and dashed future slots — Routine (habit reports) and Errand (end-to-end tasks, parked behind payment/auth blockers but visibly on the roadmap). The hub scales by adding cards, not surfaces.',
     run(){ document.querySelectorAll('.agent-tile')[3].style.boxShadow=''; galleryScrim.classList.add('open'); } },
-  { cap:'<strong>5 · Reports open as canvas.</strong> A report is a kept document, not a chat message: full-width canvas with the comparison table and a verdict — and the <em>linked chat</em> rail preserving the conversation that produced it. You can continue the conversation, or hand the top pick straight to a Watch. Agents compose.',
+  { cap:'<strong>5 · Creating the thing, start to finish.</strong> Pick <em>Watch</em> and the gallery becomes the setup card — prefilled from your open tabs, everything editable: the rule, the alert threshold, which retailers. One primary action: <em>Start watching</em>.',
+    run(){ galleryScrim.classList.add('open');
+      document.querySelector('.gallery').innerHTML = `<h2>Watch</h2>
+      <div class="gallery-sub">Prefilled from your open AudioHaus tab — adjust anything, then start.</div>
+      <div style="background:var(--grey-05);border-radius:13px;padding:16px 18px;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Sony WH-1000XM6</div>
+        <div style="font-size:13px;line-height:1.6">Alert me when the price drops <b>below</b> <span style="border-bottom:2px dotted var(--violet-40);font-weight:700;cursor:pointer">$330</span> — or a <span style="border-bottom:2px dotted var(--violet-40);font-weight:700;cursor:pointer">verified promo</span> appears</div>
+        <div style="font-size:11px;color:var(--grey-50);margin:7px 0 10px">Checking 4 times daily · Push notification · read-only</div>
+        <div><button class="g-pill" style="font-family:inherit;font-size:11.5px;font-weight:600;border-radius:99px;padding:5px 13px;border:1.5px solid #2f6fd0;background:none;color:#2f6fd0;margin-right:6px">✓ AudioHaus</button><button class="g-pill" style="font-family:inherit;font-size:11.5px;font-weight:600;border-radius:99px;padding:5px 13px;border:1.5px solid #2f6fd0;background:none;color:#2f6fd0;margin-right:6px">✓ Amazon</button><button class="g-pill" style="font-family:inherit;font-size:11.5px;font-weight:600;border-radius:99px;padding:5px 13px;border:1.5px solid #2f6fd0;background:none;color:#2f6fd0">✓ BestBuy</button></div>
+      </div>
+      <button id="gStart" style="font-family:inherit;font-size:13px;font-weight:700;background:#2f6fd0;color:#fff;border:none;border-radius:10px;padding:10px 22px;cursor:pointer">Start watching</button>`;
+    } },
+
+  { cap:'<strong>6 · It lands as a tile, live immediately.</strong> The hub gains the new watch at the top of Live — rule, status, zero checks yet — and the activity feed logs the start. Create → see it running, in one motion.',
+    run(){ galleryScrim.classList.remove('open');
+      if(!document.getElementById('newTile')){
+        const t=document.createElement('div'); t.className='agent-tile'; t.id='newTile'; t.style.animationDelay='0ms';
+        t.innerHTML=`<div class="at-head"><div class="at-glyph watch"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
+        <div><div class="at-title">Sony WH-1000XM6</div><div class="at-sub">Below $330 or verified promo · 3 retailers</div></div>
+        <div class="at-status live">Live</div></div>
+        <div class="at-foot" style="margin-top:10px"><span>⏱ just started</span><span>📍 3 retailers grouped</span><span>🔔 push</span></div>`;
+        const live=document.querySelector('.hub-cols > div');
+        live.insertBefore(t, live.children[1]);
+      }
+      show('hub'); } },
+
+  { cap:'<strong>7 · Reports open as canvas.</strong> A report is a kept document, not a chat message: full-width canvas with the comparison table and a verdict — and the <em>linked chat</em> rail preserving the conversation that produced it. You can continue the conversation, or hand the top pick straight to a Watch. Agents compose.',
     run(){ galleryScrim.classList.remove('open'); show('canvas'); } },
-  { cap:'<strong>6 · The cost, stated honestly.</strong> This is the best possible home for agents — and the most expensive thing on this page. A new about: page, tile system, feed, gallery and canvas to design, build, localize and maintain; and it sits one click <em>away</em> from where intent actually happens (the page you\'re browsing). Mission Control is the destination Concept C\'s shelf can grow into — probably not the place to start. <a href="index.html">Compare all three →</a>',
+  { cap:'<strong>8 · The cost, stated honestly.</strong> This is the best possible home for agents — and the most expensive thing on this page. A new about: page, tile system, feed, gallery and canvas to design, build, localize and maintain; and it sits one click <em>away</em> from where intent actually happens (the page you\'re browsing). Mission Control is the destination Concept C\'s shelf can grow into — probably not the place to start. <a href="index.html">Compare all three →</a>',
     run(){ show('hub'); } },
 ];
 

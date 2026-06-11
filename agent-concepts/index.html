@@ -103,10 +103,10 @@ td:first-child { color:var(--text); font-weight:600; white-space:nowrap; }
 .score-name { width:190px; font-size:11.5px; color:var(--text-dim); flex-shrink:0; }
 .score-track { flex:1; display:flex; gap:3px; }
 .score-seg { height:8px; flex:1; border-radius:3px; background:rgba(255,255,255,0.07); }
-.score-seg.fa { background:var(--violet-40); } .score-seg.fb { background:var(--orange); } .score-seg.fc { background:var(--green); } .score-seg.fd { background:#ed49ae; } .score-seg.fe { background:#4a9df8; }
+.score-seg.fa { background:var(--violet-40); } .score-seg.fb { background:var(--orange); } .score-seg.fc { background:var(--green); } .score-seg.fd { background:#ed49ae; } .score-seg.fe { background:#4a9df8; } .score-seg.ff { background:#3fd6c0; }
 .legend { display:flex; gap:18px; font-size:10.5px; color:var(--text-faint); margin:12px 0 18px; }
 .legend span::before { content:"●"; margin-right:5px; }
-.legend .la::before { color:var(--violet-40); } .legend .lb::before { color:var(--orange); } .legend .lc::before { color:var(--green); } .legend .ld::before { color:#ed49ae; } .legend .le::before { color:#4a9df8; }
+.legend .la::before { color:var(--violet-40); } .legend .lb::before { color:var(--orange); } .legend .lc::before { color:var(--green); } .legend .ld::before { color:#ed49ae; } .legend .le::before { color:#4a9df8; } .legend .lf::before { color:#3fd6c0; }
 code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07); padding:1.5px 6px; border-radius:4px; color:var(--violet-30); }
 .qa { margin-bottom:13px; max-width:720px; }
 .qa .q { font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
@@ -127,19 +127,20 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <a class="sn-proto" href="concept-a.html"><span class="k">A</span> All in the chat</a>
   <a class="sn-proto" href="concept-b.html"><span class="k">B</span> A separate agents page</a>
   <a class="sn-proto" href="concept-c.html"><span class="k">C</span> A saved list in the panel</a>
-  <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">D</span> The list + the address bar</a>
+  <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">D</span> In the chat + the address bar</a>
+  <a class="sn-proto" href="concept-f.html" style="border-color:rgba(94,232,214,0.4);background:rgba(94,232,214,0.07);"><span class="k" style="background:rgba(94,232,214,0.25)">F</span> Agents in Firefox View</a>
   <div class="sn-label">Document</div>
   <a class="sn-link" href="#framing">The two layers</a>
   <a class="sn-link" href="#llm">Why an LLM at all</a>
   <a class="sn-link" href="#landscape">Competitive landscape</a>
-  <a class="sn-link" href="#concepts">The five concepts</a>
+  <a class="sn-link" href="#concepts">The six concepts</a>
   <a class="sn-link" href="#matrix">Decision matrix</a>
   <a class="sn-link" href="#redteam">Red team</a>
 </nav>
 
 <main>
   <h1>Where should the agents live —<br>and why should they exist?</h1>
-  <p class="intro">Five concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
+  <p class="intro">Six concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
   <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
 
   <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Den and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
@@ -200,8 +201,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   </section>
 
   <section id="concepts">
-    <h2>Five concepts, compared</h2>
-    <p>All five share the resolved taxonomy (Monitor + Scout surfacing as Watch, plus Research), the same scenario set, and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C came first; the red-team pass produced D; E is the synthesis they all build toward. No final pick this round — D leads, E is the vision.</p>
+    <h2>Six concepts, compared</h2>
+    <p>All six share the resolved taxonomy (Monitor + Scout surfacing as Watch, plus Research), the same scenario set, and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C came first; the red-team pass produced D; F moves B's destination into Firefox View; E is the synthesis. No final pick this round.</p>
 
     <div class="concept-grid">
       <div class="concept-card">
@@ -227,13 +228,20 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </div>
       <div class="concept-card star">
         <div class="cc-tag cc-d">CONCEPT D · LEADING DIRECTION</div>
-        <div class="cc-name">The list + the address bar</div>
-        <div class="cc-thesis">Everything in C, plus the watch shows up in the browser chrome around the page — never in the page itself. An eye in the address bar, exactly like the bookmark star, when the page you're on is being watched (click it for status), and a sleeping tab that wakes when the flight deal hits. One quiet indicator, not popups — and it works even outside the Smart Window.</div>
+        <div class="cc-name">In the chat + the address bar</div>
+        <div class="cc-thesis">No list surface at all. You create the watch as a prefilled, editable card right in the chat — and it stays in the chat (you'd scroll to find it later). That's fine, because the live state comes to you: an always-there watching eye in the address bar with a hover status card, and a floating notification card with actions when the condition hits. The page itself is never touched.</div>
         <div class="cc-mini"><b>Footprint over C:</b> +1 annotation affordance · +1 tab state — both native browser primitives<br><b>Built with:</b> Nova Smart Window Library components</div>
         <div class="cc-btn-row">
           <a class="cc-btn d" href="experience.html">Live experience →</a>
           <a class="cc-btn c" href="concept-d.html">Storyboard →</a>
         </div>
+      </div>
+      <div class="concept-card">
+        <div class="cc-tag" style="background:rgba(94,232,214,0.15);color:#3fd6c0">CONCEPT F · B, RELOCATED</div>
+        <div class="cc-name">Agents in Firefox View</div>
+        <div class="cc-thesis">Concept B's full management page — but the end location is Firefox View, right beside Chats, where history already lives. Every watch is a card with its rule, a dot per check, and direct actions; alerts land as a strip on the card; reports file beneath. Creation starts in the address bar. No new top-level surface — Firefox View already ships.</div>
+        <div class="cc-mini"><b>Footprint:</b> one new section in an existing page · address-bar entry<br><b>Ships in:</b> ~2–3 sprints</div>
+        <a class="cc-btn" style="background:#0d9488;color:#fff" href="concept-f.html">Storyboard →</a>
       </div>
       <div class="concept-card vision">
         <div class="cc-tag cc-e">CONCEPT E · LONG-TERM GOAL</div>
@@ -244,18 +252,18 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </div>
     </div>
 
-    <h3>All five, side by side</h3>
+    <h3>All six, side by side</h3>
     <table class="h2h">
-      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · Saved list</th><th>D · List + address bar</th><th>E · Everything, gradually</th></tr></thead>
+      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>F · Firefox View</th><th>E · Everything, gradually</th></tr></thead>
       <tbody>
-        <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The list + the chrome around the page (address-bar eye, sleeping tab)</td><td>All of it, appearing as you need it</td></tr>
-        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>The chip, asking, or the address-bar eye on a page you come back to</td><td>Any of these</td></tr>
-        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>The list, plus the address-bar indicator; reports get real shareable links</td><td>The list always; the full page once you have a few agents</td></tr>
-        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>Notification, the tab waking up, the address-bar eye, or the list — something always reaches you</td><td>Whichever of these you have — they stay in sync</td></tr>
-        <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="mid">C plus two browser-native pieces · ~3 sprints</td><td class="bad">Everything, in stages · multi-quarter</td></tr>
-        <tr><td>How it grows</td><td class="bad">It doesn't — falls apart past ~3 agents</td><td>Add more cards to the page</td><td>Add new kinds of saved things</td><td>Same watch just shows up in more places</td><td>New surfaces appear as people use more</td></tr>
-        <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>A quiet indicator is easy to miss; three places to keep in sync</td><td>Complicated to build and explain</td></tr>
-        <tr><td>Status this round</td><td>Explored</td><td>Explored — could come later</td><td>Part of D</td><td class="good">Leading direction</td><td class="good">Long-term goal</td></tr>
+        <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The chat thread + the chrome around the page (address-bar eye)</td><td>An Agents section in Firefox View, beside Chats</td><td>All of it, appearing as you need it</td></tr>
+        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>A prefilled, editable card in the chat</td><td>Type in the address bar, choose Watch or Research</td><td>Any of these</td></tr>
+        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>Only in the chat — scroll to find it; the eye carries live state instead</td><td>Cards in Firefox View → Agents; reports file beneath</td><td>The Den always; the full page once you have a few agents</td></tr>
+        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>The always-there eye (hover for the status card) and floating notification cards with actions — it comes to you</td><td>Notification → Firefox View; the rail badge counts what's new</td><td>Whichever of these you have — they stay in sync</td></tr>
+        <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="good">Tiny — a chat card, an indicator, a notification · ~2 sprints</td><td class="mid">A section in an existing page · ~2–3 sprints</td><td class="bad">Everything, in stages · multi-quarter</td></tr>
+        <tr><td>How it grows</td><td class="bad">It doesn't — falls apart past ~3 agents</td><td>Add more cards to the page</td><td>Add new kinds of saved things</td><td class="bad">It doesn't — five watches means five eyes and no roster</td><td>More cards and sections in Firefox View</td><td>New surfaces appear as people use more</td></tr>
+        <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>No way to manage many watches; the chat record gets buried</td><td>Firefox View is low-traffic for many users; still a destination you have to visit</td><td>Complicated to build and explain</td></tr>
+        <tr><td>Status this round</td><td>Explored</td><td>Explored — could come later</td><td>Explored — the Den</td><td class="good">Leading direction</td><td class="good">New this round</td><td class="good">Long-term goal</td></tr>
       </tbody>
     </table>
 
@@ -311,8 +319,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </ul></div>
     </div>
 
-    <h3>Concept D — The list + the address bar (leading direction)</h3>
-    <p>What came out of trying to break C, and the strongest direction this round — with one hard rule: <b>the agent never modifies page content.</b> Its presence lives in chrome Firefox already owns. One watch shows up in three places: an <b>eye in the address bar</b> when you're on a watched page — same pattern as the bookmark star — which opens a small status popover (price history, the rule, pause); a <b>sleeping tab</b> 🌙 that wakes with a dot when the condition hits; and the <b>Den</b> in the panel. Change the watch in any one place and the other two update.</p>
+    <h3>Concept D — In the chat + the address bar (leading direction)</h3>
+    <p>The lightest concept that still never loses you. <b>Creation:</b> a prefilled, editable card in the chat — click the underlined parts to change the rule, toggle sites, start. <b>The record stays in the chat</b>; find it later by scrolling, which is the honest trade. <b>Live state comes to you instead:</b> an always-there <b>eye in the address bar</b> on watched pages (hover it for the status card — price, trend, rule, pause), and when the condition hits, a <b>floating notification card</b> with the judgment and the actions that matter (Open Kayak · Snooze · Stop). The page content is never modified; everything rides chrome Firefox owns.</p>
     <div class="pro-con">
       <div class="pc-col pro"><h4>Pros</h4><ul>
         <li>Works in <b>Classic windows</b> — dissolves the mode-scoping break (agents are user-level, Smart Window is opt-in)</li>
@@ -322,10 +330,26 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <li>Footprint over C is two native browser primitives, not new surfaces</li>
       </ul></div>
       <div class="pc-col con"><h4>Cons</h4><ul>
-        <li>Never touches page content — the indicator rides the address bar and tab strip, surfaces Firefox already owns (same pattern as the bookmark star)</li>
-        <li>An address-bar eye is quiet by design — easy to miss if you never revisit the page; the Den and notifications carry the rest</li>
-        <li>Sleeping tabs are device-local; cross-device story still runs through the Den</li>
-        <li>Three projections of one object = state-sync surface area to test</li>
+        <li>Never touches page content — the eye rides the address bar, a surface Firefox already owns (same pattern as the bookmark star)</li>
+        <li>No roster: five watches means nothing to manage them with — that's C's Den or F's page</li>
+        <li>The chat record gets buried as the conversation grows — by design, but real</li>
+        <li>Hover cards and floating notifications need careful frequency discipline to stay quiet</li>
+      </ul></div>
+    </div>
+
+    <h3>Concept F — Agents in Firefox View (B, relocated)</h3>
+    <p>Concept B's management destination without B's biggest costs. An <b>Agents section in Firefox View, beside Chats</b> — the page where chat history already lives. Each watch is a card: the rule in plain words, a dot per check, last-check time, cadence, site count, and direct actions (<em>Check now · Pause · Open page · Delete</em>). When a condition hits, the alert lands as a <b>strip on the card</b> with the judgment and one action. Reports file beneath, opening with their chat attached. <b>Creation starts in the address bar</b>: type what you want, choose Watch or Research from the suggestions.</p>
+    <div class="pro-con">
+      <div class="pc-col pro"><h4>Pros</h4><ul>
+        <li>Full management surface at a fraction of B's cost — Firefox View already ships</li>
+        <li>No day-one empty dashboard: it's one rail item until you have agents</li>
+        <li>Sits beside Chats — history and agents in one familiar place</li>
+        <li>Address-bar creation needs no new entry point at all</li>
+      </ul></div>
+      <div class="pc-col con"><h4>Cons</h4><ul>
+        <li>Firefox View is low-traffic for many users — discoverability depends on the rail badge and notifications</li>
+        <li>Still a destination you go to; nothing reaches you on the page itself (D's eye covers that)</li>
+        <li>Firefox View real estate is owned by another team — coordination cost</li>
       </ul></div>
     </div>
 
@@ -336,7 +360,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <tbody>
         <tr><td>A · In the chat</td><td><code>/</code> invocation in every smartbar; the conversation as the record; a pinned live strip above the sidebar chat</td><td>retrieval buried in history</td><td>Always (invocation layer)</td></tr>
         <tr><td>C · Saved list</td><td>Typed objects (Live / Reports) indexed in the panel; the quiet offer chip at the moment of intent</td><td>mode-scoped reach</td><td>First object</td></tr>
-        <tr><td>D · List + address bar</td><td>The address-bar eye on watched pages, sleeping tab, notification fallback chain, reports as real pages</td><td>revisit-only visibility</td><td>First object</td></tr>
+        <tr><td>D · Chat + address bar</td><td>The always-there eye with hover status cards; floating notification cards with actions</td><td>chat-only record (C's Den and F's page carry the roster)</td><td>First object</td></tr>
         <tr><td>B · Agents page</td><td>The "Your agents" page with the full activity feed — every check logged</td><td>the day-one empty dashboard</td><td>Earned: "View all →" appears at ≥2 objects</td></tr>
       </tbody>
     </table>
@@ -358,26 +382,26 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
   <section id="matrix">
     <h2>Decision matrix</h2>
-    <div class="legend"><span class="la">A · In the chat</span><span class="lb">B · Agents page</span><span class="lc">C · Saved list</span><span class="ld">D · List + address bar</span><span class="le">E · Everything, gradually</span></div>
+    <div class="legend"><span class="la">A · In the chat</span><span class="lb">B · Agents page</span><span class="lc">C · Saved list</span><span class="ld">D · Chat + address bar</span><span class="lf">F · Firefox View</span><span class="le">E · Everything, gradually</span></div>
     <div id="scores"></div>
     <script>
     const crit=[
-      ['Discoverability of outputs',2,5,4,5,5],['Retrieval two weeks later',2,5,4,4,5],
-      ['Maintenance / surface cost (5 = cheapest)',5,1,4,3,2],['Scales to future agents',1,5,4,5,5],
-      ['Proximity to browsing intent',3,2,5,5,5],['Trust & restraint fit (Firefox brand)',4,3,5,5,5],
-      ['Time to ship Q3',5,1,4,3,1],['Live-state visibility',2,5,4,5,5]];
-    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d,e])=>`
+      ['Discoverability of outputs',2,5,4,4,4,5],['Retrieval two weeks later',2,5,4,3,5,5],
+      ['Maintenance / surface cost (5 = cheapest)',5,1,4,5,4,2],['Scales to future agents',1,5,4,2,5,5],
+      ['Proximity to browsing intent',3,2,5,5,2,5],['Trust & restraint fit (Firefox brand)',4,3,5,5,5,5],
+      ['Time to ship Q3',5,1,4,5,4,1],['Live-state visibility',2,5,4,5,4,5]];
+    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d,f,e])=>`
       <div style="margin-bottom:14px">
         <div class="score-name" style="width:auto;margin-bottom:4px">${n}</div>
-        ${[['fa',a],['fb',b],['fc',c],['fd',d],['fe',e]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
+        ${[['fa',a],['fb',b],['fc',c],['fd',d],['ff',f],['fe',e]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
           [1,2,3,4,5].map(i=>`<div class="score-seg ${i<=v?cls:''}"></div>`).join('')}</div></div>`).join('')}
       </div>`).join('');
     </script>
     <table>
-      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · Saved list</th><th>D · List + address bar</th><th>E · Everything, gradually</th></tr></thead>
-      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">35</td><td class="mid">33</td></tr></tbody>
+      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>F · Firefox View</th><th>E · Everything, gradually</th></tr></thead>
+      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">34</td><td class="mid">33</td><td class="mid">33</td></tr></tbody>
     </table>
-    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">D trades two points of cost/speed against C for Classic-window reach, the notification fallback, and live-state visibility everywhere — the breaks the red team found. That trade is why D leads this round. E scores highest on every experience dimension and lowest on cost and Q3 speed — exactly what makes it the vision rather than the pick: you get to E by shipping D and letting usage unlock the rest.</p>
+    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C and D tie from opposite philosophies — C is a place you visit (the Den), D is presence that comes to you (the eye, hover cards, notification cards). F trades proximity for the cheapest real management surface. E scores highest on every experience dimension and lowest on cost and speed — the vision, not the pick. No final call this round.</p>
   </section>
 
   <section id="redteam">
@@ -395,8 +419,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </tbody>
     </table>
     <h3>The idea behind D: the assumption A, B, and C all shared</h3>
-    <p>A, B, and C all keep the agent inside the panel. The fourth answer: put its presence in the <b>chrome that wraps every page</b> — without ever touching the page itself. When you're on a watched page, an <b>eye sits in the address bar</b>, exactly like the bookmark star sits there for saved pages; click it for live status. The fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps the index (the Den). It works in Classic windows — dissolving the mode-scoping break — and no extension or competitor sidebar can copy it: only the browser owns the address bar and the tab strip.</p>
-    <p>The indicator alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. <b>Concept D is C plus the address-bar and tab presence</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept D storyboard →</a></p>
+    <p>A, B, and C all make the agent a place you go. The fourth answer: make it <b>presence that comes to you</b>, riding the chrome that wraps every page — without ever touching the page itself. When you're on a watched page, an <b>eye sits in the address bar</b>, exactly like the bookmark star; hover it for the live status card. When the condition hits, a <b>floating notification card</b> arrives with the judgment and the actions. It works in Classic windows — dissolving the mode-scoping break — and no extension or competitor sidebar can copy it: only the browser owns the address bar.</p>
+    <p>The eye alone can't hold a roster or file reports — that's deliberate. <b>Concept D pairs chat-card creation with address-bar presence and notification cards, and nothing else.</b> Storyboarded in full: <a href="concept-d.html" style="color:var(--violet-30)">Concept D storyboard →</a></p>
   </section>
 
 </main>

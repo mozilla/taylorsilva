@@ -3,73 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Concept D — Waypoints · Smart Window Agent Surfaces</title>
+<title>Concept D — In the chat + the address bar · Smart Window Agent Surfaces</title>
 <style>
 /* ================================================================
-   CONCEPT D — "WAYPOINTS" (The Den, manifested on the web)
+   CONCEPT D — IN THE CHAT + THE ADDRESS BAR
    Q3 Agent Surfaces · Monitor / Scout / Research
    Taylor Silva · Staff Product Designer, AI UX
 
-   Built with Nova Smart Window Library components, matched to the
-   motion SOT doc:
-   · Smart Input — conic gradient outline, 65→80→100% lifecycle
-   · Tab Context Badge — violet-10 → deep violet #3d2272 hover
-   · Suggestion Chip — violet-30 outline → orange gradient hover
-   · Trust tier badges — local → mozilla → third-party cascade
-   · Message arrival — user slides right 240ms ai-arrive;
-     AI plain text, no bubble chrome
-   · All focus = 2px solid violet-60 · transitions 140ms warmth
+   Thesis: no list surface at all. Creation is a prefilled, editable
+   card in the chat — and it stays in the chat (scroll to find it
+   later; that's the honest trade). Live state is carried by an
+   always-there watching eye in the address bar with hover status
+   cards, and floating notification cards when something hits.
+   The page itself is never modified.
    ================================================================ */
 :root {
-  /* Acorn palette */
-  --violet-90:#2b1b55; --violet-70:#4a2e8f; --violet-60:#623ac3;
-  --violet-50:#7542e5; --violet-40:#976eff; --violet-30:#b295ff;
-  --violet-20:#d0bfff; --violet-10:#ede6ff; --violet-05:#f6f2ff;
-  --grey-100:#15141a; --grey-80:#2b2a33; --grey-70:#52525e;
-  --grey-50:#6b6b7b; --grey-40:#8f8f9d; --grey-30:#b1b1b9;
-  --grey-20:#cfcfd8; --grey-10:#e0e0e6; --grey-05:#f0f0f4;
-  --orange:#e66000; --green:#058b00; --blue:#0060df; --red:#e22850;
+  --violet-90:#2b1b55; --violet-60:#623ac3; --violet-50:#7542e5;
+  --violet-40:#976eff; --violet-30:#b295ff; --violet-20:#d0bfff;
+  --violet-10:#ede6ff; --violet-05:#f6f2ff;
+  --grey-100:#15141a; --grey-80:#2b2a33; --grey-70:#52525e; --grey-50:#6b6b7b;
+  --grey-40:#8f8f9d; --grey-20:#cfcfd8; --grey-10:#e0e0e6; --grey-05:#f0f0f4;
+  --orange:#e66000; --green:#058b00; --blue:#2f6fd0; --red:#e22850;
   --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
-  --mono:'SF Mono','Menlo','Consolas',monospace;
-
-  /* Nova Smart Window surfaces */
-  --sw-bg:linear-gradient(160deg,#2b1b55 0%,#1e1245 40%,#3a1f5c 70%,#4a2040 100%);
-  --sw-flat:#1e1245;
-  --sw-input:#252631;
-  --sw-card:rgba(255,255,255,0.055);
-  --sw-card-border:rgba(255,255,255,0.1);
-  --sw-text:rgba(255,255,255,0.88);
-  --sw-text-dim:rgba(255,255,255,0.55);
-  --sw-text-faint:rgba(255,255,255,0.38);
-  --context-badge-hover:#3d2272;
-  --input-gradient:conic-gradient(from 210deg at 50% 50%, #9959FF 0deg, #b374d8 50deg, #d35fb5 90deg, #ED49AE 130deg, #f47260 170deg, #FF9728 210deg, #e8904a 260deg, #c07ab0 310deg, #9959FF 360deg);
-  --chip-hover-gradient:linear-gradient(90deg,#ff905e,#b397ff);
-
-  /* Smart Window motion tokens (from ai-window-motion.css) */
-  --motion-duration-instant:60ms; --motion-duration-quick:140ms;
-  --motion-duration-moderate:240ms; --motion-duration-gracious:300ms;
-  --motion-duration-considered:360ms; --motion-duration-deliberate:500ms;
-  --motion-duration-breathe:3000ms;
-  --motion-ease-ai-arrive:linear(0, 0.002, 0.01 2.8%, 0.058 6.2%, 0.16 10.9%, 0.842 40.2%, 0.924 46.9%, 0.974 55.5%, 0.994 66.6%, 1 80.2%, 1);
-  --motion-ease-ai-settle:linear(0, 0.004, 0.016 3.4%, 0.062 6.9%, 0.17 11.4%, 0.854 41.3%, 0.926 47.2%, 0.975 56%, 0.995 67.2%, 1 81%, 1);
-  --motion-ease-ai-depart:linear(0, 0.45 10%, 0.75 30%, 0.94 60%, 1);
-  --motion-ease-browser:cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-ease-warmth:var(--motion-ease-ai-arrive);
-  --motion-ease-intentional:var(--motion-ease-ai-settle);
+  --d-instant:60ms; --d-quick:140ms; --d-moderate:240ms; --d-gracious:300ms;
+  --d-considered:360ms; --d-breathe:3000ms;
+  --ease-arrive:linear(0,0.002,0.01 2.8%,0.058 6.2%,0.16 10.9%,0.842 40.2%,0.924 46.9%,0.974 55.5%,0.994 66.6%,1 80.2%,1);
+  --ease-settle:cubic-bezier(0.2,0,0,1);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:var(--font); background:#15141a; color:var(--grey-100); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+body { font-family:var(--font); background:#15141a; height:100vh; display:flex; flex-direction:column; overflow:hidden; color:var(--grey-100); }
 
-/* ─── Prototype chrome ─── */
+/* ─── Storyboard chrome ─── */
 .proto-bar { background:#15141a; color:rgba(255,255,255,0.85); padding:10px 16px; display:flex; align-items:center; gap:14px; font-size:12.5px; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.08); }
 .proto-bar a { color:var(--violet-30); text-decoration:none; }
 .proto-bar a:hover { text-decoration:underline; }
-.proto-chip { background:linear-gradient(90deg,rgba(153,89,255,0.2),rgba(255,151,40,0.18)); color:#e8c4ff; border:1px solid rgba(178,149,255,0.4); padding:2px 10px; border-radius:99px; font-weight:600; font-size:11px; letter-spacing:0.4px; }
+.proto-chip { background:linear-gradient(90deg,rgba(153,89,255,0.2),rgba(237,73,174,0.18)); color:#e8c4ff; border:1px solid rgba(178,149,255,0.4); padding:2px 10px; border-radius:99px; font-weight:600; font-size:11px; letter-spacing:0.4px; }
 .proto-title { font-weight:600; }
 .proto-sub { color:rgba(255,255,255,0.45); }
 .proto-steps { margin-left:auto; display:flex; align-items:center; gap:10px; }
 .step-dots { display:flex; gap:5px; }
-.step-dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all var(--motion-duration-quick) var(--motion-ease-browser); cursor:pointer; }
+.step-dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all var(--d-quick) var(--ease-settle); cursor:pointer; }
 .step-dot.active { background:var(--violet-40); transform:scale(1.25); }
 .step-dot.done { background:rgba(151,110,255,0.45); }
 .proto-btn { background:var(--violet-50); border:none; color:#fff; font-family:var(--font); font-size:12px; font-weight:600; padding:6px 16px; border-radius:6px; cursor:pointer; }
@@ -79,524 +52,228 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
 .step-caption strong { color:var(--violet-30); font-weight:600; }
 .step-caption em { color:rgba(255,255,255,0.84); font-style:normal; font-weight:600; }
 
-/* ─── Browser frame (Classic window — light chrome) ─── */
+/* ─── Browser ─── */
 .browser { flex:1; display:flex; flex-direction:column; margin:14px; border-radius:12px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.5); background:var(--grey-05); min-height:0; }
 .tabstrip { background:#f9f9fb; display:flex; align-items:center; padding:6px 10px 0; gap:4px; border-bottom:1px solid var(--grey-10); flex-shrink:0; }
 .traffic { display:flex; gap:7px; padding:0 10px 6px 4px; }
 .traffic span { width:11px; height:11px; border-radius:50%; }
-.tab { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--grey-10); border-bottom:none; border-radius:8px 8px 0 0; padding:7px 14px; font-size:12px; color:var(--grey-80); max-width:250px; position:relative; transition:all var(--motion-duration-quick) var(--motion-ease-warmth); }
-.tab.inactive { background:transparent; border-color:transparent; color:var(--grey-50); cursor:pointer; }
-.tab .fav { width:14px; height:14px; border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:10px; }
-.tab.sleeping { opacity:0.62; font-style:italic; }
-.tab.sleeping .moon { font-style:normal; font-size:10px; }
-.tab.awake { opacity:1; font-style:normal; border-color:var(--violet-30); animation:tabwake var(--motion-duration-deliberate) var(--motion-ease-ai-arrive); box-shadow:0 -2px 12px rgba(117,66,229,0.25); }
-@keyframes tabwake { 0%{box-shadow:0 0 0 rgba(117,66,229,0);} 40%{box-shadow:0 -2px 18px rgba(117,66,229,0.5);} 100%{box-shadow:0 -2px 12px rgba(117,66,229,0.25);} }
-.tab-badge { position:absolute; top:3px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--violet-50); display:none; }
-.tab.awake .tab-badge { display:block; animation:breathe var(--motion-duration-breathe) ease-in-out infinite; }
-@keyframes breathe { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.45;transform:scale(0.82);} }
-
-.toolbar { background:#fff; display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid var(--grey-10); flex-shrink:0; }
-.nav-arrows { display:flex; gap:6px; color:var(--grey-40); font-size:15px; }
-.urlbar { flex:1; display:flex; align-items:center; gap:8px; background:var(--grey-05); border:1px solid var(--grey-10); border-radius:8px; padding:7px 14px; font-size:12.5px; color:var(--grey-70); }
+.tab { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--grey-10); border-bottom:none; border-radius:8px 8px 0 0; padding:7px 14px; font-size:12px; color:var(--grey-80); max-width:250px; }
+.tab .fav { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+.toolbar { background:#fff; display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid var(--grey-10); flex-shrink:0; position:relative; }
+.nav-arrows { color:var(--grey-40); font-size:15px; letter-spacing:6px; }
+.urlbar { flex:1; display:flex; align-items:center; gap:8px; background:var(--grey-05); border:1px solid var(--grey-10); border-radius:99px; padding:7px 15px; font-size:12.5px; color:var(--grey-70); }
 .urlbar .lock { color:var(--grey-40); font-size:11px; }
 .mode-chip { font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--grey-40); border:1px solid var(--grey-20); border-radius:99px; padding:3px 10px; white-space:nowrap; }
-/* Share Button — Nova: violet-10 rounded → white hover → 2px violet-60 focus ring */
-.tb-icon { width:36px; height:36px; border-radius:10px; background:var(--violet-10); display:flex; align-items:center; justify-content:center; color:var(--grey-70); cursor:pointer; border:2px solid transparent; transition:all var(--motion-duration-quick) var(--motion-ease-warmth); }
-.tb-icon:hover { background:#fff; }
-.tb-icon.active { border-color:var(--violet-60); }
+.tb-ic { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--grey-50); }
+.tb-ic.sw { background:var(--violet-10); color:var(--violet-60); border-radius:10px; }
+
+/* the always-there eye */
+.url-eye { margin-left:auto; display:none; align-items:center; gap:5px; color:var(--violet-60); font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; padding:2px 9px; border-radius:99px; transition:background var(--d-quick); }
+.url-eye.shown { display:inline-flex; }
+.url-eye:hover { background:var(--violet-10); }
+.url-eye .pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
+.url-eye.met .pulse { background:var(--violet-40); }
+@keyframes breathe { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.82)} }
+
+/* hover status card off the eye */
+.hover-card { position:absolute; top:46px; right:110px; width:330px; background:#fff; border-radius:14px; box-shadow:0 14px 44px rgba(43,27,85,0.24); z-index:50; padding:14px 16px; display:none; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.hover-card.open { display:block; }
+@keyframes arrive { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.hc-t { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.hc-s { font-size:11.5px; color:var(--grey-50); margin:3px 0 8px; }
+.hc-meta { font-size:10.5px; color:var(--grey-40); display:flex; gap:11px; margin-top:7px; flex-wrap:wrap; }
+.hc-actions { display:flex; gap:7px; margin-top:10px; }
+.hc-btn { font-family:var(--font); font-size:11.5px; font-weight:600; border-radius:99px; padding:6px 14px; cursor:pointer; border:1px solid var(--grey-20); background:#fff; color:var(--grey-70); }
+.hc-btn:hover { border-color:var(--violet-30); color:var(--violet-60); }
+
+/* floating notification card */
+.float-card { position:fixed; top:64px; right:28px; width:360px; background:#fff; border-radius:16px; box-shadow:0 18px 56px rgba(43,27,85,0.3); z-index:90; padding:16px 18px; display:none; animation:arrive var(--d-considered) var(--ease-arrive); }
+.float-card.open { display:block; }
+.fc-app { font-size:9.5px; color:var(--grey-40); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+.fc-glyph { width:16px; height:16px; border-radius:5px; background:linear-gradient(135deg,#9959FF,#ED49AE); display:inline-flex; }
+.fc-t { font-size:14px; font-weight:800; }
+.fc-b { font-size:12.5px; color:var(--grey-70); line-height:1.55; margin:4px 0 10px; }
+.fc-b b { color:var(--green); }
+.fc-row { display:flex; gap:8px; }
+.fc-btn { font-family:var(--font); font-size:12px; font-weight:700; border-radius:99px; padding:8px 17px; cursor:pointer; border:none; background:var(--blue); color:#fff; }
+.fc-btn.ghost { background:var(--grey-05); color:var(--grey-70); }
 
 .window-body { flex:1; display:flex; min-height:0; }
-.content { flex:1; overflow-y:auto; background:#fff; position:relative; min-height:0; }
+.content { flex:1; overflow-y:auto; background:#fff; min-height:0; }
+.fl-page { padding:30px 44px; max-width:920px; }
+.fl-search { display:flex; gap:10px; align-items:center; background:var(--grey-05); border-radius:12px; padding:12px 18px; font-size:12.5px; color:var(--grey-70); margin-bottom:18px; }
+.fl-row { display:flex; align-items:center; gap:20px; border:1px solid var(--grey-10); border-radius:12px; padding:14px 20px; margin-bottom:9px; }
+.fl-air { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.fl-t { font-size:13.5px; font-weight:700; }
+.fl-r { font-size:11px; color:var(--grey-50); margin-top:2px; }
+.fl-price { margin-left:auto; text-align:right; }
+.fl-n { font-size:17px; font-weight:800; }
+.fl-ty { font-size:10px; color:var(--grey-40); }
 
-/* ─── Product page ─── */
-.shop-page { padding:36px 44px; max-width:960px; }
-.shop-crumb { font-size:11.5px; color:var(--grey-40); margin-bottom:18px; }
-.shop-hero { display:flex; gap:36px; }
-.shop-img { width:280px; height:280px; border-radius:14px; background:linear-gradient(135deg,#e8e4f5,#cfc6ee); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.shop-info h1 { font-size:23px; font-weight:700; letter-spacing:-0.3px; }
-.shop-rating { font-size:12px; color:var(--orange); margin:8px 0 14px; }
-.shop-rating span { color:var(--grey-40); }
-.price-now { font-size:30px; font-weight:800; color:var(--grey-100); }
-.price-now.waypointed { border-bottom:2.5px dotted var(--violet-40); cursor:pointer; }
-.price-was { font-size:14px; color:var(--grey-40); text-decoration:line-through; margin-left:10px; }
-.shop-desc { font-size:13px; line-height:1.65; color:var(--grey-70); margin:16px 0 20px; max-width:430px; }
-.shop-cta { display:flex; gap:10px; }
-.shop-btn { padding:11px 26px; border-radius:99px; font-size:13.5px; font-weight:600; border:none; cursor:pointer; font-family:var(--font); }
-.shop-btn.primary { background:var(--grey-100); color:#fff; }
-.shop-btn.secondary { background:#fff; color:var(--grey-100); border:1.5px solid var(--grey-20); }
-
-/* Waypoint annotation — Tab Context Badge component:
-   violet-10 bg, dark text → hover deep violet #3d2272, white text → focus 2px violet-60 */
-.waypoint { display:none; align-items:center; gap:7px; margin-top:10px; background:var(--violet-10); border:2px solid transparent; border-radius:10px; padding:6px 14px; font-size:13px; color:var(--grey-100); font-weight:500; cursor:pointer; width:fit-content; opacity:0; transform:translateY(6px); transition:all var(--motion-duration-quick) var(--motion-ease-warmth), opacity var(--motion-duration-gracious) var(--motion-ease-ai-arrive), transform var(--motion-duration-gracious) var(--motion-ease-ai-arrive); }
-.waypoint.shown { display:inline-flex; opacity:1; transform:translateY(0); }
-.waypoint:hover { background:var(--context-badge-hover); color:#fff; }
-.waypoint:hover .wp-dim { color:rgba(255,255,255,0.65); }
-.waypoint:focus { border-color:var(--violet-60); outline:none; }
-.waypoint .wp-pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--motion-duration-breathe) ease-in-out infinite; flex-shrink:0; }
-.waypoint .wp-dim { color:var(--grey-50); font-weight:400; transition:color var(--motion-duration-quick) var(--motion-ease-warmth); }
-
-/* Waypoint popover — Nova dark surface floating over the page */
-.wp-popover { position:absolute; right:120px; top:96px; width:336px; background:var(--sw-flat); border:1px solid rgba(178,149,255,0.25); border-radius:16px; box-shadow:0 14px 44px rgba(21,18,69,0.45); z-index:15; opacity:0; transform:translateY(8px); pointer-events:none; transition:all var(--motion-duration-moderate) var(--motion-ease-ai-arrive); color:var(--sw-text); }
-.wp-popover.open { opacity:1; transform:translateY(0); pointer-events:auto; }
-.wpp-head { display:flex; align-items:center; gap:9px; padding:13px 16px 10px; }
-.wpp-glyph { width:28px; height:28px; border-radius:8px; background:rgba(178,149,255,0.18); color:var(--violet-30); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.wpp-title { font-size:12.5px; font-weight:700; color:var(--sw-text); }
-.wpp-sub { font-size:10.5px; color:var(--sw-text-dim); }
-.wpp-spark { padding:4px 16px 0; }
-.wpp-rule { margin:9px 16px 0; background:rgba(255,255,255,0.06); border-radius:8px; padding:8px 11px; font-size:11px; color:var(--sw-text-dim); }
-.wpp-rule code { font-family:var(--mono); font-size:10px; background:rgba(153,89,255,0.18); border:1px solid rgba(178,149,255,0.25); border-radius:4px; padding:1px 5px; color:#d4bfff; }
-/* Trust tier badges — Fiery: local → mozilla → third-party cascade, scale 0.9→1, 100ms stagger */
-.wpp-trust { display:flex; gap:6px; padding:9px 16px 0; }
-.trust-badge { font-size:9px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; padding:3px 9px; border-radius:99px; opacity:0; transform:scale(0.9); }
-.trust-badge.t-local { background:rgba(5,139,0,0.22); color:#7fe07a; border:1px solid rgba(5,139,0,0.4); }
-.trust-badge.t-moz { background:rgba(153,89,255,0.18); color:#d4bfff; border:1px solid rgba(153,89,255,0.35); }
-.trust-badge.t-third { background:rgba(255,151,40,0.16); color:#ffb95e; border:1px solid rgba(255,151,40,0.35); }
-.wp-popover.open .trust-badge { animation:trustIn var(--motion-duration-moderate) var(--motion-ease-ai-arrive) forwards; }
-.wp-popover.open .trust-badge.t-local { animation-delay:80ms; }
-.wp-popover.open .trust-badge.t-moz { animation-delay:180ms; }
-.wp-popover.open .trust-badge.t-third { animation-delay:280ms; }
-@keyframes trustIn { to { opacity:1; transform:scale(1); } }
-.wpp-foot { display:flex; gap:7px; padding:12px 16px 15px; }
-
-/* Suggestion Chip — Nova: 1.5px violet-30 border, violet text → orange gradient border on hover → 2px violet-60 focus */
-.sugg-chip { position:relative; font-size:12px; font-weight:500; padding:7px 16px; border-radius:20px; border:1.5px solid var(--violet-30); background:transparent; color:var(--violet-30); cursor:pointer; font-family:var(--font); transition:all var(--motion-duration-quick) var(--motion-ease-warmth); }
-.sugg-chip.on-light { color:var(--violet-60); }
-.sugg-chip:hover { border-color:transparent; background:linear-gradient(var(--chip-bg,transparent),var(--chip-bg,transparent)) padding-box, var(--chip-hover-gradient) border-box; }
-.sugg-chip:focus { outline:none; border:2px solid var(--violet-60); padding:6.5px 15.5px; }
-.wp-popover .sugg-chip { --chip-bg:#1e1245; }
-
-/* ─── Report page ─── */
-.report-page { display:none; padding:34px 48px; max-width:760px; margin:0 auto; }
-.report-page.visible { display:block; }
-.rp-doc { opacity:0; transform:translateY(10px); animation:arrive var(--motion-duration-gracious) var(--motion-ease-ai-arrive) forwards; }
-@keyframes arrive { to { opacity:1; transform:translateY(0); } }
-.rp-kicker { font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--violet-60); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
-.rp-doc h1 { font-size:24px; font-weight:800; letter-spacing:-0.4px; }
-.rp-meta { font-size:11px; color:var(--grey-40); margin:6px 0 8px; }
-.rp-actions { display:flex; gap:8px; margin:12px 0 22px; }
-.rp-doc h3 { font-size:14px; font-weight:700; margin:20px 0 8px; }
-.rp-doc p { font-size:13px; line-height:1.7; color:var(--grey-70); margin-bottom:10px; }
-.pick-card { display:flex; align-items:center; gap:14px; border:1.5px solid var(--violet-20); background:var(--violet-05); border-radius:12px; padding:13px 16px; margin:14px 0; }
-.pick-rank { font-size:9.5px; font-weight:800; letter-spacing:0.6px; color:var(--violet-60); text-transform:uppercase; }
-.pick-name { font-size:14px; font-weight:700; }
-.pick-why { font-size:11px; color:var(--grey-70); margin-top:2px; }
-.pick-price { margin-left:auto; font-size:17px; font-weight:800; }
-.comp-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
-.comp-table th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grey-40); padding:7px 10px; border-bottom:1px solid var(--grey-10); }
-.comp-table td { padding:8px 10px; border-bottom:1px solid var(--grey-05); color:var(--grey-70); }
-.comp-table td:first-child { font-weight:600; color:var(--grey-100); }
-
-/* ─── Smart Window panel — Nova dark surface ─── */
-.smart-window { width:368px; flex-shrink:0; background:var(--sw-bg); display:flex; flex-direction:column; min-height:0; margin-right:-368px; transition:margin-right var(--motion-duration-considered) var(--motion-ease-intentional); color:var(--sw-text); }
-.smart-window.open { margin-right:0; }
-.sw-header { display:flex; align-items:center; gap:8px; padding:12px 14px 4px; flex-shrink:0; }
-.sw-logo { width:24px; height:24px; border-radius:7px; background:linear-gradient(135deg,#9959FF,#ED49AE); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.sw-seg { display:flex; background:rgba(255,255,255,0.07); border-radius:99px; padding:3px; margin-left:6px; }
-.seg-btn { font-family:var(--font); font-size:11.5px; font-weight:600; color:var(--sw-text-dim); background:transparent; border:2px solid transparent; border-radius:99px; padding:4px 16px; cursor:pointer; transition:all var(--motion-duration-quick) var(--motion-ease-warmth); }
-.seg-btn.active { background:rgba(255,255,255,0.14); color:var(--sw-text); }
-.seg-btn:focus { border-color:var(--violet-60); outline:none; }
-.shelf-scroll { flex:1; overflow-y:auto; padding:12px 14px; }
-.shelf-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--sw-text-faint); margin:8px 2px 9px; }
-.shelf-obj { border:1px solid var(--sw-card-border); border-radius:12px; background:var(--sw-card); padding:11px 13px; margin-bottom:9px; cursor:pointer; transition:all var(--motion-duration-quick) var(--motion-ease-warmth); }
-.shelf-obj:hover { border-color:rgba(178,149,255,0.45); background:rgba(255,255,255,0.085); }
-.so-head { display:flex; align-items:center; gap:9px; }
-.so-glyph { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.so-glyph.watch { background:rgba(178,149,255,0.16); color:var(--violet-30); }
-.so-glyph.report { background:rgba(255,151,40,0.14); color:#ffb95e; }
-.so-title { font-size:12px; font-weight:700; color:var(--sw-text); }
-.so-sub { font-size:10.5px; color:var(--sw-text-dim); margin-top:1px; line-height:1.4; }
-.so-live { display:inline-flex; align-items:center; gap:4px; font-size:9px; font-weight:700; color:#7fe07a; text-transform:uppercase; letter-spacing:0.5px; margin-left:auto; flex-shrink:0; }
-.so-live::before { content:""; width:6px; height:6px; border-radius:50%; background:#7fe07a; animation:breathe var(--motion-duration-breathe) ease-in-out infinite; }
-.so-done { margin-left:auto; font-size:9px; font-weight:700; color:#d4bfff; text-transform:uppercase; letter-spacing:0.5px; flex-shrink:0; }
-.so-manif { display:flex; gap:6px; border-top:1px solid rgba(255,255,255,0.07); margin-top:9px; padding-top:8px; }
-.manif-chip { font-size:9px; font-weight:700; color:var(--sw-text-faint); background:rgba(255,255,255,0.06); border-radius:5px; padding:2.5px 8px; letter-spacing:0.3px; }
-.manif-chip.on { background:rgba(153,89,255,0.22); color:#d4bfff; }
-
-/* Smart Input — the Nova signature component */
-.sw-composer { padding:10px 14px 6px; flex-shrink:0; }
-.smart-input-glow { border-radius:16px; padding:1.5px; background:var(--input-gradient); opacity:0.65; transition:opacity 200ms var(--motion-ease-warmth), box-shadow 200ms var(--motion-ease-warmth); box-shadow:none; cursor:text; }
-.smart-input-glow.focus { opacity:1; box-shadow:0 0 12px 2px rgba(200,120,255,0.15), 0 0 24px rgba(255,144,94,0.08); }
-.smart-input-glow:hover { opacity:0.8; }
-.smart-input { background:var(--sw-input); border-radius:15px; }
-.si-text { padding:12px 16px 4px; font-size:13px; color:rgba(255,255,255,0.4); letter-spacing:-0.01em; min-height:21px; }
-.si-text .typed { color:rgba(255,255,255,0.88); }
-.caret { display:inline-block; width:1.5px; height:13px; background:var(--violet-30); vertical-align:text-bottom; animation:blink 1.1s steps(1) infinite; }
-@keyframes blink { 50% { opacity:0; } }
-.si-row { display:flex; align-items:center; padding:4px 12px 10px; gap:8px; }
-.si-plus { color:rgba(255,255,255,0.35); font-size:18px; font-weight:300; }
-.si-send { margin-left:auto; background:rgba(255,255,255,0.18); border-radius:14px; width:36px; height:28px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.5); font-size:13px; transition:all 200ms var(--motion-ease-warmth); }
-.smart-input-glow.focus .si-send { background:rgba(255,255,255,0.3); color:#fff; }
-.sw-disclaimer { font-size:10px; color:rgba(255,255,255,0.3); text-align:center; padding:0 0 10px; flex-shrink:0; }
-
-/* Chat view — Nova message arrival */
-.sw-thread { flex:1; overflow-y:auto; padding:14px 16px 8px; display:flex; flex-direction:column; gap:11px; }
-/* user message: slides from right, 240ms ai-arrive (smart-assist.css .message.user) */
-.msg-user { align-self:flex-end; max-width:88%; background:#054096; color:#fff; padding:9px 14px; border-radius:14px 14px 4px 14px; font-size:12.5px; line-height:1.55; opacity:0; transform:translateX(20px); animation:userIn var(--motion-duration-moderate) var(--motion-ease-ai-arrive) forwards; }
-@keyframes userIn { to { opacity:1; transform:translateX(0); } }
-/* AI response: plain text, no bubble chrome */
-.msg-ai { align-self:flex-start; max-width:94%; color:var(--sw-text); font-size:12.5px; line-height:1.6; opacity:0; transform:translateY(8px); animation:arrive var(--motion-duration-moderate) var(--motion-ease-ai-arrive) forwards; white-space:pre-wrap; }
-.msg-ai b { color:#d4bfff; }
-/* plan card in thread — Nova dark card */
-.plan-card { align-self:flex-start; width:100%; border:1px solid var(--sw-card-border); border-radius:14px; background:var(--sw-card); overflow:hidden; opacity:0; transform:translateY(8px); animation:arrive var(--motion-duration-gracious) var(--motion-ease-ai-arrive) forwards; }
-.plan-head { display:flex; align-items:center; gap:9px; padding:11px 14px; border-bottom:1px solid rgba(255,255,255,0.07); }
-.plan-glyph { width:26px; height:26px; border-radius:8px; background:rgba(178,149,255,0.16); color:var(--violet-30); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.plan-title { font-size:12.5px; font-weight:700; color:var(--sw-text); }
-.plan-sub { font-size:10.5px; color:var(--sw-text-dim); }
-.plan-body { padding:10px 14px 4px; }
-.plan-row { display:flex; gap:9px; font-size:11.5px; color:var(--sw-text-dim); line-height:1.5; margin-bottom:8px; }
-.plan-row .pr-ic { color:var(--violet-30); flex-shrink:0; width:15px; text-align:center; }
-.plan-row b { color:var(--sw-text); }
-.plan-foot { display:flex; gap:8px; padding:8px 14px 13px; flex-wrap:wrap; }
-.plan-card .sugg-chip { --chip-bg:#241a4e; }
-.sugg-chip.primary { background:var(--violet-50); border-color:var(--violet-50); color:#fff; }
-.sugg-chip.primary:hover { background:linear-gradient(90deg,#ff905e,#b397ff); border-color:transparent; }
-
-.shelf-foot { padding:10px 16px; border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; gap:8px; font-size:10.5px; color:var(--sw-text-faint); flex-shrink:0; }
-.shelf-foot .pause-all { margin-left:auto; color:var(--sw-text-dim); font-weight:600; cursor:pointer; transition:color var(--motion-duration-instant); }
-.shelf-foot .pause-all:hover { color:#ff8da3; }
-
-.sw-views { flex:1; min-height:0; position:relative; display:flex; flex-direction:column; }
-.sw-view { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity var(--motion-duration-moderate) var(--motion-ease-intentional); }
-.sw-view.active { opacity:1; pointer-events:auto; }
-
-/* OS toast */
-.os-toast { position:absolute; top:16px; right:18px; width:340px; background:rgba(28,27,34,0.97); backdrop-filter:blur(10px); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.4); display:flex; gap:11px; z-index:30; opacity:0; transform:translateY(-14px); transition:all var(--motion-duration-considered) var(--motion-ease-ai-arrive); }
-.os-toast.show { opacity:1; transform:translateY(0); }
-.os-toast-icon { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,#9959FF,#ED49AE); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.os-toast-title { font-size:12px; font-weight:700; color:#fff; }
-.os-toast-body { font-size:11.5px; color:rgba(255,255,255,0.72); line-height:1.45; margin-top:2px; }
-.os-toast-app { font-size:9.5px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:3px; }
-
-/* Object-model overlay — Nova gradient environment */
-.model-scrim { position:absolute; inset:0; background:var(--sw-bg); z-index:25; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity var(--motion-duration-moderate); }
-.model-scrim.open { opacity:1; pointer-events:auto; }
-.model-box { max-width:660px; text-align:center; color:var(--sw-text); }
-.model-box h2 { font-size:19px; font-weight:800; letter-spacing:-0.3px; margin-bottom:6px; }
-.model-box .sub { font-size:12.5px; color:var(--sw-text-dim); margin-bottom:26px; }
-.model-core { display:inline-flex; align-items:center; gap:10px; border-radius:16px; padding:1.5px; background:var(--input-gradient); box-shadow:0 0 12px 2px rgba(200,120,255,0.15), 0 0 24px rgba(255,144,94,0.08); }
-.model-core-inner { background:var(--sw-input); border-radius:15px; padding:12px 26px; font-size:14px; font-weight:700; color:#fff; display:flex; align-items:center; gap:10px; }
-.model-arrows { display:flex; justify-content:center; gap:60px; margin:18px 0 10px; color:var(--violet-30); font-size:18px; }
-.model-row { display:flex; gap:14px; justify-content:center; }
-.model-leaf { background:var(--sw-card); border:1px solid var(--sw-card-border); border-radius:12px; padding:13px 16px; width:190px; text-align:left; }
-.model-leaf .ml-name { font-size:12px; font-weight:800; color:#d4bfff; margin-bottom:3px; }
-.model-leaf .ml-desc { font-size:10.5px; color:var(--sw-text-dim); line-height:1.5; }
-.model-leaf .ml-where { font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--sw-text-faint); margin-top:7px; }
+/* ─── Smart Window sidebar — chat only, no Den ─── */
+.sidebar { width:380px; flex-shrink:0; background:linear-gradient(180deg,#f8f5fe 0%,#f3eefb 100%); border-left:1px solid rgba(43,27,85,0.07); display:flex; flex-direction:column; min-height:0; }
+.sb-head { display:flex; align-items:center; gap:9px; padding:11px 14px; flex-shrink:0; }
+.sb-logo { width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg,#9959FF,#ED49AE); }
+.sb-title { font-size:13px; font-weight:700; color:var(--violet-90); }
+.sb-thread { flex:1; overflow-y:auto; padding:14px 14px 18px; display:flex; flex-direction:column; gap:10px; min-height:0; }
+.msg-u { align-self:flex-end; background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(117,66,229,0.14), inset 0 0 5px rgba(178,149,255,0.12); max-width:82%; padding:9px 14px; font-size:12.5px; line-height:1.5; }
+.msg-a { align-self:stretch; color:var(--grey-100); font-size:12.5px; line-height:1.6; }
+.msg-a b { font-weight:600; }
+.dim-old { opacity:0.45; }
+/* the creation card — prefilled, editable, lives in the thread */
+.plan-card { align-self:stretch; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(43,27,85,0.1); padding:13px 15px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.pc-t { font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pc-badge { font-size:10px; font-weight:700; background:#e7f5e7; color:var(--green); border-radius:99px; padding:3px 10px; display:none; }
+.pc-badge.on { display:inline-block; }
+.pc-badge::before { content:"● "; }
+.pc-sent { font-size:13px; line-height:1.65; margin:7px 0 2px; }
+.tok { border-bottom:2px dotted var(--violet-40); font-weight:700; cursor:pointer; }
+.tok:hover { background:var(--violet-05); }
+.pc-meta { font-size:11px; color:var(--grey-50); margin:5px 0 9px; }
+.site-pill { font-family:var(--font); font-size:11.5px; font-weight:600; border-radius:99px; padding:5px 12px; border:1.5px solid var(--blue); background:transparent; color:var(--blue); cursor:pointer; margin:0 5px 5px 0; }
+.site-pill::before { content:"✓ "; }
+.pc-start { font-family:var(--font); font-size:12px; font-weight:700; background:var(--blue); color:#fff; border:none; border-radius:99px; padding:8px 18px; cursor:pointer; margin-top:6px; }
+.scroll-note { align-self:center; font-size:10.5px; color:var(--grey-40); padding:2px 0; }
+.sb-input { margin:0 12px 12px; background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(43,27,85,0.1); padding:11px 14px; font-size:12.5px; color:var(--grey-40); flex-shrink:0; }
 </style>
 </head>
 <body>
 
 <div class="proto-bar">
   <a href="index.html">← All concepts</a>
-  <span class="proto-chip">CONCEPT D · LEADING DIRECTION</span>
-  <span class="proto-title">The list + marks on the page</span>
-  <span class="proto-sub">The Den + the address bar · works in Classic windows · page never modified</span>
+  <span class="proto-chip">CONCEPT D</span>
+  <span class="proto-title">In the chat + the address bar</span>
+  <span class="proto-sub">No list surface — the eye and notifications carry what the thread can't</span>
   <div class="proto-steps">
     <div class="step-dots" id="dots"></div>
     <button class="proto-btn ghost" id="backBtn">Back</button>
     <button class="proto-btn" id="nextBtn">Start walkthrough</button>
   </div>
 </div>
-<div class="step-caption" id="caption"><strong>Concept D · The list + marks on the page.</strong> The red-team amendment, built with the Nova Smart Window Library: the Den stays as index and report home, but live watches <em>also</em> manifest where their subject lives — a Tab Context Badge on the watched page, a sleeping tab in the strip. One object, three manifestations. Click <strong>Start walkthrough</strong>.</div>
+<div class="step-caption" id="caption"><strong>Concept D · In the chat + the address bar.</strong> Creation is a prefilled, editable card in the chat — and it stays there. The always-on <strong>watching eye in the address bar</strong> (with hover status cards) and <strong>floating notification cards</strong> carry the live state, so you never have to dig for the thread. Click <strong>Start walkthrough</strong>.</div>
 
 <div class="browser">
   <div class="tabstrip">
     <div class="traffic"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div>
-    <div class="tab" id="tabShop"><span class="fav" style="background:linear-gradient(135deg,#7542e5,#976eff)"></span><span id="tabShopLabel">Aurora ANC Headphones — SoundHub</span></div>
-    <div class="tab inactive sleeping" id="tabFares"><span class="fav moon">🌙</span>YVR → NRT · watching<span class="tab-badge"></span></div>
-    <div class="tab inactive"><span class="fav" style="background:var(--grey-20)"></span>New Tab</div>
+    <div class="tab"><span class="fav" style="background:#2f6fd0"></span>SkyFares — LAX to TYO</div>
   </div>
   <div class="toolbar">
     <div class="nav-arrows">‹ ›</div>
-    <div class="urlbar"><span class="lock">🔒</span> <span id="urlText">soundhub.com/aurora-anc-headphones</span><span id="urlEye" style="margin-left:auto;display:none;align-items:center;gap:5px;color:var(--violet-50);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:#7fe07a;animation:breathe var(--motion-duration-breathe) ease-in-out infinite"></span>Watching</span></div>
-    <div class="mode-chip" id="modeChip">Classic window</div>
-    <div class="tb-icon" id="swToggle" title="Smart Window" tabindex="0">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2" width="13" height="12" rx="2.5" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="2.5" x2="10" y2="13.5" stroke="currentColor" stroke-width="1.4"/></svg>
+    <div class="urlbar"><span class="lock">🔒</span> skyfares.com/search?lax-tyo-oct
+      <span class="url-eye" id="urlEye"><span class="pulse"></span><span id="eyeLabel">Watching</span></span>
+    </div>
+    <div class="mode-chip">Classic window</div>
+    <div class="tb-ic sw">✦</div>
+
+    <!-- hover status card -->
+    <div class="hover-card" id="hoverCard">
+      <div class="hc-t"><span class="pulse" id="hcDot" style="width:8px;height:8px;border-radius:50%;background:var(--green)"></span>Tokyo fares</div>
+      <div class="hc-s" id="hcSub">$684 now · alert when nonstop drops below $620 · Oct 12 – 26</div>
+      <svg width="100%" height="42" viewBox="0 0 290 42" preserveAspectRatio="none" id="hcSpark">
+        <polyline id="hcLine" points="0,10 60,12 120,11 180,16 240,19 290,22" fill="none" stroke="#7542e5" stroke-width="2"/>
+        <line x1="0" y1="33" x2="290" y2="33" stroke="#d0bfff" stroke-width="1" stroke-dasharray="4 4"/>
+      </svg>
+      <div class="hc-meta" id="hcMeta"><span>⏱ checked 20m ago</span><span>4 sites</span><span>🔒 read-only · checks logged</span></div>
+      <div class="hc-actions"><button class="hc-btn" id="hcPause">⏸ Pause</button><button class="hc-btn">Open the chat</button></div>
     </div>
   </div>
 
   <div class="window-body">
-    <div class="content" id="contentArea">
-
-      <!-- Product page -->
-      <div class="shop-page" id="shopPage">
-        <div class="shop-crumb">SoundHub › Audio › Noise-cancelling headphones</div>
-        <div class="shop-hero">
-          <div class="shop-img">
-            <svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#4a2e8f" stroke-width="1.3"><path d="M4 13a8 8 0 0 1 16 0"/><rect x="2.5" y="13" width="4" height="7" rx="2"/><rect x="17.5" y="13" width="4" height="7" rx="2"/></svg>
-          </div>
-          <div class="shop-info">
-            <h1>Aurora ANC Wireless Headphones</h1>
-            <div class="shop-rating">★★★★☆ <span>4.4 · 2,318 reviews</span></div>
-            <div>
-              <span class="price-now" id="priceNow">$79.00</span><span class="price-was">$129.00</span>
-            </div>
-            <!-- Waypoint = Tab Context Badge component, pinned to the watched element -->
-            <div class="waypoint" id="waypoint" tabindex="0">
-              <span class="wp-pulse"></span>
-              Watching · target $75 <span class="wp-dim">· low $79 · checked 12m ago</span>
-            </div>
-            <p class="shop-desc">Adaptive noise cancellation, 42-hour battery, multipoint Bluetooth. Free shipping on orders over $50.</p>
-            <div class="shop-cta">
-              <button class="shop-btn primary">Add to cart</button>
-              <button class="shop-btn secondary">Save for later</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Waypoint popover — Nova dark surface -->
-      <div class="wp-popover" id="wpPopover">
-        <div class="wpp-head">
-          <div class="wpp-glyph"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
-          <div><div class="wpp-title">Watching this price</div><div class="wpp-sub">3 retailers grouped · started 9 days ago</div></div>
-        </div>
-        <div class="wpp-spark">
-          <svg width="100%" height="46" viewBox="0 0 300 46" preserveAspectRatio="none">
-            <polyline points="0,8 45,8 70,13 100,12 135,19 165,18 200,24 235,26 265,29 300,31" fill="none" stroke="#b295ff" stroke-width="2"/>
-            <line x1="0" y1="38" x2="300" y2="38" stroke="rgba(178,149,255,0.4)" stroke-width="1" stroke-dasharray="4 4"/>
-            <circle cx="300" cy="31" r="3.5" fill="#ED49AE"/>
-            <text x="4" y="36" font-size="8.5" fill="rgba(212,191,255,0.7)" font-family="system-ui">target $75</text>
-          </svg>
-        </div>
-        <div class="wpp-rule">Alert when <code>price ≤ $75</code> or <code>verified promo found</code> — best of 3 retailers, one alert</div>
-        <div class="wpp-trust">
-          <span class="trust-badge t-local">⏱ checked locally</span>
-          <span class="trust-badge t-moz">🔒 read-only</span>
-          <span class="trust-badge t-third">3 third-party sources</span>
-        </div>
-        <div class="wpp-foot">
-          <button class="sugg-chip">Change rule</button>
-          <button class="sugg-chip" id="openShelfBtn">Open Den</button>
-          <button class="sugg-chip">⏸ Pause</button>
-        </div>
-      </div>
-
-      <!-- Report page (a real page with a URL) -->
-      <div class="report-page" id="reportPage">
-        <div class="rp-doc">
-          <div class="rp-kicker"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg> Research report · Smart Window</div>
-          <h1>ANC headphones under $100</h1>
-          <div class="rp-meta">Finished 2 weeks ago · 6 options · 14 pages read · every source linked</div>
-          <div class="rp-actions">
-            <button class="sugg-chip on-light">🔗 Copy link</button>
-            <button class="sugg-chip on-light">🖨 Print</button>
-            <button class="sugg-chip on-light">⭐ Bookmark</button>
-            <button class="sugg-chip on-light">💬 Open linked chat</button>
-          </div>
-          <div class="pick-card">
-            <div>
-              <div class="pick-rank">Top pick</div>
-              <div class="pick-name">Aurora ANC Wireless</div>
-              <div class="pick-why">Best ANC per dollar · 42h battery · firmware fixed the hiss issue</div>
-            </div>
-            <div class="pick-price">$89→$79</div>
-          </div>
-          <h3>How the six compare</h3>
-          <table class="comp-table">
-            <thead><tr><th>Model</th><th>ANC</th><th>Battery</th><th>Price</th><th>Verdict</th></tr></thead>
-            <tbody>
-              <tr><td>Aurora ANC</td><td>Excellent</td><td>42h</td><td>$79</td><td>Top pick — being watched</td></tr>
-              <tr><td>Drift Q3</td><td>Good</td><td>60h</td><td>$79</td><td>Battery champ</td></tr>
-              <tr><td>Pulse Air 2</td><td>Excellent</td><td>28h</td><td>$99</td><td>Best for calls</td></tr>
-              <tr><td>Echo Lite</td><td>Fair</td><td>35h</td><td>$59</td><td>Budget option</td></tr>
-            </tbody>
-          </table>
-          <h3>What I'd do</h3>
-          <p>The Aurora is the strongest buy and it's already being watched at your $75 target. If battery is the deciding factor, the Drift Q3 at $79 is the safer immediate purchase.</p>
-        </div>
-      </div>
-
-      <!-- OS toast -->
-      <div class="os-toast" id="osToast">
-        <div class="os-toast-icon"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
-        <div>
-          <div class="os-toast-app">Firefox</div>
-          <div class="os-toast-title">YVR→NRT: $834 refundable found</div>
-          <div class="os-toast-body">Tuesday, nonstop, flex fare — $16 under your cap. Price read as a validated number, not a guess.</div>
-        </div>
-      </div>
-
-      <!-- Object model overlay -->
-      <div class="model-scrim" id="modelScrim">
-        <div class="model-box">
-          <h2>One object. Three manifestations.</h2>
-          <div class="sub">A watch is a single user-level object — every surface is just a projection of it. New agent types add object types, never surfaces.</div>
-          <div class="model-core"><div class="model-core-inner">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg>
-            Watch: Aurora ANC · ≤ $75
-          </div></div>
-          <div class="model-arrows"><span>↓</span><span>↓</span><span>↓</span></div>
-          <div class="model-row">
-            <div class="model-leaf">
-              <div class="ml-name">Address-bar eye</div>
-              <div class="ml-desc">Lives in the address bar like the bookmark star, visible whenever you're on the watched page. Page content is never touched.</div>
-              <div class="ml-where">Address bar · any window</div>
-            </div>
-            <div class="model-leaf">
-              <div class="ml-name">Sleeping tab</div>
-              <div class="ml-desc">Hibernates in the strip; wakes and badges when the condition is met. Works even if notifications are denied.</div>
-              <div class="ml-where">Tab strip · any window</div>
-            </div>
-            <div class="model-leaf">
-              <div class="ml-name">Den card</div>
-              <div class="ml-desc">The index: full state, rule editing, trust log, pause-all. Reports live here and open as real pages.</div>
-              <div class="ml-where">Smart Window panel</div>
-            </div>
-          </div>
-        </div>
+    <div class="content">
+      <div class="fl-page">
+        <div class="fl-search">✈️ &nbsp;<b>LAX → TYO</b> · Oct 12–26 · 1 adult &nbsp;·&nbsp; 52 results</div>
+        <div class="fl-row"><div class="fl-air" style="background:#e8f1fd">🛫</div><div><div class="fl-t">9:40 — 14:55<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n" id="fare1">$684</div><div class="fl-ty">economy</div></div></div>
+        <div class="fl-row"><div class="fl-air" style="background:#fdeee8">🛫</div><div><div class="fl-t">11:05 — 16:30<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n">$702</div><div class="fl-ty">economy</div></div></div>
+        <div class="fl-row" style="opacity:0.6"><div class="fl-air" style="background:#eefae8">🛫</div><div><div class="fl-t">7:15 — 15:40<sup>+1</sup></div><div class="fl-r">1 stop · SEA</div></div><div class="fl-price"><div class="fl-n">$641</div><div class="fl-ty">economy</div></div></div>
       </div>
     </div>
 
-    <!-- Smart Window panel — Nova dark surface -->
-    <div class="smart-window" id="smartWindow">
-      <div class="sw-header">
-        <div class="sw-logo"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
-        <div class="sw-seg">
-          <button class="seg-btn" id="segChat">Chat</button>
-          <button class="seg-btn active" id="segShelf">Den</button>
-        </div>
-      </div>
-
-      <div class="sw-views">
-        <!-- SHELF VIEW -->
-        <div class="sw-view active" id="shelfView">
-          <div class="shelf-scroll">
-            <div class="shelf-label">Live</div>
-            <div class="shelf-obj">
-              <div class="so-head">
-                <div class="so-glyph watch"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
-                <div><div class="so-title">Aurora ANC Headphones</div><div class="so-sub">$79 now · target $75 · 3 retailers</div></div>
-                <div class="so-live">Live</div>
-              </div>
-              <div class="so-manif"><span class="manif-chip on">⌖ address bar</span><span class="manif-chip">🌙 tab</span><span class="manif-chip on">▤ shelf</span></div>
-            </div>
-            <div class="shelf-obj" id="faresObj">
-              <div class="so-head">
-                <div class="so-glyph watch"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
-                <div><div class="so-title">YVR → NRT fares, March</div><div class="so-sub" id="faresSub">Refundable · ≤ $850 · weekday · best seen $934</div></div>
-                <div class="so-live">Live</div>
-              </div>
-              <div class="so-manif"><span class="manif-chip">⌖ address bar</span><span class="manif-chip on">🌙 tab</span><span class="manif-chip on">▤ shelf</span></div>
-            </div>
-            <div class="shelf-label" style="margin-top:16px">Reports</div>
-            <div class="shelf-obj" id="reportObj">
-              <div class="so-head">
-                <div class="so-glyph report"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></div>
-                <div><div class="so-title">ANC headphones under $100</div><div class="so-sub">6 options · 2w ago · has a URL — print, share, bookmark</div></div>
-                <div class="so-done">Kept</div>
-              </div>
-            </div>
-          </div>
-          <div class="shelf-foot">
-            <span>Read-only · local heuristics · every check logged</span>
-            <span class="pause-all">⏸ Pause all</span>
-          </div>
-          <!-- Smart Input (Nova) -->
-          <div class="sw-composer">
-            <div class="smart-input-glow" id="siGlow">
-              <div class="smart-input">
-                <div class="si-text" id="siText">Ask, search, or type a URL</div>
-                <div class="si-row">
-                  <span class="si-plus">+</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" style="color:rgba(255,255,255,0.35);"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 6.5L7 4.5L9 6.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" fill="none"/><path d="M7 5V10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M4.5 10.5L11.5 10.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-                  <span class="si-send">→</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="sw-disclaimer">AI can make mistakes</div>
-        </div>
-      </div>
+    <!-- Smart Window sidebar — chat only -->
+    <div class="sidebar">
+      <div class="sb-head"><div class="sb-logo"></div><div class="sb-title">Smart Window</div></div>
+      <div class="sb-thread" id="thread"></div>
+      <div class="sb-input">Ask about this page…</div>
     </div>
+  </div>
+
+  <!-- floating notification card -->
+  <div class="float-card" id="floatCard">
+    <div class="fc-app"><span class="fc-glyph"></span>Firefox · Smart Window</div>
+    <div class="fc-t">Tokyo fares: dropped to $607</div>
+    <div class="fc-b"><b>11% below your $620 target</b> — nonstop, Oct 14, lowest in 3 months. Found on Kayak; SkyFares is at $631.</div>
+    <div class="fc-row"><button class="fc-btn">Open Kayak</button><button class="fc-btn ghost">Snooze a day</button><button class="fc-btn ghost" id="fcStop">Stop watching</button></div>
   </div>
 </div>
 
 <script>
-const waypoint=document.getElementById('waypoint'), wpPopover=document.getElementById('wpPopover'),
-priceNow=document.getElementById('priceNow'), tabFares=document.getElementById('tabFares'),
-osToast=document.getElementById('osToast'), smartWindow=document.getElementById('smartWindow'),
-swToggle=document.getElementById('swToggle'), shopPage=document.getElementById('shopPage'),
-reportPage=document.getElementById('reportPage'), urlText=document.getElementById('urlText'),
-tabShopLabel=document.getElementById('tabShopLabel'), modelScrim=document.getElementById('modelScrim'),
-faresSub=document.getElementById('faresSub'), caption=document.getElementById('caption'),
-siGlow=document.getElementById('siGlow'), siText=document.getElementById('siText');
+const $ = id => document.getElementById(id);
+const thread = $('thread');
+function el(h){ const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
+function add(n){ thread.appendChild(n); thread.scrollTop=1e6; return n; }
 
-function showContent(c){
-  shopPage.style.display = c==='shop' ? '' : 'none';
-  reportPage.classList.toggle('visible', c==='report');
-  wpPopover.classList.remove('open');
-  urlText.textContent = c==='shop' ? 'soundhub.com/aurora-anc-headphones' : 'firefox.com/smart-window/r/anc-headphones-under-100';
-  tabShopLabel.textContent = c==='shop' ? 'Aurora ANC Headphones — SoundHub' : 'Report — ANC headphones under $100';
-}
-/* Smart Input glow lifecycle: 65% rest → 100% + bloom on focus → dims after send */
-function inputFocusDemo(text){
-  siGlow.classList.add('focus');
-  let i=0; siText.innerHTML='<span class="caret"></span>';
-  const t=setInterval(()=>{ i++;
-    siText.innerHTML='<span class="typed">'+text.slice(0,i)+'</span><span class="caret"></span>';
-    if(i>=text.length){ clearInterval(t);
-      setTimeout(()=>{ siGlow.classList.remove('focus'); siText.textContent='Ask, search, or type a URL'; },900); }
-  },30);
-}
+const steps = [
+  { cap:"<strong>1 · Creation is a card in the chat — prefilled, editable.</strong> The user asks; Smart Window reads the page and answers with the watch already filled in: route, dates, the rule, four sites. The <em>underlined parts are editable</em> — click $620 to change it, toggle a site off. No form, no new surface. Then <em>Start watching</em>.",
+    run(){
+      add(el('<div class="msg-u">watch these fares for me</div>'));
+      setTimeout(()=>{
+        add(el(`<div class="msg-a">Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:</div>`));
+        const card = add(el(`<div class="plan-card" id="planCard">
+          <div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching · 4 sites</span></div>
+          <p class="pc-sent">Alert me when a <span class="tok" data-c="nonstop|any">nonstop</span> fare drops <b>below</b> <span class="tok" data-c="$620|$600|$650">$620</span> for <span class="tok" data-c="Oct 12 – 26|Oct 10 – 24">Oct 12 – 26</span></p>
+          <div class="pc-meta">Checking 4 times daily · Push notification · read-only</div>
+          <div><button class="site-pill">SkyFares</button><button class="site-pill">Kayak</button><button class="site-pill">Google Flights</button><button class="site-pill">Expedia</button></div>
+          <button class="pc-start" id="pcStart">Start watching</button>
+        </div>`));
+        card.querySelectorAll('.tok').forEach(t=>t.onclick=()=>{ const o=t.dataset.c.split('|'); t.textContent=o[(o.indexOf(t.textContent)+1)%o.length]; });
+        card.querySelectorAll('.site-pill').forEach(p=>p.onclick=()=>p.style.opacity=p.style.opacity==='0.4'?'':'0.4');
+        $('pcStart').onclick=()=>{ $('pcBadge').classList.add('on'); $('pcStart').remove(); $('urlEye').classList.add('shown'); };
+      },450);
+    } },
 
-const steps=[
-  { cap:'<strong>1 · The chrome is the surface — never the page.</strong> Nine days into the watch, the user revisits the product page — <em>in a Classic window</em> (see the toolbar). The page content is untouched. Instead, an <em>eye sits in the address bar</em> with a breathing dot — the same pattern as the bookmark star: chrome Firefox already owns, telling you something about this page. No panel needed, no mode required.',
-    run(){ showContent('shop'); document.getElementById('urlEye').style.display='inline-flex'; } },
+  { cap:"<strong>2 · Started — and the card just stays in the thread.</strong> That's the deal in Concept D: the chat is the only record. Keep talking and the card scrolls away; finding it later means scrolling up. That weakness is deliberate — because the next two things mean you almost never need to.",
+    run(){
+      const b=$('pcBadge'); if(b) b.classList.add('on'); const st=$('pcStart'); if(st) st.remove();
+      $('urlEye').classList.add('shown');
+      add(el('<div class="msg-a">Watching now. I will check 4 times a day across the 4 sites and stay quiet until your rule is met.</div>'));
+      add(el('<div class="msg-u">thanks! also what terminal does the 9:40 leave from?</div>'));
+      add(el('<div class="msg-a">Tom Bradley International (TBIT) — gate posted ~3h before departure.</div>'));
+      add(el('<div class="scroll-note">— the watch card is now two screens up —</div>'));
+    } },
 
-  { cap:'<strong>2 · The eye is the whole object.</strong> Click it: a Nova popover with price history against the target line, the rule, and the <em>trust-tier cascade</em> — local → mozilla → third-party badges arriving in trust order. Everything Concept C kept in the Den, reachable from the address bar — one quiet indicator, no popups, zero page modification. No extension or competitor sidebar can copy it: only the browser owns the address bar.',
-    run(){ showContent('shop'); document.getElementById('urlEye').style.display='inline-flex'; wpPopover.classList.add('open'); } },
+  { cap:"<strong>3 · The eye in the address bar is always there.</strong> On any watched page, a small breathing eye sits in the bar — chrome Firefox owns, like the bookmark star, page untouched. It's the permanent answer to \\\"where's my watch?\\\" — no scrolling, no list to visit.",
+    run(){ $('urlEye').classList.add('shown'); $('urlEye').style.boxShadow='0 0 0 3px rgba(117,66,229,0.3)'; setTimeout(()=>$('urlEye').style.boxShadow='',1600); } },
 
-  { cap:'<strong>3 · The sleeping tab.</strong> The fare watch lives as a hibernating tab — 🌙, dimmed, italic. Tabs are the browser\'s oldest object model for "things I\'m keeping alive," so the novelty tax is near zero. It costs no memory; it\'s a bookmark with a pulse.',
-    run(){ wpPopover.classList.remove('open');
-      tabFares.style.boxShadow='0 0 0 3px rgba(117,66,229,0.3)'; setTimeout(()=>tabFares.style.boxShadow='',1600); } },
+  { cap:"<strong>4 · Hover the eye → the status card.</strong> No click needed: current price, the rule, the trend against your target line, last check, pause. Everything a list row would have shown — summoned in place, then gone when your cursor leaves.",
+    run(){ $('hoverCard').classList.add('open'); } },
 
-  { cap:'<strong>4 · Condition met — and the fallback that can\'t be denied.</strong> The fare hits. The OS notification fires <em>if permitted</em> — but the tab wakes regardless: badge, violet glow (500ms deliberate — the most intentional duration tier), un-dims. The notification-permission cliff is bridged: even with notifications declined, the waking tab and the waypoint carry the alert. The toast\'s claim — <em>price read as a validated number</em> — is the injection-hardening amendment.',
-    run(){ tabFares.classList.remove('sleeping'); tabFares.classList.add('awake');
-      tabFares.innerHTML='<span class="fav">✈️</span><b>$834 — YVR → NRT</b><span class="tab-badge"></span>';
-      osToast.classList.add('show'); faresSub.innerHTML='<b style="color:#d4bfff">$834 refundable found</b> · Tuesday · $16 under cap'; } },
+  { cap:"<strong>5 · The condition hits → a floating card, not just a ping.</strong> The notification is a real card: the judgment (<em>11% below target, lowest in 3 months, which site won</em>) and the actions that matter — <em>Open Kayak · Snooze · Stop watching</em>. You can finish the whole loop without ever finding the original thread.",
+    run(){ $('hoverCard').classList.remove('open'); $('floatCard').classList.add('open');
+      $('urlEye').classList.add('met'); $('eyeLabel').textContent='Hit $607'; $('fare1').textContent='$631';
+      $('hcDot').style.background='var(--violet-40)'; $('hcSub').innerHTML='<b style="color:var(--violet-60)">$607 — condition met</b> · was: nonstop below $620'; $('hcMeta').innerHTML='<span>hit 9:02 AM</span><span>best: Kayak</span><span>SkyFares $631</span>'; } },
 
-  { cap:'<strong>5 · The Den is still the index — on the Nova surface.</strong> Open Smart Window: the signature gradient environment, the Den objects with their <em>manifestation chips</em> (waypoint · tab · shelf), and the Smart Input resting at 65% glow with "AI can make mistakes" beneath — the quiet honesty signal. One object, projected three ways; edit it anywhere, it updates everywhere.',
-    run(){ osToast.classList.remove('show'); smartWindow.classList.add('open'); swToggle.classList.add('active');
-      setTimeout(()=>inputFocusDemo('pause the headphones watch until June'),700); } },
-
-  { cap:'<strong>6 · Reports are real pages.</strong> Click the report on the Den: it opens as a page <em>with a URL</em> — printable, bookmarkable, shareable (fixing the canvas weakness the red team found). The linked chat is one Suggestion Chip away. And the report already knows its top pick is being watched — the agents keep composing.',
-    run(){ smartWindow.classList.add('open'); swToggle.classList.add('active'); showContent('report'); } },
-
-  { cap:'<strong>7 · The object model — why this direction leads.</strong> A watch is one user-level object; waypoint, sleeping tab, and Den card are projections of it. Surfaces stop being a debate: new agent types add <em>object types</em>, and existing projections render them. Footprint over Concept C: <em>+1 annotation affordance, +1 tab state</em> — both native browser primitives, both built from existing Nova components. <a href="index.html" style="color:#d4bfff">Back to the full analysis →</a>',
-    run(){ showContent('shop'); modelScrim.classList.add('open'); } },
+  { cap:"<strong>6 · The shape of Concept D.</strong> Chat holds the record (scroll to find it), the bar holds the presence (eye + hover card), notifications close the loop (floating card with actions). Zero list surfaces to build or maintain — and the honest limit: with five watches running, there's no roster to manage. That's what C's Den and F's Firefox View page are for. <a href='index.html'>Compare all concepts →</a>",
+    run(){ $('floatCard').classList.remove('open'); $('hoverCard').classList.add('open'); } },
 ];
 
 let cur=-1;
-const dots=document.getElementById('dots');
+const dots=$('dots');
 steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-dot'; d.onclick=()=>goto(i); dots.appendChild(d); });
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
-function resetAll(){
-  priceNow.classList.remove('waypointed'); waypoint.classList.remove('shown'); document.getElementById('urlEye').style.display='none'; wpPopover.classList.remove('open');
-  osToast.classList.remove('show'); smartWindow.classList.remove('open'); swToggle.classList.remove('active');
-  modelScrim.classList.remove('open'); showContent('shop');
-  tabFares.classList.add('sleeping'); tabFares.classList.remove('awake');
-  tabFares.innerHTML='<span class="fav moon">🌙</span>YVR → NRT · watching<span class="tab-badge"></span>';
-  faresSub.innerHTML='Refundable · ≤ $850 · weekday · best seen $934';
-  siGlow.classList.remove('focus'); siText.textContent='Ask, search, or type a URL';
+function reset(){
+  thread.innerHTML=''; $('urlEye').classList.remove('shown','met'); $('eyeLabel').textContent='Watching';
+  $('hoverCard').classList.remove('open'); $('floatCard').classList.remove('open');
+  $('hcDot').style.background='var(--green)'; $('fare1').textContent='$684';
+  $('hcSub').textContent='$684 now · alert when nonstop drops below $620 · Oct 12 – 26';
+  $('hcMeta').innerHTML='<span>⏱ checked 20m ago</span><span>4 sites</span><span>🔒 read-only · checks logged</span>';
 }
-function goto(n){
-  if(n<cur){ resetAll(); cur=-1; }
-  if(n>cur+1){ resetAll(); cur=-1; while(cur<n-1){ cur++; steps[cur].run(); } }
-  modelScrim.classList.remove('open');
-  cur=n; steps[cur].run();
-  caption.innerHTML=steps[cur].cap; renderDots();
-  document.getElementById('nextBtn').textContent = cur>=steps.length-1 ? 'Restart' : 'Next';
-}
-document.getElementById('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ resetAll(); cur=-1; renderDots();
-  caption.innerHTML='<strong>Concept D · The list + marks on the page.</strong> Click <strong>Start walkthrough</strong>.'; document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
-document.getElementById('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
-waypoint.onclick=()=>wpPopover.classList.toggle('open');
-priceNow.onclick=()=>{ if(priceNow.classList.contains('waypointed')) wpPopover.classList.toggle('open'); };
-swToggle.onclick=()=>{ smartWindow.classList.toggle('open'); swToggle.classList.toggle('active'); };
-document.getElementById('openShelfBtn').onclick=()=>{ wpPopover.classList.remove('open'); smartWindow.classList.add('open'); swToggle.classList.add('active'); };
-document.getElementById('reportObj').onclick=()=>showContent('report');
-modelScrim.onclick=()=>modelScrim.classList.remove('open');
-siGlow.onclick=()=>{ siGlow.classList.toggle('focus'); };
+function goto(n){ if(n<cur){ reset(); cur=-1; } while(cur<n){ cur++; steps[cur].run(); } $('caption').innerHTML=steps[cur].cap; renderDots(); $('nextBtn').textContent=cur>=steps.length-1?'Restart':'Next'; }
+$('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; renderDots(); $('caption').innerHTML="<strong>Concept D · In the chat + the address bar.</strong> Click <strong>Start walkthrough</strong>."; $('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
+$('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
+$('urlEye').onmouseenter=()=>$('hoverCard').classList.add('open');
+$('hoverCard').onmouseleave=()=>$('hoverCard').classList.remove('open');
+$('urlEye').onclick=()=>$('hoverCard').classList.toggle('open');
+$('hcPause').onclick=()=>{ $('hcPause').textContent=$('hcPause').textContent.includes('Pause')?'▶ Resume':'⏸ Pause'; };
+$('fcStop').onclick=()=>{ $('floatCard').classList.remove('open'); $('urlEye').classList.remove('shown'); };
 renderDots();
 </script>
 </body>
