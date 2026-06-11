@@ -121,7 +121,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <div class="sn-brand">Q3 Agent Surfaces</div>
   <div class="sn-sub">Monitor · Scout · Research<br>Product exploration &amp; UX recommendation</div>
   <div class="sn-label">Try it</div>
-  <a class="sn-proto" href="experience.html" style="border-color:rgba(93,213,90,0.5);background:rgba(5,139,0,0.12);"><span class="k" style="background:rgba(5,139,0,0.35)">LIVE</span> The experience ★</a>
+  <a class="sn-proto" href="live.html" style="border-color:rgba(93,213,90,0.5);background:rgba(5,139,0,0.12);"><span class="k" style="background:rgba(5,139,0,0.35)">LIVE</span> All five concepts — live ★</a>
   <a class="sn-proto" href="lab/index.html" style="border-color:rgba(230,96,0,0.45);background:rgba(230,96,0,0.1);"><span class="k" style="background:rgba(230,96,0,0.3)">LAB</span> Concept comparison lab</a>
   <div class="sn-label">Storyboards (for decks — start mid-journey)</div>
   <a class="sn-proto" href="concept-a.html"><span class="k">A</span> All in the chat</a>
@@ -143,7 +143,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <p class="intro">Five concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
   <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
 
-  <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Den and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
+  <div class="callout green" style="margin-bottom:40px"><p><b>Try them, don't read them:</b> the <a href="live.html" style="color:#5dd55a;font-weight:700">live prototype</a> runs all five concepts on one engine — type your own asks, answer the setup questions with your own details, edit rules on the cards, skip days, get the alerts, and switch concepts A–E mid-session to feel how the same watch lives in each surface. Storyboards below are for decks.</p></div>
 
   <section id="framing">
     <h2>The problem is two-layered</h2>
@@ -208,38 +208,38 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <div class="concept-card">
         <div class="cc-tag cc-a">CONCEPT A · SMALLEST BUILD</div>
         <div class="cc-name">All in the chat</div>
-        <div class="cc-thesis">Agents live inside the chat you already use. You start one by typing, a pinned line at the top of the panel shows what's running when you reopen it, and each chat that started a watch shows it as a child row in Firefox View → Chats — where chat history already lives.</div>
+        <div class="cc-thesis">Everything happens in the conversation. Slash command or typed ask; if details are missing, Smart Window asks with the little question cards. The watch becomes a live card in the thread — price line, stats, Edit / Pause / Delete — and pins to the top of the panel as a compact chip that expands to full detail on click. In Firefox View → Chats, the watch shows as a child row under its conversation.</div>
         <div class="cc-mini"><b>Footprint:</b> 1 slash menu · 1 pinned strip · 1 history filter<br><b>Ships in:</b> ~1 sprint of UI work</div>
         <a class="cc-btn a" href="concept-a.html">Storyboard →</a>
       </div>
       <div class="concept-card">
         <div class="cc-tag cc-b">CONCEPT B · BIGGEST BUILD</div>
         <div class="cc-name">A separate agents page</div>
-        <div class="cc-thesis">A full page just for agents, opened from the new tab. You create from the chat — slash command, Smart Window recommending it, or a feature callout — and the watch lands in the hub: every agent a card with its price history, every report in a library, and a feed of everything they've done.</div>
+        <div class="cc-thesis">Creation in the chat (slash, a recommendation, or a feature callout), with setup questions when context is missing. The started watch saves as a living pin at the top of the chat — icon + name, click to pop open — and lands in the Agent Hub: a full page off the new tab with every agent as a card, reports, and an activity log. The new tab carries a summary card of everything, with an explicit Open Agent Hub button.</div>
         <div class="cc-mini"><b>Footprint:</b> new about: page · tile system · feed · gallery · canvas<br><b>Ships in:</b> multi-sprint, cross-squad</div>
         <a class="cc-btn b" href="concept-b.html">Storyboard →</a>
       </div>
       <div class="concept-card">
         <div class="cc-tag cc-c">CONCEPT C</div>
         <div class="cc-name">A saved list in the panel</div>
-        <div class="cc-thesis">Every chat has its own Den — a second tab in the panel holding only what this conversation created: running watches and finished reports. Never empty: when there's nothing yet, it offers suggestions from the page. Something fires while you're chatting and the Den tab gets a marker. Open an old chat from history and it opens like any chat, with its Den intact.</div>
+        <div class="cc-thesis">Every chat has its own Den — a second tab in the panel holding only what this conversation created. Start watching needs zero typing (everything suggested from the page); Change the rule opens the question card — pick, it saves and goes. Den items carry Edit / Pause / Delete. Never empty: suggestions fill it before you've made anything, and a marker hits the Den tab when something fires mid-chat.</div>
         <div class="cc-mini"><b>Footprint:</b> 1 offer chip · 1 panel segment · 1 canvas template<br><b>Ships in:</b> ~2 sprints; grows into B later</div>
         <a class="cc-btn c" href="concept-c.html">Storyboard →</a>
       </div>
       <div class="concept-card star">
         <div class="cc-tag cc-d">CONCEPT D · LEADING DIRECTION</div>
         <div class="cc-name">In the chat + the address bar</div>
-        <div class="cc-thesis">No list surface at all. You create the watch as a prefilled, editable card right in the chat — and it stays in the chat (you'd scroll to find it later). That's fine, because the live state comes to you: an always-there watching eye in the address bar with a hover status card, and a floating notification card with actions when the condition hits. The page itself is never touched.</div>
+        <div class="cc-thesis">No list surface. Slash, a suggestion chip, or just typing creates the prefilled card in the chat — it becomes a live component (price line, stats, Edit / Pause / Delete) and stays in the thread. The always-there eye in the address bar carries a hover status card (Pause · Go to the card), and when the condition hits, a floating action card finds you on any page: Open the site · Snooze · Stop.</div>
         <div class="cc-mini"><b>Footprint over C:</b> +1 annotation affordance · +1 tab state — both native browser primitives<br><b>Built with:</b> Nova Smart Window Library components</div>
         <div class="cc-btn-row">
-          <a class="cc-btn d" href="experience.html">Live experience →</a>
+          <a class="cc-btn d" href="live.html">Live experience →</a>
           <a class="cc-btn c" href="concept-d.html">Storyboard →</a>
         </div>
       </div>
       <div class="concept-card">
         <div class="cc-tag" style="background:rgba(94,232,214,0.15);color:#3fd6c0">CONCEPT E</div>
         <div class="cc-name">Agents in Firefox View</div>
-        <div class="cc-thesis">Concept B's full management page — but the end location is Firefox View, right beside Chats. Every watch is a card with its rule, a dot per check, and direct actions; alerts land as a strip on the card; reports file beneath. Creation is inline in the chat (offer chip or just asking). No address-bar indicator, no new top-level surface — Firefox View already ships.</div>
+        <div class="cc-thesis">Creation in the chat (offer chip or asking; one clarifying question since the chip knows the page). The live card keeps a permanent Open in Agents — Firefox View link. The end location is an Agents section beside Chats in Firefox View: big cards with the rule in plain words, a dot per check, Check now / Pause / Open page / Delete, and alert strips with the judgment when something hits. No address-bar indicator.</div>
         <div class="cc-mini"><b>Footprint:</b> one new section in an existing page · address-bar entry<br><b>Ships in:</b> ~2–3 sprints</div>
         <a class="cc-btn" style="background:#0d9488;color:#fff" href="concept-e.html">Storyboard →</a>
       </div>
@@ -250,9 +250,9 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>E · Firefox View</th></tr></thead>
       <tbody>
         <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The chat thread + the chrome around the page (address-bar eye)</td><td>An Agents section in Firefox View, beside Chats</td></tr>
-        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>A prefilled, editable card in the chat</td><td>The offer chip or asking in the chat — the setup card appears inline in the conversation</td></tr>
-        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>Only in the chat — scroll to find it; the eye carries live state instead</td><td>Cards in Firefox View → Agents; reports file beneath</td></tr>
-        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>The always-there eye (hover for the status card) and floating notification cards with actions — it comes to you</td><td>Notification → Firefox View; the rail badge counts what's new</td></tr>
+        <tr><td>How you start one</td><td>Slash or typed ask — question cards fill the gaps</td><td>Slash, in-chat recommendation, or a feature callout — then setup questions</td><td>The offer chip or asking — zero typing needed; Change-the-rule is a question card</td><td>Slash, suggestion chip, or typing — same prefilled live card</td><td>The offer chip or asking — one clarifying question, then the card inline</td></tr>
+        <tr><td>Where results are kept</td><td>A live card in the thread + a pinned chip up top (expands to full detail); child rows in Firefox View → Chats</td><td>The living pin in the chat + the hub's cards, reports, and check log</td><td>The saved list: running things and finished reports</td><td>The live card in the thread; the bar eye + hover card carry state everywhere</td><td>Cards in Firefox View → Agents; reports file beneath</td></tr>
+        <tr><td>How you get back to it</td><td>The pinned chip (click to expand), the notification, or the Firefox View child row</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>Hover the eye for the status card; hits arrive as a floating action card on any page — Open · Snooze · Stop</td><td>Notification → Firefox View; the rail badge counts what's new</td></tr>
         <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="good">Tiny — a chat card, an indicator, a notification · ~2 sprints</td><td class="mid">A section in an existing page · ~2–3 sprints</td></tr>
         <tr><td>How it grows</td><td class="bad">It doesn't — falls apart past ~3 agents</td><td>Add more cards to the page</td><td>Add new kinds of saved things</td><td class="bad">It doesn't — five watches means five eyes and no roster</td><td>More cards and sections in Firefox View</td></tr>
         <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>No way to manage many watches; the chat record gets buried</td><td>Firefox View is low-traffic for many users; still a destination you have to visit</td></tr>
@@ -347,7 +347,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     </div>
 
     <h3>Parked for a later round — the long-term synthesis ("everything, added gradually")</h3>
-    <p>Set aside while A–E settle, by request — kept here for the record. The idea: each surface shows up only once you have something to put on it; the <a href="experience.html" style="color:var(--violet-30)">live experience</a> still demonstrates it. Revisit after the five concepts above are resolved.</p>
+    <p>Set aside while A–E settle, by request — kept here for the record. The idea: each surface shows up only once you have something to put on it; the <a href="live.html" style="color:var(--violet-30)">live experience</a> still demonstrates it. Revisit after the five concepts above are resolved.</p>
     <table>
       <thead><tr><th>From</th><th>E keeps</th><th>E drops</th><th>When it appears</th></tr></thead>
       <tbody>
@@ -379,10 +379,10 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     <div id="scores"></div>
     <script>
     const crit=[
-      ['Discoverability of outputs',2,5,4,4,4],['Retrieval two weeks later',2,5,4,3,5],
+      ['Discoverability of outputs',3,5,4,4,4],['Retrieval two weeks later',3,5,4,3,5],
       ['Maintenance / surface cost (5 = cheapest)',5,1,4,5,4],['Scales to future agents',1,5,4,2,5],
-      ['Proximity to browsing intent',3,2,5,5,2],['Trust & restraint fit (Firefox brand)',4,3,5,5,5],
-      ['Time to ship Q3',5,1,4,5,4],['Live-state visibility',2,5,4,5,4]];
+      ['Proximity to browsing intent',3,3,5,5,2],['Trust & restraint fit (Firefox brand)',4,3,5,5,5],
+      ['Time to ship Q3',5,1,4,5,4],['Live-state visibility',4,5,4,5,4]];
     document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d,f])=>`
       <div style="margin-bottom:14px">
         <div class="score-name" style="width:auto;margin-bottom:4px">${n}</div>
@@ -392,9 +392,9 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     </script>
     <table>
       <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>E · Firefox View</th></tr></thead>
-      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">34</td><td class="mid">33</td></tr></tbody>
+      <tbody><tr><td>Total (40)</td><td class="mid">29</td><td class="mid">28</td><td class="good">34</td><td class="good">34</td><td class="mid">33</td></tr></tbody>
     </table>
-    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C and D tie from opposite philosophies — C is a place you visit (each chat's Den), D is presence that comes to you (the eye, hover cards, notification cards). E trades proximity for the cheapest real management surface. No final call this round.</p>
+    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C and D still tie from opposite philosophies — C is a place you visit (each chat's Den), D is presence that comes to you (the eye, hover cards, floating action cards). A closed most of its gap once the pinned chip became expandable and Firefox View carried child rows; B's living pin moves it closer to intent but the page is still the costliest build. E trades proximity for the cheapest real management surface. No final call this round.</p>
   </section>
 
   <section id="redteam">
