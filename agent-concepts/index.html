@@ -135,8 +135,6 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <a class="sn-link" href="#concepts">The five concepts</a>
   <a class="sn-link" href="#matrix">Decision matrix</a>
   <a class="sn-link" href="#redteam">Red team</a>
-  <a class="sn-link" href="#recommendation">Where this lands</a>
-  <a class="sn-link" href="#questions">Open questions, answered</a>
 </nav>
 
 <main>
@@ -399,32 +397,6 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     <h3>Concept D — Waypoints: the assumption A, B, and C all shared</h3>
     <p>All three concepts assume agents live in <b>browser chrome</b>. The fourth answer: they live <b>on the web itself</b>. A watch is pinned to the thing being watched — the price element carries a Tab Context Badge with live state on revisit; the fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps only a thin index (the Shelf). It works in Classic windows — dissolving the mode-scoping break — and it's the one design no competitor can copy: ChatGPT, Comet, and Gemini bolt panels <em>beside</em> the web; only the rendering engine's owner can annotate <em>into</em> it.</p>
     <p>The waypoint idea alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. <b>Concept D is C amended with that manifestation layer</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept D — Waypoints →</a></p>
-  </section>
-
-  <section id="recommendation">
-    <h2>Where this lands (this round)</h2>
-    <div class="verdict">
-      <h3>This round: no final pick. D — Waypoints — is the leading direction; Concept E is the vision it sequences toward.</h3>
-      <p style="max-width:none">The amendment came from trying to break C: the waking tab bridges the notification-permission cliff, the waypoint works in Classic windows (dissolving the mode-scoping ceiling), and reports-as-real-pages fixes canvas shareability. The object model is the architecture: <b>one user-level object, three projections</b> (waypoint · sleeping tab · Shelf card) — new agent types add object types, never surfaces. Everything below about C's rationale stands, strengthened.</p>
-      <p style="max-width:none">The Shelf is the only option that satisfies all three of the meeting's governing constraints at once: <b>reports get a dedicated retrievable home</b> (typed Reports section → canvas → linked chat, exactly the model proposed in the 1:1), <b>no new window-level surface is created</b> (it's a segment inside the panel Smart Window already owns — the justification bar for new surfaces stays unbreached), and <b>the architecture points where the product is heading</b> (object types absorb Routine digests and eventually Errands; "View all" graduates into Mission Control when — and only when — usage proves the need).</p>
-      <p style="max-width:none">It is also the only concept that puts invocation <em>at the moment of intent</em>. The competitive record is unambiguous: sidebars won, floating widgets lost, push-proactivity burned Microsoft, and both Anthropic and OpenAI had to bolt on dedicated artifact homes after burying outputs in chat. C is the design those ten products' scar tissue points to.</p>
-      <p style="max-width:none;margin-bottom:0"><b>Sequencing:</b> Sprint 1 — Shelf segment + Watch objects + OS notifications (Monitor/Scout value loop complete). Sprint 2 — Report objects + canvas + linked chat (Research loop complete). Sprint 3 — offer chip, shipped dark behind a frequency cap and tuned. The slash panel (A) ships in Sprint 1 for free since it's composer-only. B is explicitly <em>not</em> built until shelf objects per active user crosses a threshold that makes a dashboard earn its rent.</p>
-    </div>
-    <div class="callout green"><p><b>Why not A, in one line:</b> it re-runs the exact discoverability failure (hidden artifacts) that the meeting itself used as evidence — we'd be shipping the anecdote. <b>Why not B, in one line:</b> it spends the team's scarcest resource (a new permanent surface) before a single user has proven they'll keep three agents alive at once.</p></div>
-  </section>
-
-  <section id="questions">
-    <h2>The meeting's open questions, answered</h2>
-    <div class="qa"><div class="q">Where should these agents live?</div><div class="a">In the Smart Window panel the user already has: a second segment ("Shelf") holding typed objects, with a quiet offer chip in the URL bar as the contextual entry. No FAB (market abandoned it), no new tab destination yet (premature), no new mode (Edge's lesson).</div></div>
-    <div class="qa"><div class="q">Do they need a dedicated surface, or is chat history enough?</div><div class="a">Chat history alone is not enough — two competitors already paid to learn that. But "dedicated surface" ≠ "new surface": a segment inside the existing panel is dedicated without being new.</div></div>
-    <div class="qa"><div class="q">Should reports and live artifacts be treated as different things?</div><div class="a">Yes — structurally. They're different object types with different lifecycles (state-and-ends vs. finished-and-kept), different sections, different motion (Breathe vs. settled), different retrieval promises.</div></div>
-    <div class="qa"><div class="q">What does Scout do beyond acting like Honey?</div><div class="a">Three things Honey can't or won't: it verifies codes against the listed price and <b>reports them without applying them</b> (no cart interaction, no affiliate-attribution hijacking — the scandal that ended Honey's trust); it judges <b>effective</b> price across retailers (shipping, bundles, member pricing), not sticker price; and it hands off to Monitor — one tap turns a sweep into a standing hunt. Scout runs <b>now</b>; that immediacy is its identity.</div></div>
-    <div class="qa"><div class="q">Are Monitor and Scout actually distinct?</div><div class="a">Not to users. One verb — Watch — with the backend choosing scan vs. deal-hunt per the stated condition. Scout is a Watch whose condition is "a better deal exists." The distinction survives as implementation, dies as vocabulary.</div></div>
-    <div class="qa"><div class="q">Does Research overlap too much with the assistant?</div><div class="a">Only if it's defined by effort. Define it by output contract: Research always yields a kept report on the Shelf with linked chat. No report needed → it was just chat → no overlap anxiety.</div></div>
-    <div class="qa"><div class="q">How little input can Monitor require?</div><div class="a">One click from the offer chip (page context pre-filled, plan-before-run shown), or one sentence from the composer. Refinement is conversational, never a form. Grouped targets are one sentence: "also watch Best Buy and the manufacturer."</div></div>
-    <div class="qa"><div class="q">Should agents be offered contextually?</div><div class="a">Yes, but pull-first: a dismissible chip, one offer per context, silent when ignored, frequency-capped. Habit-learned suggestions (weekly events digest) come later and live as Shelf offers, never notifications.</div></div>
-    <div class="qa"><div class="q">Why LLM over a classic window?</div><div class="a">Semantic conditions, redesign resilience, cross-page synthesis, and judgment-bearing notifications — see the value-layer section. This is the answer to take to Tyler, with Concept C step 3 as the demo.</div></div>
-    <div class="qa"><div class="q">What should v1 not promise, given shopping blockers?</div><div class="a">Anything past the read-only line. Payment processors, IAP rules, and cart/auth state (the WhatsApp US-fallback precedent) make end-to-end checkout a non-promise. The Shelf's object model leaves an "Errand" type parked for when that changes — visible in Concept B's gallery as a dashed future slot.</div></div>
   </section>
 
 </main>
