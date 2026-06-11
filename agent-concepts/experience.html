@@ -295,6 +295,41 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 .lc-btn:hover { background:var(--violet-05); }
 .lc-btn[disabled] { opacity:0.55; cursor:default; }
 
+/* slash menu (Concept A invocation) */
+.slash-pop { position:absolute; bottom:calc(100% + 6px); left:8px; right:8px; background:#fff; border-radius:12px; box-shadow:var(--smartwindow-shadow); overflow:hidden; z-index:20; animation:arrive var(--d-quick) var(--ease-arrive); }
+.slash-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; transition:background var(--d-instant); }
+.slash-item:hover { background:var(--violet-05); }
+.slash-item .si-name { font-size:12.5px; font-weight:600; color:var(--gray-100); }
+.slash-item .si-name code { font-size:10.5px; color:var(--violet-50); margin-right:7px; font-family:monospace; }
+.slash-item .si-desc { font-size:10.5px; color:var(--gray-50); }
+/* pinned live strip in sidebar chat (Concept A) */
+.sb-pin { flex-shrink:0; padding:6px 12px 0; }
+.pin-line { display:flex; align-items:center; gap:8px; background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(43,27,85,0.09); padding:6px 11px; font-size:10.5px; color:var(--gray-70); cursor:pointer; margin-bottom:5px; transition:box-shadow var(--d-quick); }
+.pin-line:hover { box-shadow:var(--smartwindow-shadow); }
+.pin-line .pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; flex-shrink:0; }
+.pin-line.met .pulse { background:var(--violet-40); }
+.pin-line b { color:var(--violet-90); }
+.pin-line .meta { margin-left:auto; color:var(--gray-40); font-size:9.5px; white-space:nowrap; }
+/* earned hub (Concept B, progressive) */
+.hub-page { max-width:980px; margin:0 auto; padding:30px 40px 60px; }
+.hub-page h1 { font-size:21px; font-weight:800; letter-spacing:-0.4px; color:var(--violet-90); }
+.hub-sub { font-size:12px; color:var(--gray-50); margin:3px 0 20px; }
+.hub-cols { display:grid; grid-template-columns:1fr 290px; gap:24px; }
+.hub-label { font-size:10.5px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--gray-40); margin:0 0 10px; }
+.hub-label:not(:first-child) { margin-top:18px; }
+.agent-tile { background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(43,27,85,0.09); padding:15px 17px; margin-bottom:11px; cursor:pointer; transition:box-shadow var(--d-quick); }
+.agent-tile:hover { box-shadow:var(--smartwindow-shadow); }
+.at-head { display:flex; align-items:center; gap:11px; }
+.at-body { display:flex; align-items:flex-end; gap:16px; margin-top:12px; }
+.at-numbers { text-align:right; flex-shrink:0; }
+.at-price { font-size:18px; font-weight:800; }
+.at-target { font-size:10px; color:var(--gray-50); }
+.feed-item { display:flex; gap:10px; padding:8px 2px; font-size:11.5px; color:var(--gray-70); line-height:1.45; border-bottom:1px solid var(--gray-05); }
+.feed-day { color:var(--gray-30); font-size:10px; white-space:nowrap; padding-top:2px; min-width:30px; }
+.shelf-foot .viewall { color:var(--violet-60); font-weight:700; cursor:pointer; margin-right:auto; }
+.shelf-foot .viewall:hover { text-decoration:underline; }
+.shelf-foot .viewall + span { margin-left:0; }
+
 /* ─── notification ─── */
 .os-toast { position:fixed; top:54px; right:24px; width:344px; background:rgba(28,27,34,0.97); backdrop-filter:blur(10px); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.45); display:flex; gap:11px; z-index:90; cursor:pointer; animation:toastIn var(--d-considered) var(--ease-arrive); }
 @keyframes toastIn { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
@@ -354,7 +389,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
           </div>
           <div class="sw-smartbar-wrap" id="swBarWrap">
             <div class="sw-smartbar">
-              <textarea id="swInput" placeholder="Ask, search, or type a URL" rows="1"></textarea>
+              <textarea id="swInput" placeholder="Ask, search, or type / for agents" rows="1"></textarea>
               <div class="row">
                 <span class="plus">＋</span>
                 <svg width="15" height="15" viewBox="0 0 16 16" style="color:var(--gray-40)"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M7 5v5M5 6.5L7 4.5l2 2" stroke="currentColor" stroke-width="1" stroke-linecap="round" fill="none"/></svg>
@@ -373,7 +408,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
             <h2>Shelf</h2>
             <div class="sub">What your agents are watching, and what they've written. Saved here and in each conversation.</div>
             <div class="shelf-scroll" id="swShelfList"></div>
-            <div class="shelf-foot"><span>Read-only · every check is logged</span><span class="pa" data-pa>⏸ Pause all</span></div>
+            <div class="shelf-foot"><span class="viewall" data-viewall style="display:none">View all →</span><span>Read-only · every check is logged</span><span class="pa" data-pa>⏸ Pause all</span></div>
           </div>
         </div>
       </div>
@@ -408,6 +443,21 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
         </div>
       </div>
 
+      <!-- YOUR AGENTS (earned hub) -->
+      <div class="page" id="page-hub">
+        <div class="hub-page">
+          <h1>Your agents</h1>
+          <div class="hub-sub">Everything they're watching and everything they've written — every check logged. All of it also lives on your Shelf and in its conversation.</div>
+          <div class="hub-cols">
+            <div><div class="hub-label">Live</div><div id="hubLive"></div></div>
+            <div>
+              <div class="hub-label">Reports</div><div id="hubReports"></div>
+              <div class="hub-label">Activity</div><div id="hubFeed"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- REPORT -->
       <div class="page" id="page-report">
         <div class="report-view">
@@ -431,11 +481,12 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
       </div>
       <div class="sb-views">
         <div class="sb-view active" id="sbChatView">
+          <div class="sb-pin" id="sbPin"></div>
           <div class="sb-thread-scroll" id="sbScroll"><div class="sb-thread" id="sbThread"></div></div>
           <div class="sb-dock">
             <div class="sw-smartbar-wrap" id="sbBarWrap">
               <div class="sw-smartbar">
-                <textarea id="sbInput" placeholder="Ask about this page…" rows="1"></textarea>
+                <textarea id="sbInput" placeholder="Ask about this page, or type /" rows="1"></textarea>
                 <div class="row"><span class="plus">＋</span><button class="send" id="sbSend">→</button></div>
               </div>
             </div>
@@ -444,7 +495,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
         </div>
         <div class="sb-view" id="sbShelfView">
           <div class="shelf-scroll" id="sbShelfList"></div>
-          <div class="shelf-foot"><span>Read-only · every check is logged</span><span class="pa" data-pa>⏸ Pause all</span></div>
+          <div class="shelf-foot"><span class="viewall" data-viewall style="display:none">View all →</span><span>Read-only · every check is logged</span><span class="pa" data-pa>⏸ Pause all</span></div>
         </div>
       </div>
     </div>
@@ -462,8 +513,10 @@ const S = {
   day: 0, watches: [], reports: [], id: 1,
   usedChips: new Set(), offerDismissed: {}, pending: null, lastPlanCard: null,
   activeTab: "soundhub", sidebarOpen: false, sbView: "chat", swShelfOpen: false,
-  openReportId: null, chatActive: false, sbGreeted: {},
+  openReportId: null, chatActive: false, sbGreeted: {}, activity: [],
 };
+function log(text) { S.activity.unshift({ day: S.day, text }); }
+function hubUnlocked() { return S.watches.length + S.reports.filter(r => r.status === "done").length >= 2; }
 const $ = id => document.getElementById(id);
 const fmt = p => "$" + (p % 1 ? p.toFixed(2) : p);
 const esc = s => s.replace(/</g, "&lt;");
@@ -523,6 +576,7 @@ function advanceDay() {
     w.checked = "today";
     if (w.semantic.includes("verified promo found") && !w.promoDay && age >= 2) {
       w.promoDay = S.day;
+      log(`${w.title}: found code SAVE10 — verified against the listed price, reported, not applied.`);
       toast("Promo found: SAVE10", `Verified working for ${w.title} — reported, not applied.`);
     }
     const hit = (w.target && w.price <= w.target && w.kind === "price") || (w.kind === "fare" && age >= 4);
@@ -535,7 +589,10 @@ function advanceDay() {
         if (S.activeTab === "sw") { openSwShelf(); } else { S.sidebarOpen = true; setSbView("shelf"); }
         renderAll();
       });
+      log(`Condition met: ${w.title} — ${fmt(w.price)}.`);
       bumpShelf();
+    } else {
+      log(`${w.title}: checked — ${fmt(w.price)}, kept watching.`);
     }
   }
   $("dayLabel").textContent = DAYS[S.day % DAYS.length];
@@ -674,7 +731,7 @@ function statusLine(w) {
 }
 
 function handleFollowUp(fu, w) {
-  if (fu.kind === "pause") { w.status = "paused"; aiMsg(`Paused <b>${w.title}</b> — nothing will check it until you say resume.`); }
+  if (fu.kind === "pause") { w.status = "paused"; log(`Paused: ${w.title}.`); aiMsg(`Paused <b>${w.title}</b> — nothing will check it until you say resume.`); }
   else if (fu.kind === "resume") { w.status = "live"; aiMsg(`Back on it — <b>${w.title}</b> is live again.`); }
   else if (fu.kind === "retarget") {
     w.target = fu.target;
@@ -724,6 +781,7 @@ function startWatch() {
     S.watches.push({ id: S.id++, title: "Aurora ANC Headphones", source: "SoundHub", kind: "price", target, semantic, price: 89, history: [89], retailers: 1, status: "live", createdDay: S.day, checked: "just now", path: PATHS.aurora });
     aiMsg(`Watching this page now — it's saved to your <b>Shelf</b>, and you'll see it marked right on the price when you come back. I'll alert you once, with the why.`);
   }
+  log(`Started watching ${S.watches[S.watches.length - 1].title}.`);
   if (firstWatch) {
     const ds = document.querySelector(".day-skip");
     ds.classList.add("nudge"); setTimeout(() => ds.classList.remove("nudge"), 4000);
@@ -747,7 +805,7 @@ function startResearch(query) {
   const t = setInterval(() => {
     if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
     else {
-      clearInterval(t); ld.remove(); r.status = "done";
+      clearInterval(t); ld.remove(); r.status = "done"; log(`Report finished: ${r.title}.`);
       aiMsg(`Done — <b>${r.title}</b>. Six options compared; the Aurora ANC is the strongest buy. It's saved to your <b>Shelf</b> so you can find it any time.`, false);
       const rc = addNode(el(`<div class="report-card"><div class="rc-glyph">${repGlyph}</div>
         <div><div class="rc-title">${r.title}</div><div class="rc-sub">6 options · 14 pages read · saved to Shelf</div></div>
@@ -761,7 +819,7 @@ function startResearch(query) {
 }
 
 /* ════════════════ navigation & surfaces ════════════════ */
-const TABS = { sw: { label: "Smart Window", fav: "sw" }, soundhub: { label: "Aurora ANC — SoundHub", fav: "🎧" }, flights: { label: "YVR → NRT — FlightFinder", fav: "✈️" }, report: { label: "Report", fav: "📄" } };
+const TABS = { sw: { label: "Smart Window", fav: "sw" }, soundhub: { label: "Aurora ANC — SoundHub", fav: "🎧" }, flights: { label: "YVR → NRT — FlightFinder", fav: "✈️" }, report: { label: "Report", fav: "📄" }, hub: { label: "Your agents", fav: "👁" } };
 function go(tab) { S.activeTab = tab; renderAll(); }
 window.go = go;
 
@@ -769,6 +827,8 @@ function renderTabs() {
   const strip = $("tabstrip");
   strip.querySelectorAll(".tab").forEach(t => t.remove());
   const order = ["sw", "soundhub", "flights"]; if (S.activeTab === "report" || S.reports.some(r => r.opened)) order.push("report");
+  if (S.activeTab === "hub") S.hubVisited = true;
+  if (S.hubVisited) order.push("hub");
   const anchor = strip.querySelector(".day-skip");
   for (const p of order) {
     const t = document.createElement("div");
@@ -834,6 +894,32 @@ function renderPages() {
     fSlot.appendChild(wp);
   }
   if (S.activeTab === "report") renderReport();
+  if (S.activeTab === "hub") renderHub();
+  // pinned live strip (Concept A): one line per live watch, above the sidebar thread
+  const pin = $("sbPin"); pin.innerHTML = "";
+  if (S.sidebarOpen && S.sbView === "chat") {
+    for (const w of S.watches.filter(w => w.status !== "paused").slice(0, 2)) {
+      const l = el(`<div class="pin-line${w.status === "met" ? " met" : ""}"><span class="pulse"></span><span><b>${w.status === "met" ? "Hit:" : "Watching:"}</b> ${w.title}</span><span class="meta">${w.status === "met" ? "see Shelf" : fmt(w.price) + " · " + w.checked}</span></div>`);
+      l.onclick = () => { setSbView("shelf"); };
+      pin.appendChild(l);
+    }
+  }
+}
+function renderHub() {
+  const live = $("hubLive"); live.innerHTML = "";
+  for (const w of S.watches) {
+    const t = el(`<div class="agent-tile"><div class="at-head"><div class="so-glyph">${eyeGlyph}</div>
+      <div><div class="so-title" style="font-size:13px">${w.title}</div><div class="so-sub">${w.semantic.join(" · ") || (w.target ? "alert at $" + w.target : "")}${w.retailers > 1 ? " · " + w.retailers + " retailers" : ""}</div></div>
+      <span class="so-badge ${w.status}" style="margin-left:auto">${w.status}</span></div>
+      <div class="at-body"><div style="flex:1">${spark(w)}</div>
+      <div class="at-numbers"><div class="at-price">${fmt(w.price)}</div><div class="at-target">checked ${w.checked}</div></div></div></div>`);
+    t.onclick = () => go(w.kind === "fare" ? "flights" : "soundhub");
+    live.appendChild(t);
+  }
+  if (!S.watches.length) live.innerHTML = '<div class="so-sub">Nothing live right now.</div>';
+  const reps = $("hubReports"); reps.innerHTML = S.reports.length ? "" : '<div class="so-sub">No reports yet.</div>';
+  for (const r of S.reports) { const d = shelfObjNode(r); reps.appendChild(d); }
+  $("hubFeed").innerHTML = S.activity.slice(0, 9).map(a => `<div class="feed-item"><span class="feed-day">${a.day === S.day ? "today" : "d" + a.day}</span><span>${a.text}</span></div>`).join("") || '<div class="so-sub">Quiet so far.</div>';
 }
 
 /* shelf (both hosts) */
@@ -880,6 +966,7 @@ function renderShelves() {
   const unseen = S.watches.filter(w => w.status === "met" && !w.seen).length + S.reports.filter(r => r.status === "done" && !r.opened && !r.seen).length;
   $("shelfBub").style.display = unseen ? "" : "none"; $("shelfBub").textContent = unseen;
   $("sbShelfBub").style.display = unseen ? "" : "none"; $("sbShelfBub").textContent = unseen;
+  document.querySelectorAll("[data-viewall]").forEach(v => v.style.display = hubUnlocked() ? "" : "none");
 }
 function bumpShelf() { renderShelves(); }
 
@@ -958,7 +1045,29 @@ function greetSidebar() {
   }
 }
 document.querySelectorAll(".sb-seg button").forEach(b => b.onclick = () => setSbView(b.dataset.v));
-document.querySelectorAll("[data-pa]").forEach(p => p.onclick = () => { S.watches.forEach(w => { if (w.status === "live") w.status = "paused"; }); renderAll(); });
+document.querySelectorAll("[data-pa]").forEach(p => p.onclick = () => { S.watches.forEach(w => { if (w.status === "live") w.status = "paused"; }); log("Paused all watches."); renderAll(); });
+document.querySelectorAll("[data-viewall]").forEach(v => v.onclick = () => { closeSwShelf(); S.sidebarOpen = false; go("hub"); });
+
+/* slash invocation (Concept A): "/" in any smartbar opens the verb menu */
+function attachSlash(wrapId, inputId) {
+  const wrap = $(wrapId), input = $(inputId);
+  let pop = null;
+  const close = () => { pop?.remove(); pop = null; };
+  input.addEventListener("input", () => {
+    if (input.value === "/") {
+      if (pop) return;
+      pop = el(`<div class="slash-pop">
+        <div class="slash-item" data-s="watch"><div class="so-glyph">${eyeGlyph}</div><div><div class="si-name"><code>/watch</code>Watch</div><div class="si-desc">Keep an eye on this page until a condition is met</div></div></div>
+        <div class="slash-item" data-s="research"><div class="so-glyph report">${repGlyph}</div><div><div class="si-name"><code>/research</code>Research</div><div class="si-desc">Compare options and keep a report</div></div></div></div>`);
+      pop.querySelector('[data-s="watch"]').onclick = () => { close(); input.value = ""; submit(S.activeTab === "sw" ? "Watch something new for me" : "Watch this for me"); };
+      pop.querySelector('[data-s="research"]').onclick = () => { close(); input.value = ""; submit("Help me pick ANC headphones under $100"); };
+      if (wrapId === "tbWrap") { pop.style.bottom = "auto"; pop.style.top = "calc(100% + 6px)"; }
+      wrap.style.position = "relative"; wrap.appendChild(pop);
+    } else close();
+  });
+  input.addEventListener("blur", () => setTimeout(close, 180));
+}
+attachSlash("swBarWrap", "swInput"); attachSlash("sbBarWrap", "sbInput"); attachSlash("tbWrap", "tbInput");
 
 for (const [wrapId, inputId] of [["swBarWrap", "swInput"], ["sbBarWrap", "sbInput"], ["tbWrap", "tbInput"]]) {
   const input = $(inputId);

@@ -130,6 +130,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <a class="sn-link" href="#concepts">The four concepts</a>
   <a class="sn-link" href="#matrix">Decision matrix</a>
   <a class="sn-link" href="#redteam">Red team + Concept D</a>
+  <a class="sn-link" href="#concept-e">Concept E — the synthesis</a>
   <a class="sn-link" href="#recommendation">Recommendation</a>
   <a class="sn-link" href="#questions">Open questions, answered</a>
   <a class="sn-link" href="#next">What I'd do next</a>
@@ -345,6 +346,21 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     <h3>Concept D — Waypoints: the assumption A, B, and C all shared</h3>
     <p>All three concepts assume agents live in <b>browser chrome</b>. The fourth answer: they live <b>on the web itself</b>. A watch is pinned to the thing being watched — the price element carries a Tab Context Badge with live state on revisit; the fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps only a thin index (the Shelf). It works in Classic windows — dissolving the mode-scoping break — and it's the one design no competitor can copy: ChatGPT, Comet, and Gemini bolt panels <em>beside</em> the web; only the rendering engine's owner can annotate <em>into</em> it.</p>
     <p>D alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. The final design is <b>C amended with D's manifestation layer</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept C+D — Waypoints →</a></p>
+  </section>
+
+  <section id="concept-e">
+    <h2>Concept E — the synthesis (what the experience actually ships)</h2>
+    <p>The natural question after four concepts: is there a fifth that takes the best of every one? Yes — and the reason it works as a design rather than a kitchen sink is one rule: <b>surfaces materialize progressively as the user's agent population grows.</b> Nothing exists before it's earned, so every concept contributes its strength without contributing its weakness.</p>
+    <table>
+      <thead><tr><th>From</th><th>E keeps</th><th>E drops</th><th>When it appears</th></tr></thead>
+      <tbody>
+        <tr><td>A · Threadline</td><td><code>/</code> invocation in every smartbar; the conversation as the record; a pinned live strip above the sidebar chat</td><td>retrieval buried in history</td><td>Always (invocation layer)</td></tr>
+        <tr><td>C · Shelf</td><td>Typed objects (Live / Reports) indexed in the panel; the quiet offer chip at the moment of intent</td><td>mode-scoped reach</td><td>First object</td></tr>
+        <tr><td>C+D · Waypoints</td><td>Waypoint on the watched page, sleeping tab, notification fallback chain, reports as real pages</td><td>revisit-only visibility (the strip and Shelf cover it)</td><td>First object</td></tr>
+        <tr><td>B · Mission Control</td><td>The "Your agents" page with the full <b>activity feed</b> — every check logged, radical transparency</td><td>the day-one empty dashboard</td><td>Earned: "View all →" appears in the Shelf once ≥2 objects exist</td></tr>
+      </tbody>
+    </table>
+    <p>This is implemented in the <a href="experience.html" style="color:var(--violet-30)">live experience</a>: start cold, create your first watch, and watch the surfaces switch on — waypoint and shelf at one object, the hub link at two. One user-level object; projections keyed to investment. <b>Concept E isn't a fifth surface — it's the sequencing rule for the other four.</b></p>
   </section>
 
   <section id="recommendation">
