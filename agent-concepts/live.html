@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Window Agents — Live (choose your concept)</title>
+<style>
+/* ============================================================================
+   SMART WINDOW AGENTS — full-journey experience prototype
+   Taylor Silva · Staff Product Designer, AI UX
+
+   Built to match Firefox-AI/firefox-prototypes browser/components/aiwindow:
+   · fullpage grid: heading → smartbar → smartwindow-prompts → footer,
+     collapsing to .chat-active (conversation + docked smartbar + disclaimer)
+   · smartbar: white bg, gradient border (172deg #321bfd→#cf30e2→#ff9900),
+     violet glow on hover/focus (smartbar.css)
+   · prompt chips: pill moz-buttons, violet-0 bg, brand-accent text, masked
+     gradient border, shadow-level-2; mode="followup" = left column under the
+     last assistant message (smartwindow-prompts.css)
+   · chat: .chat-bubble-user white + inset violet glow, max-width 75%;
+     assistant = plain text, violet links; ai-chat-table styling;
+     gradient loader text (chat-assistant-loader.css)
+   · 580px content max-width (--smartwindow-content-max-width)
+   No walkthrough chrome. Everything is live: chips are consumed and replaced
+   by state-derived follow-ups; watches run on simulated days; storage is the
+   Den + the page itself; retrieval is notification → shelf → report.
+   ============================================================================ */
+:root {
+  color-scheme: light;
+  /* Acorn palette (motion SOT) */
+  --violet-110:#1f1247; --violet-90:#2b1b55; --violet-70:#4a2e8f; --violet-60:#623ac3;
+  --violet-50:#7542e5; --violet-40:#976eff; --violet-30:#b295ff; --violet-20:#d0bfff;
+  --violet-10:#ede6ff; --violet-05:#f6f2ff; --violet-0:#f9f7ff;
+  --gray-100:#15141a; --gray-80:#2b2a33; --gray-70:#52525e; --gray-60:#5b5b66;
+  --gray-50:#6b6b7b; --gray-40:#8f8f9d; --gray-30:#b1b1b9; --gray-20:#cfcfd8;
+  --gray-10:#e0e0e6; --gray-05:#f0f0f4;
+  --orange:#e66000; --green:#058b00; --red:#e22850;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  /* real smartwindow tokens (ai-window-shared.css / smartbar.css) */
+  --smartwindow-content-max-width:580px;
+  --smartwindow-brand-accent:var(--violet-90);
+  --smartwindow-border-color-gradient:linear-gradient(117deg,#321bfd -17.87%,#cf30e2 52.93%,#f90 89.02%,#f5c451 109.44%);
+  --smartbar-border-color-gradient:linear-gradient(172deg,#321bfd -18%,#cf30e2 53%,#ff9900 89%,#f5c451 109%);
+  --smartbar-glow-color:color-mix(in srgb,var(--violet-40) 30%,transparent);
+  --smartwindow-shadow:0 2px 6px color-mix(in srgb,var(--violet-50) 15%,transparent),0 5px 16px color-mix(in srgb,var(--violet-50) 12%,transparent);
+  --chat-bubble-inset-color:color-mix(in srgb,var(--violet-30) 12%,transparent);
+  --loader-purple:var(--violet-40); --loader-pink:#ff8db8; --loader-orange:#ffa436;
+  /* motion (SOT) */
+  --d-instant:60ms; --d-quick:140ms; --d-moderate:240ms; --d-gracious:300ms; --d-considered:360ms; --d-breathe:3000ms;
+  --ease-arrive:linear(0,0.002,0.01 2.8%,0.058 6.2%,0.16 10.9%,0.842 40.2%,0.924 46.9%,0.974 55.5%,0.994 66.6%,1 80.2%,1);
+  --ease-settle:cubic-bezier(0.2,0,0,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; flex-direction:column; overflow:hidden; color:var(--gray-100); }
+
+/* ─── Browser chrome ─── */
+.browser { flex:1; display:flex; flex-direction:column; margin:10px; border-radius:12px; overflow:hidden; box-shadow:0 10px 44px rgba(31,18,71,0.35); background:#f4f2f9; min-height:0; }
+.tabstrip { background:#ece9f4; display:flex; align-items:center; padding:6px 10px 0; gap:4px; flex-shrink:0; }
+.traffic { display:flex; gap:7px; padding:0 10px 6px 4px; }
+.traffic span { width:11px; height:11px; border-radius:50%; }
+.tab { display:flex; align-items:center; gap:8px; background:#fff; border-radius:8px 8px 0 0; padding:8px 14px; font-size:12px; color:var(--gray-80); max-width:230px; cursor:pointer; position:relative; white-space:nowrap; overflow:hidden; transition:background var(--d-quick) var(--ease-settle); }
+.tab:not(.active) { background:transparent; color:var(--gray-50); }
+.tab:not(.active):hover { background:rgba(255,255,255,0.55); }
+.tab .fav { width:15px; height:15px; border-radius:4px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; font-size:10.5px; }
+.tab.sw-tab .fav { background:var(--smartwindow-border-color-gradient); }
+.tab.sleeping { opacity:0.6; font-style:italic; }
+.tab.awake { opacity:1; font-style:normal; box-shadow:0 -2px 12px rgba(117,66,229,0.3); }
+.tab .dot { position:absolute; top:4px; right:7px; width:8px; height:8px; border-radius:50%; background:var(--violet-50); animation:breathe var(--d-breathe) ease-in-out infinite; }
+@keyframes breathe { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.82)} }
+.day-skip { margin-left:auto; display:flex; align-items:center; gap:7px; font-size:11px; color:var(--gray-50); background:rgba(255,255,255,0.6); border:1px solid rgba(43,27,85,0.08); border-radius:99px; padding:4px 6px 4px 13px; }
+.day-skip b { color:var(--gray-80); font-weight:600; }
+.day-skip button { border:none; background:var(--violet-10); color:var(--violet-60); font-family:var(--font); font-size:11px; font-weight:600; border-radius:99px; padding:3px 11px; cursor:pointer; transition:background var(--d-instant); }
+.day-skip button:hover { background:var(--violet-20); }
+.day-skip.nudge button { animation:nudge 1.2s ease-in-out 3; }
+@keyframes nudge { 0%,100%{box-shadow:0 0 0 0 rgba(117,66,229,0)} 50%{box-shadow:0 0 0 5px rgba(117,66,229,0.25)} }
+
+.toolbar { background:#fff; display:flex; align-items:center; gap:10px; padding:7px 14px; border-bottom:1px solid var(--gray-05); flex-shrink:0; }
+.nav-arrows { color:var(--gray-40); font-size:15px; letter-spacing:6px; }
+/* the urlbar IS the smartbar (smartbar.css): gradient border + glow on focus */
+.smartbar-wrap { flex:1; position:relative; border-radius:99px; padding:1px; background:transparent; transition:all 0.2s ease-out; min-width:0; }
+.smartbar-wrap:hover, .smartbar-wrap.focus { background:var(--smartbar-border-color-gradient); box-shadow:0 0 0 4px transparent,0 2px 10px var(--smartbar-glow-color); }
+.smartbar { display:flex; align-items:center; gap:8px; background:var(--gray-05); border-radius:99px; padding:7px 15px; transition:background 0.2s ease-out; }
+.smartbar-wrap:hover .smartbar, .smartbar-wrap.focus .smartbar { background:#fff; }
+.smartbar .glyph { flex-shrink:0; width:15px; height:15px; border-radius:4px; background:var(--smartwindow-border-color-gradient); display:inline-flex; align-items:center; justify-content:center; }
+.smartbar input { flex:1; border:none; outline:none; background:transparent; font-family:var(--font); font-size:12.5px; color:var(--gray-100); min-width:0; }
+.smartbar input::placeholder { color:var(--gray-40); }
+.offer-chip { display:inline-flex; align-items:center; gap:6px; background:var(--violet-05); border:1px solid var(--violet-20); color:var(--violet-60); border-radius:99px; padding:3px 11px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; animation:arrive var(--d-gracious) var(--ease-arrive); flex-shrink:0; }
+.offer-chip:hover { background:var(--violet-10); }
+.offer-chip .x { color:var(--gray-40); font-weight:400; padding-left:3px; }
+@keyframes arrive { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.tb-btn { width:34px; height:34px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(43,27,85,0.14); display:flex; align-items:center; justify-content:center; color:var(--violet-90); cursor:pointer; flex-shrink:0; transition:background var(--d-quick) var(--ease-settle); position:relative; }
+.tb-btn:hover { background:var(--violet-20); }
+.tb-btn .bub { position:absolute; top:-3px; right:-3px; min-width:15px; height:15px; border-radius:99px; background:var(--orange); color:#fff; font-size:9px; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 4px; }
+
+.window-body { flex:1; display:flex; min-height:0; }
+.content { flex:1; overflow-y:auto; background:#fff; position:relative; min-height:0; }
+.page { display:none; min-height:100%; } .page.active { display:block; }
+
+/* ─── Smart Window fullpage (ai-window.css [mode=fullpage]) ─── */
+#page-sw { background:
+  radial-gradient(120% 90% at 85% -10%, rgba(255,164,54,0.10), transparent 50%),
+  radial-gradient(130% 100% at 10% -20%, rgba(207,48,226,0.08), transparent 55%),
+  linear-gradient(180deg,#f6f3fd 0%,#f1ecfb 60%,#efe7fa 100%);
+  display:none; flex-direction:column; align-items:center; position:relative; }
+#page-sw.active { display:flex; }
+.sw-corner { position:absolute; top:14px; right:18px; display:flex; gap:8px; z-index:5; }
+.corner-btn { height:34px; border-radius:99px; background:#fff; box-shadow:0 1px 4px rgba(43,27,85,0.12); border:none; color:var(--violet-90); font-family:var(--font); font-size:11.5px; font-weight:600; display:inline-flex; align-items:center; gap:6px; padding:0 14px; cursor:pointer; backdrop-filter:blur(12px); transition:background var(--d-quick); position:relative; }
+.corner-btn:hover { background:var(--violet-20); }
+.corner-btn.icon-only { width:34px; padding:0; justify-content:center; }
+.corner-btn .bub { position:absolute; top:-4px; right:-4px; min-width:15px; height:15px; border-radius:99px; background:var(--orange); color:#fff; font-size:9px; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 4px; }
+
+/* pre-chat: heading + smartbar + prompts centered */
+.sw-stage { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; min-height:0; }
+.sw-heading { display:flex; align-items:flex-end; gap:10px; padding-block:24px; margin-bottom:8px; }
+.sw-heading .logo { width:34px; height:34px; border-radius:9px; background:var(--smartwindow-border-color-gradient); display:flex; align-items:center; justify-content:center; }
+.sw-heading h1 { color:var(--violet-70); font-weight:400; font-size:23px; letter-spacing:-0.2px; }
+.sw-heading .badge { font-size:9.5px; font-weight:700; letter-spacing:0.6px; color:var(--violet-70); border:1px solid var(--violet-20); border-radius:5px; padding:2px 7px; margin-bottom:3px; }
+.sw-smartbar-wrap { width:min(var(--smartwindow-content-max-width),92%); border-radius:18px; padding:1.5px; background:var(--smartbar-border-color-gradient); box-shadow:var(--smartwindow-shadow); transition:box-shadow 0.2s ease-in; }
+.sw-smartbar-wrap.focus { box-shadow:var(--smartwindow-shadow),0 0 14px var(--smartbar-glow-color); }
+.sw-smartbar { background:#fff; border-radius:17px; }
+.sw-smartbar textarea { width:100%; border:none; outline:none; resize:none; background:transparent; font-family:var(--font); font-size:14px; color:var(--gray-100); padding:15px 18px 4px; height:46px; }
+.sw-smartbar textarea::placeholder { color:var(--gray-40); }
+.sw-smartbar .row { display:flex; align-items:center; gap:9px; padding:2px 13px 11px; }
+.sw-smartbar .plus { color:var(--gray-40); font-size:18px; font-weight:300; }
+.sw-smartbar .send { margin-left:auto; background:var(--violet-05); border:none; border-radius:14px; width:38px; height:28px; display:flex; align-items:center; justify-content:center; color:var(--violet-60); font-size:14px; cursor:pointer; transition:all 0.2s; }
+.sw-smartbar .send:hover, .sw-smartbar-wrap.focus .send { background:var(--violet-60); color:#fff; }
+
+/* smartwindow-prompts (real component css) */
+.sw-prompts { display:flex; gap:12px; padding-block:24px; flex-wrap:wrap; justify-content:center; }
+.sw-prompt-button { position:relative; border:none; font-family:var(--font); font-size:12.5px; font-weight:500; color:var(--smartwindow-brand-accent); background:var(--violet-0); border-radius:99px; padding:9px 17px; cursor:pointer; box-shadow:var(--smartwindow-shadow); transition:background var(--d-quick) var(--ease-settle); animation:arrive var(--d-gracious) var(--ease-arrive); }
+.sw-prompt-button::before { content:""; position:absolute; inset:-1px; border-radius:inherit; padding:1px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.2) 0%,color-mix(in srgb,var(--violet-110) 5%,transparent) 31%,color-mix(in srgb,var(--violet-110) 15%,transparent) 100%);
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; pointer-events:none; }
+.sw-prompt-button:hover { background:color-mix(in srgb,var(--violet-50) 15%,white); }
+.sw-prompt-button:active { background:color-mix(in srgb,var(--violet-50) 25%,white); }
+/* followup mode: column, start-aligned (smartwindow-prompts.css :host([mode=followup])) */
+.sw-prompts.followup { flex-direction:column; align-items:flex-start; padding-block:2px 14px; gap:8px; justify-content:flex-start; }
+.sw-prompts.sidebar { flex-direction:column; align-items:flex-end; padding-block:2px 14px; gap:8px; justify-content:flex-start; }
+.sw-prompts.followup .sw-prompt-button { text-align:start; }
+
+/* chat-active conversation (ai-chat-content.css) */
+.sw-chat { display:none; flex:1; width:100%; min-height:0; flex-direction:column; }
+#page-sw.chat-active .sw-chat { display:flex; }
+#page-sw.chat-active .sw-stage { flex:0; padding:10px 20px 6px; justify-content:flex-end; }
+#page-sw.chat-active .sw-heading, #page-sw.chat-active #swStarters { display:none; }
+.chat-scroll { flex:1; overflow-y:auto; width:100%; min-height:0;
+  mask-image:linear-gradient(to bottom,transparent,#000 28px,#000 calc(100% - 34px),transparent); }
+.chat-inner { display:flex; flex-direction:column; gap:10px; width:100%; max-width:var(--smartwindow-content-max-width); margin:0 auto; padding:46px 12px 40px; }
+.chat-bubble-user { align-self:flex-end; background:#fff; border-radius:12px; box-shadow:var(--smartwindow-shadow),inset 0 0 5px var(--chat-bubble-inset-color); max-width:75%; overflow-wrap:anywhere; padding:10px 16px; width:fit-content; font-size:13px; line-height:1.55; animation:userIn var(--d-moderate) var(--ease-arrive); }
+@keyframes userIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.message-assistant { align-self:stretch; color:var(--gray-100); font-size:13.5px; line-height:1.65; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.message-assistant b { font-weight:600; }
+.message-assistant a { color:var(--violet-50); }
+.message-assistant a:hover { color:var(--violet-90); }
+/* chat-assistant-loader: spinner + gradient text */
+.assistant-loader { display:flex; gap:7px; align-items:center; animation:arrive var(--d-quick) var(--ease-arrive); }
+.assistant-loader .spin { width:15px; height:15px; border-radius:50%; border:2px solid var(--violet-20); border-top-color:var(--violet-50); animation:spinLoader 0.9s infinite linear; }
+@keyframes spinLoader { to{transform:rotate(360deg)} }
+.assistant-loader p { font-weight:600; font-size:12.5px; background-image:linear-gradient(95deg,var(--loader-purple) 1.22%,var(--loader-pink) 85.48%,var(--loader-orange) 99.68%); background-clip:text; color:transparent; }
+/* ai-chat-table */
+.ai-chat-table { font-size:12px; width:fit-content; max-width:100%; border-collapse:collapse; margin:6px 0 2px; }
+.ai-chat-table th,.ai-chat-table td { padding:8px 12px; text-align:start; }
+.ai-chat-table th { color:var(--violet-90); font-weight:600; }
+.ai-chat-table thead tr,.ai-chat-table tbody tr:not(:last-child) { border-bottom:1px solid color-mix(in srgb,var(--violet-90) 20%,transparent); }
+/* plan / action cards (ai-action-result pattern) */
+.action-card { align-self:stretch; background:#fff; border-radius:12px; box-shadow:var(--smartwindow-shadow); overflow:hidden; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.ac-head { display:flex; align-items:center; gap:10px; padding:12px 16px 9px; }
+.ac-glyph { width:28px; height:28px; border-radius:8px; background:var(--violet-05); color:var(--violet-60); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ac-title { font-size:13px; font-weight:600; color:var(--gray-100); }
+.ac-sub { font-size:11px; color:var(--gray-50); }
+.ac-body { padding:0 16px 6px; }
+.ac-row { display:flex; gap:9px; font-size:12px; color:var(--gray-70); line-height:1.55; margin-bottom:7px; }
+.ac-row .ic { color:var(--violet-50); width:16px; text-align:center; flex-shrink:0; }
+.ac-row b { color:var(--gray-100); }
+.ac-foot { display:flex; gap:8px; padding:5px 16px 14px; flex-wrap:wrap; }
+.ac-btn { font-family:var(--font); font-size:12px; font-weight:600; border-radius:99px; padding:7px 16px; cursor:pointer; border:1px solid var(--gray-20); background:#fff; color:var(--gray-70); transition:all var(--d-quick); }
+.ac-btn:hover { border-color:var(--violet-30); color:var(--violet-60); }
+.ac-btn.primary { background:var(--violet-60); border-color:var(--violet-60); color:#fff; }
+.ac-btn.primary:hover { background:var(--violet-70); }
+.report-card { align-self:stretch; display:flex; gap:11px; align-items:center; background:#fff; border-radius:12px; box-shadow:var(--smartwindow-shadow); padding:12px 15px; cursor:pointer; animation:arrive var(--d-gracious) var(--ease-arrive); transition:box-shadow var(--d-quick); }
+.report-card:hover { box-shadow:var(--smartwindow-shadow),0 0 10px var(--smartbar-glow-color); }
+.rc-glyph { width:30px; height:30px; border-radius:8px; background:#fff3e8; color:var(--orange); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.rc-title { font-size:12.5px; font-weight:600; }
+.rc-sub { font-size:10.5px; color:var(--gray-50); margin-top:1px; }
+.rc-open { margin-left:auto; color:var(--violet-50); font-size:12px; font-weight:600; }
+/* docked smartbar + disclaimer */
+.sw-dock { width:100%; display:flex; flex-direction:column; align-items:center; padding:4px 20px 0; }
+.disclaimer { color:var(--gray-60); font-size:11px; padding:7px 0 10px; user-select:none; }
+.sw-footer { display:flex; gap:30px; justify-content:center; padding:14px 0 18px; }
+.sw-foot-item { display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11.5px; color:var(--gray-60); cursor:pointer; background:none; border:none; font-family:var(--font); }
+.sw-foot-item:hover { color:var(--violet-60); }
+.sw-foot-item .ic { width:34px; height:34px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(43,27,85,0.12); display:flex; align-items:center; justify-content:center; font-size:14px; position:relative; }
+.sw-foot-item .bub { position:absolute; top:-3px; right:-3px; min-width:14px; height:14px; border-radius:99px; background:var(--orange); color:#fff; font-size:8.5px; font-weight:800; display:none; align-items:center; justify-content:center; padding:0 4px; }
+#page-sw.chat-active .sw-footer { display:none; }
+
+/* ─── Sidebar mode (page tabs) ─── */
+.sidebar { width:380px; flex-shrink:0; background:linear-gradient(180deg,#f8f5fe 0%,#f3eefb 100%); border-left:1px solid rgba(43,27,85,0.07); display:none; flex-direction:column; min-height:0; }
+.sidebar.open { display:flex; }
+.sb-header { display:flex; align-items:center; gap:8px; padding:10px 12px 6px; flex-shrink:0; }
+.sb-seg { display:flex; background:rgba(43,27,85,0.06); border-radius:99px; padding:3px; }
+.sb-seg button { font-family:var(--font); font-size:11.5px; font-weight:600; color:var(--gray-50); background:transparent; border:none; border-radius:99px; padding:4px 15px; cursor:pointer; position:relative; transition:all var(--d-quick) var(--ease-settle); }
+.sb-seg button.active { background:#fff; color:var(--violet-90); box-shadow:0 1px 4px rgba(43,27,85,0.12); }
+.sb-seg .bub { position:absolute; top:-4px; right:-2px; min-width:14px; height:14px; border-radius:99px; background:var(--orange); color:#fff; font-size:8.5px; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 4px; }
+.sb-actions { margin-left:auto; display:flex; gap:6px; }
+.sb-views { flex:1; min-height:0; position:relative; display:flex; }
+.sb-view { flex:1; display:none; flex-direction:column; min-height:0; }
+.sb-view.active { display:flex; }
+.sb-thread-scroll { flex:1; overflow-y:auto; min-height:0; mask-image:linear-gradient(to bottom,transparent,#000 20px,#000 calc(100% - 26px),transparent); }
+.sb-thread { display:flex; flex-direction:column; gap:10px; padding:24px 14px 28px; }
+.sb-thread .chat-bubble-user { max-width:85%; font-size:12.5px; }
+.sb-thread .message-assistant { font-size:12.5px; }
+.sb-dock { padding:4px 12px 0; flex-shrink:0; }
+.sb-dock .sw-smartbar-wrap { width:100%; border-radius:16px; }
+.sb-dock textarea { height:40px; padding:11px 14px 2px; font-size:12.5px; }
+.sb-disclaimer { text-align:center; }
+
+/* ─── Den (storage surface) ─── */
+.shelf-scroll { flex:1; overflow-y:auto; padding:12px 14px; min-height:0; }
+.shelf-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--gray-40); margin:6px 2px 9px; }
+.shelf-obj { background:#fff; border-radius:12px; box-shadow:0 1px 5px rgba(43,27,85,0.09); padding:11px 13px; margin-bottom:9px; cursor:pointer; transition:box-shadow var(--d-quick); animation:arrive var(--d-gracious) var(--ease-arrive); }
+.shelf-obj:hover { box-shadow:var(--smartwindow-shadow); }
+.shelf-obj.unread { box-shadow:0 0 0 1.5px var(--violet-30),0 1px 5px rgba(43,27,85,0.09); }
+.so-head { display:flex; align-items:center; gap:9px; }
+.so-glyph { width:28px; height:28px; border-radius:8px; background:var(--violet-05); color:var(--violet-60); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.so-glyph.report { background:#fff3e8; color:var(--orange); }
+.so-title { font-size:12px; font-weight:600; color:var(--gray-100); }
+.so-sub { font-size:10.5px; color:var(--gray-50); margin-top:1px; line-height:1.45; }
+.so-badge { margin-left:auto; flex-shrink:0; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:3px 9px; border-radius:99px; }
+.so-badge.live { background:#e7f5e7; color:var(--green); display:inline-flex; align-items:center; gap:4px; }
+.so-badge.live::before { content:""; width:6px; height:6px; border-radius:50%; background:currentColor; animation:breathe var(--d-breathe) ease-in-out infinite; }
+.so-badge.met { background:var(--violet-10); color:var(--violet-60); }
+.so-badge.paused { background:var(--gray-05); color:var(--gray-50); }
+.so-badge.kept { background:#fff3e8; color:var(--orange); }
+.so-detail { border-top:1px solid var(--gray-05); margin-top:9px; padding-top:9px; display:none; }
+.shelf-obj.expanded .so-detail { display:block; }
+.so-meta { font-size:10px; color:var(--gray-40); display:flex; gap:11px; margin-top:7px; flex-wrap:wrap; }
+.so-actions { display:flex; gap:6px; margin-top:9px; }
+.so-actions .ac-btn { font-size:11px; padding:5px 13px; }
+.shelf-empty { text-align:center; color:var(--gray-40); font-size:11.5px; line-height:1.65; padding:34px 24px; }
+.shelf-empty b { color:var(--violet-60); }
+.shelf-foot { padding:9px 16px; border-top:1px solid rgba(43,27,85,0.06); display:flex; align-items:center; font-size:10px; color:var(--gray-40); flex-shrink:0; }
+.shelf-foot .pa { margin-left:auto; color:var(--gray-50); font-weight:600; cursor:pointer; }
+.shelf-foot .pa:hover { color:var(--red); }
+/* fullpage shelf overlay */
+.sw-shelf-overlay { position:absolute; inset:0; background:linear-gradient(180deg,#f6f3fd,#efe7fa); z-index:6; display:none; flex-direction:column; }
+.sw-shelf-overlay.open { display:flex; }
+.sw-shelf-inner { width:min(640px,94%); margin:0 auto; flex:1; display:flex; flex-direction:column; min-height:0; padding-top:60px; }
+.sw-shelf-inner h2 { font-size:17px; font-weight:600; color:var(--violet-90); margin-bottom:2px; }
+.sw-shelf-inner .sub { font-size:11.5px; color:var(--gray-50); margin-bottom:14px; }
+
+/* ─── Web pages ─── */
+.shop-page { padding:32px 44px; max-width:960px; }
+.shop-crumb { font-size:11.5px; color:var(--gray-40); margin-bottom:16px; }
+.shop-hero { display:flex; gap:32px; }
+.shop-img { width:250px; height:250px; border-radius:14px; background:linear-gradient(135deg,#e8e4f5,#cfc6ee); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.shop-info h1 { font-size:22px; font-weight:700; letter-spacing:-0.3px; }
+.shop-rating { font-size:12px; color:var(--orange); margin:8px 0 12px; }
+.shop-rating span { color:var(--gray-40); }
+.price-now { font-size:29px; font-weight:800; }
+.price-now.waypointed { border-bottom:2.5px dotted var(--violet-40); cursor:pointer; }
+.price-was { font-size:14px; color:var(--gray-40); text-decoration:line-through; margin-left:10px; }
+.price-drop { font-size:11px; font-weight:700; color:var(--green); margin-left:10px; }
+.shop-desc { font-size:13px; line-height:1.6; color:var(--gray-70); margin:14px 0 18px; max-width:430px; }
+.shop-btn { padding:10px 24px; border-radius:99px; font-size:13px; font-weight:600; border:none; cursor:pointer; font-family:var(--font); margin-right:8px; }
+.shop-btn.primary { background:var(--gray-100); color:#fff; }
+.shop-btn.secondary { background:#fff; color:var(--gray-100); border:1.5px solid var(--gray-20); }
+.waypoint { display:inline-flex; align-items:center; gap:7px; margin-top:10px; background:var(--violet-10); border-radius:10px; padding:6px 14px; font-size:13px; font-weight:500; cursor:pointer; width:fit-content; transition:all var(--d-quick) var(--ease-settle); animation:arrive var(--d-gracious) var(--ease-arrive); }
+.waypoint:hover { background:#3d2272; color:#fff; }
+.waypoint:hover .wp-dim { color:rgba(255,255,255,0.65); }
+.waypoint .pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
+.waypoint.met .pulse { background:var(--violet-40); }
+.waypoint .wp-dim { color:var(--gray-50); font-weight:400; transition:color var(--d-quick); }
+.flights-page { padding:28px 40px; max-width:980px; }
+.fl-search { display:flex; gap:10px; align-items:center; background:var(--gray-05); border-radius:12px; padding:11px 18px; font-size:12.5px; color:var(--gray-70); margin-bottom:16px; }
+.fl-row { display:flex; align-items:center; gap:20px; border:1px solid var(--gray-10); border-radius:12px; padding:13px 20px; margin-bottom:9px; }
+.fl-airline { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.fl-times { font-size:13.5px; font-weight:700; }
+.fl-route { font-size:11px; color:var(--gray-50); margin-top:2px; }
+.fl-dur { font-size:11px; color:var(--gray-50); }
+.fl-price { margin-left:auto; text-align:right; }
+.fl-price-num { font-size:17px; font-weight:800; }
+.fl-price-type { font-size:10px; color:var(--gray-40); }
+.fl-price-type.ref { color:var(--green); font-weight:600; }
+/* report page */
+.report-view { padding:30px 48px 60px; max-width:1000px; margin:0 auto; display:grid; grid-template-columns:1fr 264px; gap:24px; }
+.rv-kicker { font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--violet-60); margin-bottom:8px; display:flex; align-items:center; gap:7px; }
+.rv-doc h1 { font-size:23px; font-weight:800; letter-spacing:-0.4px; }
+.rv-meta { font-size:11px; color:var(--gray-40); margin:5px 0 12px; }
+.rv-doc h3 { font-size:13.5px; font-weight:700; margin:18px 0 8px; }
+.rv-doc p { font-size:12.5px; line-height:1.7; color:var(--gray-70); }
+.pick-card { display:flex; align-items:center; gap:14px; background:var(--violet-05); border-radius:12px; padding:12px 16px; margin:12px 0; box-shadow:inset 0 0 0 1.5px var(--violet-20); }
+.pick-rank { font-size:9.5px; font-weight:800; letter-spacing:0.6px; color:var(--violet-60); text-transform:uppercase; }
+.pick-name { font-size:13.5px; font-weight:700; }
+.pick-why { font-size:11px; color:var(--gray-70); margin-top:2px; }
+.pick-price { margin-left:auto; font-size:16px; font-weight:800; }
+.linked-chat { background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(43,27,85,0.08); padding:16px; height:fit-content; position:sticky; top:24px; }
+.lc-label { font-size:10px; font-weight:700; letter-spacing:0.7px; text-transform:uppercase; color:var(--gray-40); margin-bottom:11px; }
+.lc-msg { font-size:11px; line-height:1.5; margin-bottom:8px; padding:8px 11px; border-radius:10px; }
+.lc-msg.u { background:var(--violet-60); color:#fff; border-radius:10px 10px 3px 10px; margin-left:16px; }
+.lc-msg.a { background:var(--gray-05); color:var(--gray-70); border-radius:10px 10px 10px 3px; margin-right:16px; }
+.lc-btn { width:100%; margin-top:5px; font-family:var(--font); font-size:11.5px; font-weight:600; padding:8px; border-radius:99px; border:1.5px solid var(--violet-30); background:#fff; color:var(--violet-60); cursor:pointer; }
+.lc-btn:hover { background:var(--violet-05); }
+.lc-btn[disabled] { opacity:0.55; cursor:default; }
+
+/* address-bar watch indicator (like the bookmark star) + status popover */
+.tb-eye { display:inline-flex; align-items:center; gap:5px; color:var(--violet-60); cursor:pointer; flex-shrink:0; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; transition:background var(--d-quick); }
+.tb-eye:hover { background:var(--violet-05); }
+.tb-eye .pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
+.tb-eye.met .pulse { background:var(--violet-40); animation:none; }
+.watch-popover { position:absolute; top:46px; right:120px; width:330px; background:#fff; border-radius:14px; box-shadow:0 14px 44px rgba(43,27,85,0.22); z-index:60; padding:14px 16px; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.watch-popover .wp-t { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.watch-popover .wp-s { font-size:11px; color:var(--gray-50); margin:2px 0 8px; }
+.watch-popover .wp-meta { font-size:10.5px; color:var(--gray-40); display:flex; gap:11px; margin-top:7px; flex-wrap:wrap; }
+.watch-popover .wp-actions { display:flex; gap:7px; margin-top:10px; }
+/* editable plan card pieces */
+.plan-sent { font-size:14px; line-height:1.6; color:var(--gray-100); padding:2px 0 4px; }
+.tok { border-bottom:2px dotted var(--violet-40); font-weight:700; cursor:pointer; padding-bottom:1px; }
+.tok:hover { background:var(--violet-05); }
+.plan-meta { font-size:11.5px; color:var(--gray-50); margin:6px 0 10px; }
+.site-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:9px; }
+.site-pill { font-family:var(--font); font-size:12px; font-weight:600; border-radius:99px; padding:6px 14px; border:1.5px solid #2f6fd0; background:transparent; color:#2f6fd0; cursor:pointer; transition:all var(--d-quick); }
+.site-pill::before { content:"✓ "; }
+.site-pill.off { border-color:var(--gray-20); color:var(--gray-40); }
+.sites-hint { font-size:10.5px; color:var(--gray-50); margin:2px 0 6px; }
+.site-pill.off::before { content:"+ "; }
+.plan-count { font-size:11.5px; color:var(--gray-50); margin-bottom:4px; }
+.watching-badge { font-size:10.5px; font-weight:700; background:#e7f5e7; color:var(--green); border-radius:99px; padding:3px 10px; margin-left:8px; white-space:nowrap; }
+.watching-badge::before { content:"● "; }
+.added-line { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--gray-50); margin:6px 2px 0; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.added-line .chk { width:17px; height:17px; border-radius:50%; background:var(--green); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:10px; }
+/* suggestion card (Den) */
+.den-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--gray-40); margin:6px 2px 9px; display:flex; align-items:center; gap:7px; }
+.den-label .cnt { background:rgba(43,27,85,0.1); color:var(--gray-70); border-radius:99px; min-width:17px; height:17px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; padding:0 5px; }
+.sugg-card { background:#fff; border-radius:12px; box-shadow:0 1px 5px rgba(43,27,85,0.09); padding:13px 14px; margin-bottom:9px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.sugg-card .sg-t { font-size:12.5px; font-weight:700; }
+.sugg-card .sg-s { font-size:11px; color:var(--gray-50); margin:2px 0 9px; }
+.sugg-card .sg-row { display:flex; align-items:center; gap:12px; }
+.sugg-card .sg-no { font-size:11.5px; font-weight:600; color:#2f6fd0; cursor:pointer; }
+.sugg-card .sg-foot { font-size:10px; color:var(--gray-40); margin-top:8px; }
+.sugg-card .ac-btn.primary { background:#2f6fd0; border-color:#2f6fd0; }
+/* anchored callout (near toggles) */
+.anchor-callout { position:absolute; top:46px; right:8px; background:rgba(28,27,34,0.97); color:#fff; border-radius:10px; padding:8px 13px; font-size:11.5px; display:flex; align-items:center; gap:8px; box-shadow:0 8px 26px rgba(0,0,0,0.35); z-index:50; white-space:nowrap; animation:arrive var(--d-considered) var(--ease-arrive); }
+.anchor-callout .chk { width:16px; height:16px; border-radius:50%; background:var(--green); display:inline-flex; align-items:center; justify-content:center; font-size:9px; }
+.anchor-callout button { font-family:var(--font); font-size:11px; font-weight:700; border:none; border-radius:99px; padding:4px 12px; cursor:pointer; background:var(--violet-50); color:#fff; }
+.anchor-callout .x { color:rgba(255,255,255,0.5); cursor:pointer; font-size:12px; padding:0 2px; }
+.bub.dot { min-width:8px; height:8px; padding:0; font-size:0; background:var(--violet-40); }
+/* slash menu (Concept A invocation) */
+.slash-pop { position:absolute; bottom:calc(100% + 6px); left:8px; right:8px; background:#fff; border-radius:12px; box-shadow:var(--smartwindow-shadow); overflow:hidden; z-index:20; animation:arrive var(--d-quick) var(--ease-arrive); }
+.slash-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; transition:background var(--d-instant); }
+.slash-item:hover { background:var(--violet-05); }
+.slash-item .si-name { font-size:12.5px; font-weight:600; color:var(--gray-100); }
+.slash-item .si-name code { font-size:10.5px; color:var(--violet-50); margin-right:7px; font-family:monospace; }
+.slash-item .si-desc { font-size:10.5px; color:var(--gray-50); }
+/* pinned live strip in sidebar chat (Concept A) */
+.sb-pin { flex-shrink:0; padding:6px 12px 0; }
+.pin-line { display:flex; align-items:center; gap:8px; background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(43,27,85,0.09); padding:6px 11px; font-size:10.5px; color:var(--gray-70); cursor:pointer; margin-bottom:5px; transition:box-shadow var(--d-quick); }
+.pin-line:hover { box-shadow:var(--smartwindow-shadow); }
+.pin-line .pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; flex-shrink:0; }
+.pin-line.met .pulse { background:var(--violet-40); }
+.pin-line b { color:var(--violet-90); }
+.pin-line .meta { margin-left:auto; color:var(--gray-40); font-size:9.5px; white-space:nowrap; }
+/* earned hub (Concept B, progressive) */
+.hub-page { max-width:980px; margin:0 auto; padding:30px 40px 60px; }
+.hub-page h1 { font-size:21px; font-weight:800; letter-spacing:-0.4px; color:var(--violet-90); }
+.hub-sub { font-size:12px; color:var(--gray-50); margin:3px 0 20px; }
+.hub-cols { display:grid; grid-template-columns:1fr 290px; gap:24px; }
+.hub-label { font-size:10.5px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--gray-40); margin:0 0 10px; }
+.hub-label:not(:first-child) { margin-top:18px; }
+.agent-tile { background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(43,27,85,0.09); padding:15px 17px; margin-bottom:11px; cursor:pointer; transition:box-shadow var(--d-quick); }
+.agent-tile:hover { box-shadow:var(--smartwindow-shadow); }
+.at-head { display:flex; align-items:center; gap:11px; }
+.at-body { display:flex; align-items:flex-end; gap:16px; margin-top:12px; }
+.at-numbers { text-align:right; flex-shrink:0; }
+.at-price { font-size:18px; font-weight:800; }
+.at-target { font-size:10px; color:var(--gray-50); }
+.feed-item { display:flex; gap:10px; padding:8px 2px; font-size:11.5px; color:var(--gray-70); line-height:1.45; border-bottom:1px solid var(--gray-05); }
+.feed-day { color:var(--gray-30); font-size:10px; white-space:nowrap; padding-top:2px; min-width:30px; }
+.shelf-foot .viewall { color:var(--violet-60); font-weight:700; cursor:pointer; margin-right:auto; }
+.shelf-foot .viewall:hover { text-decoration:underline; }
+.shelf-foot .viewall + span { margin-left:0; }
+
+/* ─── notification ─── */
+.os-toast { position:fixed; top:54px; right:24px; width:344px; background:rgba(28,27,34,0.97); backdrop-filter:blur(10px); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.45); display:flex; gap:11px; z-index:90; cursor:pointer; animation:toastIn var(--d-considered) var(--ease-arrive); }
+@keyframes toastIn { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
+.os-toast.hide { opacity:0; transform:translateY(-10px); transition:all var(--d-moderate); pointer-events:none; }
+.ot-icon { width:34px; height:34px; border-radius:9px; background:var(--smartwindow-border-color-gradient); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ot-app { font-size:9.5px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:2px; }
+.ot-title { font-size:12px; font-weight:700; color:#fff; }
+.ot-body { font-size:11.5px; color:rgba(255,255,255,0.72); line-height:1.45; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<div style="background:#15141a;color:rgba(255,255,255,0.85);padding:8px 16px;display:flex;align-items:center;gap:12px;font-size:12px;flex-shrink:0">
+  <a href="index.html" style="color:#b295ff;text-decoration:none">← Analysis</a>
+  <b>Live prototype</b><span style="color:rgba(255,255,255,0.4)">unscripted — type, click, choose your own journey</span>
+  <div style="display:flex;background:rgba(255,255,255,0.08);border-radius:99px;padding:3px;margin-left:8px" id="cSwitch">
+    <button class="cbtn" data-c="A">A · Chat</button><button class="cbtn" data-c="B">B · Hub</button><button class="cbtn cbtn-on" data-c="C">C · Den</button><button class="cbtn" data-c="D">D · Bar</button><button class="cbtn" data-c="E">E · Firefox View</button>
+  </div>
+  <button onclick="location.reload()" style="margin-left:auto;font-family:inherit;font-size:11.5px;font-weight:600;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;border-radius:6px;padding:5px 13px;cursor:pointer">Reset</button>
+</div>
+<style>
+.cbtn { font-family:var(--font); font-size:11px; font-weight:600; color:rgba(255,255,255,0.55); background:transparent; border:none; border-radius:99px; padding:4px 13px; cursor:pointer; }
+.cbtn-on { background:var(--violet-50); color:#fff; }
+/* ── icon set (no emoji) ── */
+.ico { width:13px; height:13px; flex-shrink:0; }
+/* ── polished object card ── */
+.rule-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+.rule-chip { font-size:10.5px; font-weight:600; background:var(--violet-05); color:var(--violet-60); border:1px solid var(--violet-10); border-radius:6px; padding:2.5px 8px; font-family:var(--mono,monospace); }
+.icon-act { display:inline-flex; align-items:center; gap:5px; font-family:var(--font); font-size:11px; font-weight:600; border-radius:99px; padding:5.5px 12px; cursor:pointer; border:1px solid var(--gray-20); background:#fff; color:var(--gray-70); transition:all 140ms; }
+.icon-act:hover { border-color:var(--violet-30); color:var(--violet-60); }
+.icon-act.danger:hover { border-color:var(--red); color:var(--red); }
+/* question card */
+.qcard { background:#fff; border-radius:14px; box-shadow:0 4px 18px rgba(43,27,85,0.13); padding:14px 16px; align-self:stretch; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.qc-head { display:flex; align-items:center; gap:10px; margin-bottom:3px; }
+.qc-title { font-size:13.5px; font-weight:700; flex:1; }
+.qc-page { font-size:11px; color:var(--gray-40); white-space:nowrap; }
+.qc-x { color:var(--gray-40); cursor:pointer; font-size:13px; padding:2px 4px; }
+.qc-opt { display:flex; align-items:center; gap:11px; padding:10px 6px; border-bottom:1px solid var(--gray-05); cursor:pointer; font-size:12.5px; color:var(--gray-80); border-radius:8px; }
+.qc-opt:hover { background:var(--violet-05); }
+.qc-opt .n { width:22px; height:22px; border-radius:6px; background:var(--violet-10); color:var(--violet-60); font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.qc-else { display:flex; align-items:center; gap:10px; background:var(--gray-05); border-radius:10px; padding:8px 12px; margin-top:9px; font-size:12px; color:var(--gray-40); }
+.qc-else .pen { width:22px; height:22px; border-radius:6px; background:var(--violet-50); color:#fff; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.qc-else input { flex:1; border:none; outline:none; background:transparent; font-family:var(--font); font-size:12px; color:var(--gray-100); }
+.qc-skip { font-family:var(--font); font-size:11.5px; font-weight:600; background:#fff; border:1px solid var(--gray-20); border-radius:8px; padding:5px 14px; cursor:pointer; color:var(--gray-70); }
+/* pinned strip (A & B) */
+.pin-bar { display:none; padding:8px 12px 4px; flex-shrink:0; }
+.pin-bar.on { display:block; }
+.pin-item { display:inline-flex; align-items:center; gap:8px; background:#fff; border:1.5px solid var(--violet-20); border-radius:99px; padding:6px 14px 6px 8px; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(43,27,85,0.12); margin:0 6px 6px 0; }
+.pin-item .pic { width:22px; height:22px; border-radius:7px; background:var(--violet-10); color:var(--violet-60); display:inline-flex; align-items:center; justify-content:center; }
+.pin-item .pdot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
+.pin-item.hit .pdot { background:var(--violet-40); animation:none; }
+.pin-detail { background:#fff; border-radius:14px; box-shadow:0 8px 26px rgba(43,27,85,0.18); padding:13px 15px; margin:2px 0 6px; display:none; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.pin-detail.open { display:block; }
+/* B feature callout */
+.feat-callout { position:absolute; top:46px; right:54px; background:rgba(28,27,34,0.97); color:#fff; border-radius:11px; padding:9px 14px; font-size:11.5px; display:none; align-items:center; gap:9px; z-index:55; box-shadow:0 10px 30px rgba(0,0,0,0.4); }
+.feat-callout.open { display:flex; }
+.feat-callout button { font-family:var(--font); font-size:11px; font-weight:700; background:var(--violet-50); color:#fff; border:none; border-radius:99px; padding:4px 12px; cursor:pointer; }
+.feat-callout .x { color:rgba(255,255,255,0.5); cursor:pointer; }
+/* D floating action card */
+.float-card { position:fixed; top:64px; right:26px; width:360px; background:#fff; border-radius:16px; box-shadow:0 18px 56px rgba(43,27,85,0.3); z-index:95; padding:16px 18px; display:none; animation:toastIn var(--d-considered) var(--ease-arrive); }
+.float-card.open { display:block; }
+.fc-t { font-size:14px; font-weight:800; }
+.fc-b { font-size:12.5px; color:var(--gray-70); line-height:1.55; margin:4px 0 10px; }
+.fc-b b { color:var(--green); }
+.fc-btn { font-family:var(--font); font-size:12px; font-weight:700; border-radius:99px; padding:8px 16px; cursor:pointer; border:none; background:#2f6fd0; color:#fff; margin-right:7px; }
+.fc-btn.ghost { background:var(--gray-05); color:var(--gray-70); }
+/* Firefox View */
+.fxview { display:none; min-height:100%; background:linear-gradient(115deg,#17131f 0%,#1c1626 60%,#241a33 100%); color:rgba(255,255,255,0.9); }
+.fxview.active { display:flex; }
+.fxv-rail { width:218px; flex-shrink:0; padding:26px 14px; }
+.fxv-brand { display:flex; align-items:center; gap:9px; font-size:15px; font-weight:700; margin-bottom:20px; padding-left:8px; }
+.fxv-brand .fx { width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#9959FF,#ED49AE); }
+.fxv-item { display:flex; align-items:center; gap:10px; font-size:12.5px; color:rgba(255,255,255,0.65); padding:8px 11px; border-radius:8px; cursor:pointer; position:relative; }
+.fxv-item:hover { background:rgba(255,255,255,0.06); }
+.fxv-item.active { background:rgba(255,255,255,0.1); color:#5ee8d6; }
+.fxv-item .bub2 { margin-left:auto; min-width:17px; height:17px; border-radius:99px; background:#2f6fd0; color:#fff; font-size:9.5px; font-weight:800; display:none; align-items:center; justify-content:center; padding:0 5px; }
+.fxv-item .bub2.on { display:inline-flex; }
+.fxv-main { flex:1; padding:28px 36px; min-width:0; max-width:1060px; }
+.fxv-main h1 { font-size:22px; font-weight:800; margin-bottom:16px; }
+.fxv-sec { font-size:15px; font-weight:700; margin:4px 0 12px; }
+.agent-bigcard { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:17px 19px; margin-bottom:16px; max-width:880px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.ab-t { font-size:15px; font-weight:700; display:flex; align-items:center; gap:9px; }
+.ab-dot { width:9px; height:9px; border-radius:50%; background:#7fe07a; animation:breathe var(--d-breathe) ease-in-out infinite; }
+.ab-dot.met { background:var(--violet-40); animation:none; }
+.ab-rule { font-size:12.5px; color:rgba(255,255,255,0.72); margin-top:3px; }
+.ab-meta { display:flex; align-items:center; gap:10px; margin:9px 0 2px; font-size:11.5px; color:rgba(255,255,255,0.5); flex-wrap:wrap; }
+.chkdots { display:inline-flex; gap:4px; }
+.chkdots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.18); }
+.ab-acts { display:flex; gap:15px; margin-top:9px; font-size:12.5px; font-weight:600; }
+.ab-acts span { color:#5b9bf3; cursor:pointer; }
+.ab-acts span:hover { text-decoration:underline; }
+.ab-acts .del { color:#ff8da3; }
+.alert-strip { display:flex; align-items:center; gap:11px; background:rgba(20,83,45,0.35); border-left:3px solid #7fe07a; border-radius:8px; padding:11px 15px; margin-top:12px; font-size:12.5px; color:#a8e8b8; }
+.alert-strip b { color:#c9f5d3; }
+.alert-strip .go { margin-left:auto; background:#2f6fd0; color:#fff; font-family:var(--font); font-size:12px; font-weight:700; border:none; border-radius:9px; padding:8px 16px; cursor:pointer; white-space:nowrap; }
+.fxv-row { display:flex; align-items:center; gap:10px; font-size:12.5px; color:rgba(255,255,255,0.8); padding:8px 6px; border-radius:8px; }
+.fxv-child { display:flex; align-items:center; gap:9px; margin:2px 6px 6px 28px; background:rgba(151,110,255,0.1); border:1px solid rgba(151,110,255,0.3); border-left:2.5px solid var(--violet-40); border-radius:9px; padding:7px 12px; cursor:pointer; }
+.fxv-child .t2 { font-size:12px; font-weight:700; }
+.fxv-child .s2 { font-size:10.5px; color:rgba(255,255,255,0.55); margin-top:1px; }
+/* B: new tab agents summary card */
+.nt-agents { display:none; width:min(620px,92%); margin-top:8px; border:1.5px solid var(--violet-20); background:linear-gradient(135deg,#fff,var(--violet-05)); border-radius:16px; padding:14px 18px 10px; cursor:pointer; }
+.nt-agents.on { display:block; }
+</style>
+
+<div class="browser">
+  <div class="tabstrip" id="tabstrip">
+    <div class="traffic"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div>
+    <div class="day-skip"><span><b id="dayLabel">Tuesday</b></span><button id="daySkip">skip a day ⏭</button></div>
+  </div>
+  <div class="toolbar">
+    <div class="nav-arrows">‹ ›</div>
+    <div class="smartbar-wrap" id="tbWrap">
+      <div class="smartbar">
+        <span class="glyph"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/></svg></span>
+        <input id="tbInput" placeholder="" autocomplete="off">
+        <span id="tbWatchSlot"></span>
+        <span id="tbOfferSlot"></span>
+      </div>
+    </div>
+    <div class="tb-btn" id="sbToggle" title="Smart Window sidebar">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2" width="13" height="12" rx="2.5" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="2.5" x2="10" y2="13.5" stroke="currentColor" stroke-width="1.4"/></svg>
+      <span class="bub" id="tbBub" style="display:none">1</span>
+    </div>
+  </div>
+
+  <div class="feat-callout" id="featCallout">✨ Smart Window can watch this for you<button id="fcGo">Try it</button><span class="x" id="fcX">✕</span></div>
+  <div class="window-body">
+    <div class="content" id="contentArea">
+
+      <!-- SMART WINDOW (fullpage) -->
+      <div class="page" id="page-sw">
+        <div class="sw-corner">
+          <button class="corner-btn" id="shelfBtn">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12M2 8h12M2 13h12"/><circle cx="13" cy="3" r="1.6" fill="currentColor" stroke="none"/></svg>
+            Den<span class="bub" id="shelfBub" style="display:none">1</span>
+          </button>
+          <button class="corner-btn icon-only" id="newChatBtn" title="New chat">＋</button>
+        </div>
+
+        <!-- conversation -->
+        <div class="sw-chat">
+          <div class="chat-scroll" id="swScroll"><div class="chat-inner" id="swThread"></div></div>
+        </div>
+
+        <!-- heading + smartbar + starters -->
+        <div class="sw-stage">
+          <div class="sw-heading">
+            <div class="logo"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.7"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
+            <h1>Smart Window</h1>
+            <span class="badge">BETA</span>
+          </div>
+          <div class="sw-smartbar-wrap" id="swBarWrap">
+            <div class="sw-smartbar">
+              <textarea id="swInput" placeholder="Ask, search, or type / for agents" rows="1"></textarea>
+              <div class="row">
+                <span class="plus">＋</span>
+                <svg width="15" height="15" viewBox="0 0 16 16" style="color:var(--gray-40)"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M7 5v5M5 6.5L7 4.5l2 2" stroke="currentColor" stroke-width="1" stroke-linecap="round" fill="none"/></svg>
+                <button class="send" id="swSend">→</button>
+              </div>
+            </div>
+          </div>
+          <div id="swStarters"></div>
+          <div class="nt-agents" id="ntAgents"></div>
+          <div class="disclaimer">AI can make mistakes. Check important info.</div>
+          <div class="sw-footer">
+            <button class="sw-foot-item"><span class="ic">🕘</span>History</button>
+            <button class="sw-foot-item"><span class="ic">💬</span>Chats</button>
+            <button class="sw-foot-item" id="swFootAgents"><span class="ic">👁<span class="bub" id="footBub"></span></span>Agents</button>
+          </div>
+        </div>
+
+        <!-- fullpage shelf -->
+        <div class="sw-shelf-overlay" id="swShelfOverlay">
+          <div class="sw-corner" style="z-index:7"><button class="corner-btn icon-only" id="shelfClose">✕</button></div>
+          <div class="sw-shelf-inner">
+            <h2 id="swDenTitle">Den</h2>
+            <div class="sub">What this chat's agents are watching, and what they've written. Every chat has its own Den.</div>
+            <div class="shelf-scroll" id="swShelfList"></div>
+            <div class="shelf-foot"><span class="viewall" data-viewall style="display:none">View all →</span><span>Read-only · every check is logged</span><span class="pa" data-pa>⏸ Pause all</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOUNDHUB -->
+      <div class="page" id="page-soundhub">
+        <div class="shop-page">
+          <div class="shop-crumb">SoundHub › Audio › Noise-cancelling headphones</div>
+          <div class="shop-hero">
+            <div class="shop-img"><svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#4a2e8f" stroke-width="1.3"><path d="M4 13a8 8 0 0 1 16 0"/><rect x="2.5" y="13" width="4" height="7" rx="2"/><rect x="17.5" y="13" width="4" height="7" rx="2"/></svg></div>
+            <div class="shop-info">
+              <h1>Aurora ANC Wireless Headphones</h1>
+              <div class="shop-rating">★★★★☆ <span>4.4 · 2,318 reviews</span></div>
+              <div><span class="price-now" id="auroraPrice">$89.00</span><span class="price-was">$129.00</span><span class="price-drop" id="auroraDrop"></span></div>
+              <div id="auroraWaypoint"></div>
+              <p class="shop-desc">Adaptive noise cancellation, 42-hour battery, multipoint Bluetooth. Free shipping over $50.</p>
+              <button class="shop-btn primary">Add to cart</button>
+              <button class="shop-btn secondary">Save for later</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FLIGHTFINDER -->
+      <div class="page" id="page-flights">
+        <div class="flights-page">
+          <div class="fl-search">✈️ &nbsp;<b>YVR → NRT</b> · March 12–26 · 1 adult &nbsp;·&nbsp; 47 results</div>
+          <div id="faresWaypoint"></div>
+          <div class="fl-row"><div class="fl-airline" style="background:#e8f1fd">🛫</div><div><div class="fl-times">10:05 — 14:20<sup>+1</sup></div><div class="fl-route">nonstop</div></div><div class="fl-dur">10h 15m</div><div class="fl-price"><div class="fl-price-num" id="fare1">$912</div><div class="fl-price-type">basic · non-refundable</div></div></div>
+          <div class="fl-row"><div class="fl-airline" style="background:#fdeee8">🛫</div><div><div class="fl-times">13:30 — 18:45<sup>+1</sup></div><div class="fl-route">nonstop</div></div><div class="fl-dur">10h 15m</div><div class="fl-price"><div class="fl-price-num">$889</div><div class="fl-price-type">basic · non-refundable</div></div></div>
+          <div class="fl-row"><div class="fl-airline" style="background:#eefae8">🛫</div><div><div class="fl-times">08:50 — 15:10<sup>+1</sup></div><div class="fl-route">1 stop</div></div><div class="fl-dur">12h 20m</div><div class="fl-price"><div class="fl-price-num">$934</div><div class="fl-price-type ref">flex · refundable</div></div></div>
+        </div>
+      </div>
+
+      <!-- YOUR AGENTS (earned hub) -->
+      <div class="page" id="page-hub">
+        <div class="hub-page">
+          <h1>Your agents</h1>
+          <div class="hub-sub">Everything across all your chats — every check logged. Each item also lives in its own chat's Den.</div>
+          <div class="hub-cols">
+            <div><div class="hub-label">Live</div><div id="hubLive"></div></div>
+            <div>
+              <div class="hub-label">Reports</div><div id="hubReports"></div>
+              <div class="hub-label">Activity</div><div id="hubFeed"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIREFOX VIEW -->
+      <div class="page fxview" id="page-fxv">
+        <div class="fxv-rail">
+          <div class="fxv-brand"><span class="fx"></span>Firefox View</div>
+          <div class="fxv-item">✨ Recent browsing</div>
+          <div class="fxv-item">▣ Open tabs</div>
+          <div class="fxv-item">🕘 History</div>
+          <div class="fxv-item" id="fxvChatsItem">💬 Chats</div>
+          <div class="fxv-item" id="fxvAgentsItem">👁 Agents<span class="bub2" id="fxvBub"></span></div>
+        </div>
+        <div class="fxv-main" id="fxvMain"></div>
+      </div>
+
+      <!-- REPORT -->
+      <div class="page" id="page-report">
+        <div class="report-view">
+          <div class="rv-doc" id="rvDoc"></div>
+          <div class="linked-chat" id="rvChat"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR (page tabs) -->
+    <div class="float-card" id="floatCard"></div>
+    <div class="sidebar" id="sidebar">
+      <div class="sb-header">
+        <div class="sb-seg">
+          <button class="active" data-v="chat">Chat</button>
+          <button data-v="shelf" id="segShelf">Den<span class="bub" id="sbShelfBub" style="display:none">1</span></button>
+        </div>
+        <div class="sb-actions">
+          <button class="corner-btn icon-only" id="sbNew" title="New chat" style="height:30px;width:30px">＋</button>
+          <button class="corner-btn icon-only" id="sbClose" title="Close" style="height:30px;width:30px">✕</button>
+        </div>
+      </div>
+      <div class="sb-views">
+        <div class="sb-view active" id="sbChatView">
+          <div class="sb-pin" id="sbPin"></div>
+          <div class="pin-bar" id="pinBar"></div>
+          <div class="sb-thread-scroll" id="sbScroll"><div class="sb-thread" id="sbThread"></div></div>
+          <div class="sb-dock">
+            <div class="sw-smartbar-wrap" id="sbBarWrap">
+              <div class="sw-smartbar">
+                <textarea id="sbInput" placeholder="Ask about this page, or type /" rows="1"></textarea>
+                <div class="row"><span class="plus">＋</span><button class="send" id="sbSend">→</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="disclaimer sb-disclaimer">AI can make mistakes. Check important info.</div>
+        </div>
+        <div class="sb-view" id="sbShelfView">
+          <div class="shelf-scroll" id="sbShelfList"></div>
+          <div class="shelf-foot"><span class="viewall" data-viewall style="display:none">View all →</span><span>Read-only · every check is logged</span><span class="pa" data-pa>⏸ Pause all</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════ engine ════════════════ */
+const DAYS = ["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday","Monday","Tuesday","Wednesday"];
+const PATHS = {
+  aurora: a => [89,86,84,82,79,74.5,72][Math.min(a,6)],
+  fares:  a => [912,905,889,870,834,834,841][Math.min(a,6)],
+};
+const S = {
+  day: 0, watches: [], reports: [], id: 1,
+  usedChips: new Set(), offerDismissed: {}, pending: null, lastPlanCard: null,
+  activeTab: "soundhub", sidebarOpen: false, sbView: "chat", swShelfOpen: false,
+  openReportId: null, chatActive: false, sbGreeted: {}, activity: [], suggDismissed: {}, suggSeen: {}, calloutShown: {}, pendingSites: 0, concept: 'C', fxvMode: 'agents', pendingAsk: null,
+};
+function log(text) { S.activity.unshift({ day: S.day, text }); }
+function hubUnlocked() { return S.watches.length + S.reports.filter(r => r.status === "done").length >= 2; }
+const $ = id => document.getElementById(id);
+const fmt = p => "$" + (p % 1 ? p.toFixed(2) : p);
+const esc = s => s.replace(/</g, "&lt;");
+const eyeGlyph = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg>';
+const repGlyph = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg>';
+
+function parse(text) {
+  const t = text.toLowerCase();
+  if (/research|compare|help me (pick|choose|decide|find)|which (one|should)|what should i|don't know/.test(t) && !/watch this/.test(t))
+    return { kind: "research", query: text.trim() };
+  if (/find (me )?(the )?best|best (deal|price)|promo code|coupon code|any (deals|codes|coupons)|deal on (these|this)|cheaper (somewhere|anywhere)/.test(t) && !/watch|monitor|keep/.test(t))
+    return { kind: "scout" };
+  if (/watch|monitor|alert|tell me|notify|track|let me know|deal|promo|coupon|price drop/.test(t)) {
+    const m = [...t.matchAll(/\$\s?(\d+)/g)].pop() || [...t.matchAll(/\b(\d{2,4})\b/g)].pop();
+    const semantic = [];
+    if (/refundable|flex/.test(t)) semantic.push("refundable");
+    if (/weekday/.test(t)) semantic.push("weekday departure");
+    if (/promo|coupon|code|deal/.test(t)) semantic.push("verified promo found");
+    return { kind: "watch", target: m ? +m[1] : null, semantic };
+  }
+  return { kind: "chat", query: text.trim() };
+}
+function followUp(text, w) {
+  if (!w) return null;
+  const t = text.toLowerCase();
+  if (/\b(pause|stop|hold off|cancel)\b/.test(t)) return { kind: "pause" };
+  if (/\b(resume|unpause|keep going)\b/.test(t)) return { kind: "resume" };
+  const m = t.match(/(?:to|at|target|cap(?: to| at)?|under)\s*\$?\s*(\d+)/);
+  if (m && /\b(change|set|make|raise|lower|drop|update|move|only)\b/.test(t)) return { kind: "retarget", target: +m[1] };
+  if (/\b(add|also|include)\b/.test(t) && !/watch this/.test(t)) {
+    const nm = t.match(/(?:add|also (?:check|watch)|include)\s+([a-z0-9'& ]+?)(?:\s+(?:too|as well))?\s*$/);
+    return { kind: "add-retailer", name: nm ? nm[1].trim().replace(/\b\w/g, c => c.toUpperCase()) : "another retailer" };
+  }
+  if (/\b(status|progress|doing|going|any (luck|news|update)|how.?s\b|check in)\b/.test(t)) return { kind: "status" };
+  if (/how often|cadence|frequency|when do you check/.test(t)) return { kind: "cadence" };
+  if (/verified|legit|real code|promo code work/.test(t)) return { kind: "promo-info" };
+  return null;
+}
+function resolveWatch(text) {
+  const t = text.toLowerCase();
+  if (/fare|flight|nrt|yvr/.test(t)) return S.watches.find(w => w.kind === "fare");
+  if (/headphone|aurora|anc|drift/.test(t)) return S.watches.find(w => w.kind === "price");
+  return pageWatch() || (S.watches.length === 1 ? S.watches[0] : null);
+}
+function currentHost() { return S.activeTab === "sw" ? "sw" : "sb"; }
+function pageWatch() {
+  if (S.activeTab === "soundhub") return S.watches.find(w => w.kind === "price");
+  if (S.activeTab === "flights") return S.watches.find(w => w.kind === "fare");
+  return null;
+}
+function advanceDay() {
+  S.day++;
+  let anyLive = false;
+  for (const w of S.watches) {
+    if (w.status !== "live") continue;
+    anyLive = true;
+    const age = S.day - w.createdDay;
+    w.price = w.path(age);
+    w.history.push(w.price);
+    w.checked = "today";
+    if (w.semantic.includes("verified promo found") && !w.promoDay && age >= 2) {
+      w.promoDay = S.day;
+      log(`Scout: found code SAVE10 for ${w.title} — verified against the listed price, reported, not applied.`);
+      toast("Scout found a code: SAVE10", `Verified working for ${w.title} — reported, not applied.`);
+    }
+    const hit = (w.target && w.price <= w.target && w.kind === "price") || (w.kind === "fare" && age >= 4);
+    if (hit) {
+      w.status = "met";
+      const j = w.kind === "fare"
+        ? `${fmt(w.price)} refundable, Tuesday departure — $${w.target - w.price} under your cap. Fares at this level lasted ~2 days last month.`
+        : `${fmt(w.price)} at ${w.source} — ${fmt(Math.abs(w.target - w.price))} below your $${w.target} target${w.promoDay ? ", and Scout code SAVE10 still applies" : ""}.`;
+      if (S.concept === 'D') { showFloatCard(w, j); }
+      else toast(w.kind === "fare" ? `Found it: ${fmt(w.price)} refundable` : `${w.title}: ${fmt(w.price)}`, j, () => {
+        if (S.concept === 'B') { S.hubVisited = true; go('hub'); }
+        else if (S.concept === 'E') { S.fxvMode = 'agents'; go('fxv'); }
+        else if (S.concept === 'A') { openPanelChat(); }
+        else if (S.activeTab === "sw") { openSwShelf(); } else { S.sidebarOpen = true; setSbView("shelf"); }
+        renderAll();
+      });
+      log(`Condition met: ${w.title} — ${fmt(w.price)}.`);
+      bumpShelf();
+    } else {
+      log(`${w.title}: checked — ${fmt(w.price)}, kept watching.`);
+    }
+  }
+  $("dayLabel").textContent = DAYS[S.day % DAYS.length];
+  if (!anyLive && !S.watches.length) toast("Nothing is watching yet", "Ask Smart Window to watch a page first.");
+  renderAll();
+}
+
+/* ════════════════ chat plumbing ════════════════ */
+function threadEl() { return S.activeTab === "sw" ? $("swThread") : $("sbThread"); }
+function scrollEl() { return S.activeTab === "sw" ? $("swScroll") : $("sbScroll"); }
+function el(h) { const d = document.createElement("div"); d.innerHTML = h.trim(); return d.firstChild; }
+function addNode(n) { clearFollowups(); threadEl().appendChild(n); scrollEl().scrollTop = 1e6; return n; }
+function userMsg(t) { activateChat(); return addNode(el(`<div class="chat-bubble-user">${esc(t)}</div>`)); }
+function aiMsg(html, followups) {
+  const n = addNode(el(`<div class="message-assistant">${html}</div>`));
+  if (followups !== false) setTimeout(() => renderFollowups(followups), 120);
+  return n;
+}
+function aiMsgTo(host, html) {
+  const t = host === "sw" ? $("swThread") : $("sbThread");
+  const d = document.createElement("div"); d.className = "msg-ai"; d.innerHTML = html; t.appendChild(d);
+}
+function loader(text) { return addNode(el(`<div class="assistant-loader"><div class="spin"></div><p>${text}</p></div>`)); }
+function activateChat() {
+  if (S.activeTab === "sw" && !S.chatActive) { S.chatActive = true; $("page-sw").classList.add("chat-active"); }
+}
+function clearFollowups() { document.querySelectorAll(".sw-prompts.followup, .sw-prompts.sidebar").forEach(n => n.remove()); }
+
+/* smartwindow-prompts: starters (row) and followups (column) */
+function chipRow(prompts, mode) {
+  const wrap = document.createElement("div");
+  wrap.className = "sw-prompts" + (mode === "followup" ? " followup" : mode === "sidebar" ? " sidebar" : "");
+  for (const p of prompts) {
+    if (S.usedChips.has(p)) continue;
+    const b = document.createElement("button");
+    b.className = "sw-prompt-button"; b.textContent = p;
+    b.onclick = () => { S.usedChips.add(p); submit(p); };
+    wrap.appendChild(b);
+  }
+  return wrap;
+}
+function renderFollowups(custom) {
+  clearFollowups();
+  const list = (custom || computeFollowups()).filter(p => !S.usedChips.has(p)).slice(0, 3);
+  if (!list.length) return;
+  // real smartwindow-prompts: starters sit on the user side (right-aligned),
+  // follow-ups under a response sit left (followup mode)
+  const hasUserMsg = !!threadEl().querySelector(".chat-bubble-user");
+  threadEl().appendChild(chipRow(list, hasUserMsg ? "followup" : "sidebar"));
+  scrollEl().scrollTop = 1e6;
+}
+function computeFollowups() {
+  const out = [];
+  const pw = S.watches.find(w => w.kind === "price");
+  const fw = S.watches.find(w => w.kind === "fare");
+  const rep = S.reports.find(r => r.status === "done");
+  if (pw?.status === "met") out.push("Open the SoundHub page", "Stop watching the headphones");
+  else if (pw?.status === "live") {
+    out.push("How's the headphones watch doing?");
+    if (pw.retailers < 3) out.push("Also check Best Buy");
+    else if (pw.target > 70) out.push("Only alert me under $70");
+    out.push("How often do you check?");
+  } else if (pw?.status === "paused") out.push("Resume the headphones watch");
+  if (fw?.status === "met") out.push("Open the fare results");
+  else if (fw?.status === "live") out.push("Any progress on the fares?");
+  if (rep && !S.usedChips.has("Open the report")) out.push("Open the report");
+  if (rep && !pw) out.push("Watch the top pick for a price drop");
+  if (!pw && !rep && S.activeTab === "soundhub") out.push("Watch this price for me", "Find me the best deal on these", "Help me pick ANC headphones under $100");
+  if (S.activeTab === "soundhub" && !S.scoutRan && (pw || rep)) out.push("Find me the best deal on these");
+  if (!fw && S.activeTab === "flights") out.push("Watch these fares — refundable, under $850");
+  if (!out.length) out.push("What can you watch for me?");
+  return [...new Set(out)];
+}
+function renderStarters() {
+  const s = $("swStarters"); s.innerHTML = "";
+  const rep = S.reports.find(r => r.status === "done");
+  const starters = [];
+  if (S.watches.length || rep) {
+    if (rep) starters.push("Open my headphones report");
+    if (S.watches.some(w => w.status === "live")) starters.push("How are my watches doing?");
+    starters.push("Watch something new for me");
+  } else {
+    starters.push("Watch a price for me", "Find me the best deal on something", "Help me decide what to buy");
+  }
+  s.appendChild(chipRow(starters));
+}
+
+/* ════════════════ intent handling ════════════════ */
+function submit(text) {
+  if (!text.trim()) return;
+  if (S.activeTab !== "sw" && !S.sidebarOpen) { S.sidebarOpen = true; setSbView("chat"); renderAll(); }
+  if (S.activeTab === "sw" && S.swShelfOpen) closeSwShelf();
+  userMsg(text);
+
+  if (/open my .*report|open the report|show me the report/i.test(text)) {
+    const r = [...S.reports].reverse().find(r => r.status === "done");
+    if (r) { aiMsg(`Here it is — opening <b>${r.title}</b>.`, false); setTimeout(() => openReport(r.id), 500); return; }
+    return aiMsg("No finished reports yet — ask me to research something first.");
+  }
+  if (/how are my watches|all my watches/i.test(text)) {
+    if (!S.watches.length) return aiMsg("You don't have any watches running. Open a page you care about and ask me to watch it.");
+    return aiMsg(S.watches.map(w => "• " + statusLine(w)).join("<br>"));
+  }
+  if (/watch something new/i.test(text))
+    return aiMsg(`Open the page you care about and tell me the condition there, so I can read it.`, ["Take me to the headphones page", "Take me to the flight search"]);
+  if (/open in agents|firefox view/i.test(text)) { S.fxvMode='agents'; go('fxv'); return; }
+  if (/keep hunting/i.test(text)) {
+    if (!S.watches.find(w => w.kind === "price")) { S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] }; startWatch(); }
+    else aiMsg(`Already on it — Scout reports through the headphones watch in your Den.`);
+    return;
+  }
+  if (/is that code legit|code legit/i.test(text))
+    return aiMsg(`Yes — Scout tested <b>SAVE10</b> against AudioOutlet listed price right before telling you. It reports codes; it never applies them to a cart. Read-only, always.`);
+  if (/take me to|go to/i.test(text)) {
+    const dest = /flight|fare/i.test(text) ? "flights" : "soundhub";
+    aiMsg(`Opening it — I'll be in the sidebar when you get there.`, false);
+    setTimeout(() => { go(dest); S.sidebarOpen = true; setSbView("chat"); renderAll(); greetSidebar(); }, 500);
+    return;
+  }
+  if (/open the (soundhub|fare)/i.test(text)) { go(/fare/i.test(text) ? "flights" : "soundhub"); return; }
+  if (/stop watching/i.test(text)) {
+    const w = resolveWatch(text); if (w) { S.watches = S.watches.filter(x => x !== w); aiMsg(`Stopped — <b>${w.title}</b> is no longer being watched. The card stays in this chat.`); renderAll(); }
+    return;
+  }
+  if (/what can you watch/i.test(text))
+    return aiMsg(`Anything you can see on a page: a price hitting a number, a restock, a fare matching rules like <b>refundable under $850</b>, a working promo code. One condition or a group of pages — and you'll get one alert with judgment, not a "page changed" ping.`);
+
+  const ctx = resolveWatch(text);
+  const fu = ctx ? followUp(text, ctx) : null;
+  if (fu) return handleFollowUp(fu, ctx);
+
+  const intent = parse(text);
+  if (intent.kind === "scout") {
+    if (S.activeTab !== "soundhub")
+      return aiMsg(`Scout needs a product to hunt for — point me at one.`, ["Take me to the headphones page"]);
+    return runScout();
+  }
+  if (intent.kind === "watch") {
+    const existing = pageWatch();
+    if (existing) {
+      if (intent.target && intent.target !== existing.target) return handleFollowUp({ kind: "retarget", target: intent.target }, existing);
+      return aiMsg(`Already watching this — <b>${existing.title}</b>, alert at $${existing.target}. Tell me a new rule, add a retailer, or ask how it's doing.`);
+    }
+    if (S.activeTab === "sw" && !/top pick|aurora/i.test(text))
+      return aiMsg(`Sure — I just need to be on the page you want watched, so I can read it like you would.`, ["Take me to the headphones page", "Take me to the flight search"]);
+    if (intent.target == null && ['A','B','D'].includes(S.concept)) {
+      aiMsg(`One question so I set this up right:`, false);
+      return setTimeout(()=>targetQuestion(t => proposeWatch({ ...intent, target: t }, /top pick|aurora/i.test(text))), 350);
+    }
+    return proposeWatch(intent, /top pick|aurora/i.test(text));
+  }
+  if (intent.kind === "research") return startResearch(intent.query);
+  aiMsg(`I can <b>watch</b> pages for you (price drops, deals, fare rules) or <b>research</b> options when you don't know what you want yet. I read pages; I never click, fill, or buy.`);
+}
+
+function statusLine(w) {
+  if (w.status === "met") return `<b>${w.title}</b>: hit — ${fmt(w.price)}${w.target ? ` (target $${w.target})` : ""}.`;
+  if (w.status === "paused") return `<b>${w.title}</b>: paused.`;
+  const toGo = w.target ? w.price - w.target : null;
+  return `<b>${w.title}</b>: ${fmt(w.price)} now${toGo > 0 ? ` — ${fmt(toGo)} above your $${w.target} target` : ""}, checked ${w.checked}.${w.promoDay ? " Scout found code SAVE10 (verified, not applied)." : ""}`;
+}
+
+function handleFollowUp(fu, w) {
+  if (fu.kind === "pause") { w.status = "paused"; log(`Paused: ${w.title}.`); aiMsg(`Paused <b>${w.title}</b> — nothing will check it until you say resume.`); }
+  else if (fu.kind === "resume") { w.status = "live"; aiMsg(`Back on it — <b>${w.title}</b> is live again.`); }
+  else if (fu.kind === "retarget") {
+    w.target = fu.target;
+    if (w.status === "live" && w.price <= w.target) {
+      w.status = "met";
+      aiMsg(`It's already there — <b>${fmt(w.price)}</b> today, under your new $${fu.target} target. Marked as hit.`);
+      bumpShelf();
+    } else aiMsg(`Done — alert at <b>$${fu.target}</b> now. It's ${fmt(w.price)} today, so I'll stay quiet until it gets there.`);
+  }
+  else if (fu.kind === "add-retailer") { w.retailers++; w.names = (w.names || [w.source]).concat(fu.name); aiMsg(`Added <b>${fu.name}</b> — now ${w.retailers} retailers as one group. One alert, best of all of them.`); }
+  else if (fu.kind === "status") aiMsg(statusLine(w));
+  else if (fu.kind === "cadence") aiMsg(`A few times a day — enough to catch sales windows without hammering the site. Every check is logged in your <b>Den</b>, so silence never means broken.`);
+  else if (fu.kind === "promo-info") aiMsg(`Yes — I test codes against the listed price before telling you. I report them; I never apply them to a cart. Read-only, always.`);
+  renderAll();
+}
+
+function proposeWatch(intent, forcePrice) {
+  const onFlights = S.activeTab === "flights" && !forcePrice;
+  const target = intent.target ?? (onFlights ? 850 : 75);
+  const semantic = intent.semantic?.length ? intent.semantic : (onFlights ? ["refundable", "weekday departure"] : []);
+  S.pending = { onFlights, target, semantic };
+  const sites = onFlights ? ["FlightFinder", "Kayak", "Google Flights", "Expedia"] : ["SoundHub", "AudioOutlet", "BestBuy"];
+  const currentSite = sites[0]; // default: only the page you're on
+  const targets = onFlights ? [850, 800, 900] : [75, 70, 80];
+  aiMsg(`Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:`, false);
+  setTimeout(() => {
+    const sent = onFlights
+      ? `Alert me when a <span class="tok" data-cycle="nonstop|any" data-k="kind">nonstop</span> fare drops <b>below</b> <span class="tok" data-k="target">$${target}</span> for <span class="tok" data-cycle="Mar 12 – 26|Mar 10 – 24" data-k="dates">Mar 12 – 26</span>`
+      : `Alert me when the price drops <b>below</b> <span class="tok" data-k="target">$${target}</span> — or <span class="tok" data-cycle="Scout finds a working code|price only" data-k="promo">Scout finds a working code</span>`;
+    const card = S.lastPlanCard = addNode(el(`<div class="action-card">
+      <div class="ac-head"><div style="flex:1"><div class="ac-title">Watch ${onFlights ? "Tokyo fares" : "this price"}<span class="watching-badge" hidden></span></div></div></div>
+      <div class="ac-body">
+        <p class="plan-sent">${sent}</p>
+        <div class="plan-meta">Checking 4 times daily · <span class="tok" data-k="alert" data-cycle="Push notification|Push + email|Badge only">Push notification</span> · read-only, every check logged</div>
+        <div class="sites-hint">Watching this page. Also relevant — tap to add:</div>
+        <div class="site-pills">${sites.map((x, i) => `<button class="site-pill${i ? " off" : ""}">${x}</button>`).join("")}</div>
+        <div class="plan-count">One watch, <span data-n>1</span> site<span data-pl></span></div>
+      </div>
+      <div class="ac-foot"><button class="ac-btn primary" data-act="start">Start watching</button><button class="ac-btn" data-act="no">No thanks</button></div></div>`));
+    // editable tokens
+    card.querySelectorAll(".tok").forEach(tk => tk.onclick = () => {
+      if (tk.dataset.k === "target") {
+        const i = (targets.indexOf(S.pending.target) + 1) % targets.length;
+        S.pending.target = targets[i]; tk.textContent = "$" + targets[i];
+      } else if (tk.dataset.cycle) {
+        const opts = tk.dataset.cycle.split("|");
+        const i = (opts.indexOf(tk.textContent) + 1) % opts.length;
+        tk.textContent = opts[i];
+        if (tk.dataset.k === "promo") S.pending.semantic = opts[i].startsWith("Scout") ? ["verified promo found"] : [];
+      }
+    });
+    // site pills — current page locked in, others optional suggestions
+    const recount = () => { const n = card.querySelectorAll(".site-pill:not(.off)").length; card.querySelector("[data-n]").textContent = n; card.querySelector("[data-pl]").textContent = n === 1 ? "" : "s"; S.pendingSites = n; };
+    card.querySelectorAll(".site-pill").forEach((pl, i) => pl.onclick = () => { if (i === 0) return; pl.classList.toggle("off"); recount(); });
+    S.pendingSites = 1;
+    card.querySelector('[data-act="start"]').onclick = () => {
+      startWatch();
+      const b = card.querySelector(".watching-badge"); b.hidden = false; b.textContent = `Watching · ${S.pendingSites || sites.length} sites`;
+      card.querySelector(".ac-foot").remove();
+      card.insertAdjacentHTML("afterend", `<div class="added-line"><span class="chk">✓</span>Added to your Den</div>`);
+      denSavedCallout();
+      S.lastPlanCard = null;
+    };
+    card.querySelector('[data-act="no"]').onclick = () => { card.remove(); S.pending = null; S.lastPlanCard = null; renderFollowups(); };
+    scrollEl().scrollTop = 1e6;
+  }, 800);
+}
+function startWatch() {
+  const { onFlights, target, semantic } = S.pending; S.pending = null;
+  const firstWatch = !S.watches.length;
+  if (onFlights) {
+    S.watches.push({ id: S.id++, chat: currentHost(), title: "YVR → NRT fares, March", source: "FlightFinder", kind: "fare", target, semantic, price: 912, history: [912], retailers: S.pendingSites || 4, status: "live", createdDay: S.day, checked: "just now", path: PATHS.fares });
+    aiMsg(`Watching. Today's best <b>${semantic[0] || "matching"}</b> fare is $934, so I'll stay quiet until that changes. It's in your <b>Den</b> — and this tab will sleep until something happens.`);
+  } else {
+    S.watches.push({ id: S.id++, chat: currentHost(), title: "Aurora ANC Headphones", source: "SoundHub", kind: "price", target, semantic, price: 89, history: [89], retailers: S.pendingSites || 3, status: "live", createdDay: S.day, checked: "just now", path: PATHS.aurora });
+    aiMsg(`Watching this page now — it's in your <b>Den</b>, and you'll see it marked right on the price when you come back. I'll alert you once, with the why.`);
+  }
+  log(`Started watching ${S.watches[S.watches.length - 1].title}.`);
+  if (S.concept === 'E') setTimeout(()=>renderFollowups(['Open in Agents — Firefox View']), 700);
+  if (firstWatch) {
+    const ds = document.querySelector(".day-skip");
+    ds.classList.add("nudge"); setTimeout(() => ds.classList.remove("nudge"), 4000);
+  }
+  renderAll();
+}
+function runScout() {
+  if (S.scoutRan) {
+    const pw = S.watches.find(w => w.kind === "price");
+    return aiMsg(`Scout's latest sweep: best effective price is <b>$84 at AudioOutlet</b> with code <b>SAVE10</b> (verified, not applied). ${pw ? "Monitor has it from here." : "Want me to keep hunting in the background?"}`,
+      pw ? null : ["Keep hunting — watch it at $75"]);
+  }
+  S.scoutRan = true;
+  const steps = ["Scout is checking 6 retailers…", "Comparing effective prices — shipping and bundles count…", "Testing promo codes against listed prices…"];
+  const ld = loader(steps[0]); let i = 1;
+  const t = setInterval(() => {
+    if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
+    else {
+      clearInterval(t); ld.remove();
+      log("Scout swept 6 retailers for Aurora ANC — best $84 at AudioOutlet, code SAVE10 verified.");
+      const card = addNode(el(`<div class="action-card">
+        <div class="ac-head"><div class="ac-glyph"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></div>
+          <div><div class="ac-title">Scout — best deal right now</div><div class="ac-sub">Aurora ANC · 6 retailers swept · codes verified against listed price, never applied</div></div></div>
+        <div class="ac-body">
+          <div class="ac-row"><span class="ic">🏆</span><span><b>$84.00 — AudioOutlet</b> with code <b>SAVE10</b> ✓ verified · free shipping</span></div>
+          <div class="ac-row"><span class="ic">·</span><span>$89.00 — SoundHub (this page) · no working codes today</span></div>
+          <div class="ac-row"><span class="ic">·</span><span>$92.50 — BestBuy · $5 shipping pushes it last</span></div>
+        </div>
+        <div class="ac-foot"><button class="ac-btn primary" data-act="hunt">Keep hunting — watch at $75</button><button class="ac-btn" data-act="done">That is all I needed</button></div></div>`));
+      card.querySelector("[data-act=hunt]").onclick = () => {
+        if (!S.watches.find(w => w.kind === "price")) {
+          S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] };
+          startWatch();
+        }
+        card.querySelector(".ac-foot").innerHTML = `<span style="font-size:11.5px;color:var(--green);font-weight:700">✓ Scout keeps hunting — added to your Den as a watch</span>`;
+      };
+      card.querySelector("[data-act=done]").onclick = () => { card.querySelector(".ac-foot").remove(); renderFollowups(); };
+      setTimeout(() => renderFollowups(["Keep hunting — watch at $75", "Is that code legit?"]), 250);
+      renderAll();
+    }
+  }, 900);
+}
+function startResearch(query) {
+  const isHeadphones = /headphone|anc/i.test(query);
+  if (!isHeadphones)
+    return aiMsg(`Happy to research that — tell me a bit more about what you're choosing between, or pick a starting point:`, ["Help me pick ANC headphones under $100"]);
+  const title = "ANC headphones under $100";
+  const ex = S.reports.find(r => r.title === title);
+  if (ex) {
+    if (ex.status === "working") return aiMsg(`Still working on that one — about a minute.`);
+    return aiMsg(`I already wrote that one — it's in this chat's Den.`, ["Open the report"]);
+  }
+  const r = { id: S.id++, chat: currentHost(), type: "report", title, status: "working", createdDay: S.day, linkedChat: [{ who: "u", text: query }, { who: "a", text: "On it — I'll compare current options and write this up." }] };
+  S.reports.push(r);
+  const steps = ["Reading 14 pages…", "Comparing 6 options on 4 criteria…", "Checking price history…", "Writing the report…"];
+  const ld = loader(steps[0]); let i = 1;
+  const t = setInterval(() => {
+    if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
+    else {
+      clearInterval(t); ld.remove(); r.status = "done"; log(`Report finished: ${r.title}.`);
+      aiMsg(`Done — <b>${r.title}</b>. Six options compared; the Aurora ANC is the strongest buy. It's in your <b>Den</b> so you can find it any time.`, false);
+      const rc = addNode(el(`<div class="report-card"><div class="rc-glyph">${repGlyph}</div>
+        <div><div class="rc-title">${r.title}</div><div class="rc-sub">6 options · 14 pages read · in your Den</div></div>
+        <span class="rc-open">Open →</span></div>`));
+      rc.onclick = () => openReport(r.id);
+      setTimeout(() => renderFollowups(), 200);
+      bumpShelf(); renderAll();
+    }
+  }, 1000);
+  renderAll();
+}
+
+/* ════════════════ navigation & surfaces ════════════════ */
+const TABS = { sw: { label: "Smart Window", fav: "sw" }, soundhub: { label: "Aurora ANC — SoundHub", fav: "🎧" }, flights: { label: "YVR → NRT — FlightFinder", fav: "✈️" }, report: { label: "Report", fav: "📄" }, hub: { label: "Your agents", fav: "👁" }, fxv: { label: "Firefox View", fav: "⊙" } };
+function go(tab) { S.activeTab = tab; renderAll(); }
+window.go = go;
+
+function renderTabs() {
+  const strip = $("tabstrip");
+  strip.querySelectorAll(".tab").forEach(t => t.remove());
+  const order = ["sw", "soundhub", "flights"]; if (S.activeTab === "report" || S.reports.some(r => r.opened)) order.push("report");
+  if (S.activeTab === "hub") S.hubVisited = true;
+  if (S.hubVisited) order.push("hub");
+  if (S.activeTab === "fxv") order.push("fxv");
+  const anchor = strip.querySelector(".day-skip");
+  for (const p of order) {
+    const t = document.createElement("div");
+    t.className = "tab" + (p === S.activeTab ? " active" : "") + (p === "sw" ? " sw-tab" : "");
+    let label = TABS[p].label, extra = "";
+    const fw = S.watches.find(w => w.kind === "fare");
+    if (p === "flights" && fw && p !== S.activeTab) {
+      if (fw.status === "live") { t.classList.add("sleeping"); label = "🌙 YVR → NRT · watching"; }
+      if (fw.status === "met") { t.classList.add("awake"); label = `${fmt(fw.price)} — YVR → NRT`; extra = '<span class="dot"></span>'; }
+    }
+    if (p === "report") { const r = S.reports.find(r => r.id === S.openReportId) || S.reports.find(r => r.status === "done"); label = r ? "Report — " + r.title : "Report"; }
+    t.innerHTML = `<span class="fav" ${p === "sw" ? "" : ""}>${p === "sw" ? '<svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/></svg>' : TABS[p].fav}</span><span style="overflow:hidden;text-overflow:ellipsis">${label}</span>${extra}`;
+    t.onclick = () => go(p);
+    strip.insertBefore(t, anchor);
+  }
+}
+function renderToolbar() {
+  const isSW = S.activeTab === "sw";
+  $("tbInput").placeholder = isSW ? "about:smartwindow" : (S.activeTab === "soundhub" ? "soundhub.com/aurora-anc-headphones — ask Smart Window anything" : S.activeTab === "flights" ? "flightfinder.com/search?yvr-nrt — ask Smart Window anything" : "smartwindow/report");
+  $("sbToggle").style.display = isSW ? "none" : "";
+  const slot = $("tbOfferSlot"); slot.innerHTML = "";
+  const key = S.activeTab === "soundhub" ? "aurora" : S.activeTab === "flights" ? "fares" : null;
+  const watched = key && S.watches.some(w => key === "aurora" ? w.kind === "price" : w.kind === "fare");
+  if (key && !watched && !S.offerDismissed[key]) {
+    const c = el(`<span class="offer-chip">${eyeGlyph} I can watch ${key === "fares" ? "these fares" : "this price"} <span class="x">✕</span></span>`);
+    c.querySelector(".x").onclick = ev => { ev.stopPropagation(); S.offerDismissed[key] = true; renderToolbar(); };
+    c.onclick = () => { S.sidebarOpen = true; setSbView("chat"); renderAll(); proposeWatchFromOffer(key); };
+    slot.appendChild(c);
+  }
+  if (!S.sidebarOpen) {
+    const unseen = S.watches.some(w => w.status === "met" && !w.seen);
+    $("tbBub").style.display = unseen && !isSW ? "" : "none";
+  } else $("tbBub").style.display = "none";
+}
+function proposeWatchFromOffer(key) {
+  userMsg(key === "fares" ? "Watch these fares for me" : "Watch this price for me");
+  proposeWatch(parse(key === "fares" ? "watch refundable under $850 weekday" : "watch this at $75 and find a promo"), false);
+}
+function renderPages() {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+
+  $("page-" + S.activeTab).classList.add("active");
+  if (S.activeTab === "fxv") renderFxv();
+  $("sidebar").classList.toggle("open", S.sidebarOpen && S.activeTab !== "sw");
+  const pw = S.watches.find(w => w.kind === "price");
+  if (pw) {
+    $("auroraPrice").textContent = fmt(pw.price);
+    $("auroraDrop").textContent = "";
+  }
+  const fw = S.watches.find(w => w.kind === "fare");
+  if (fw) $("fare1").textContent = fmt(fw.price);
+  // the agent never touches page content — its presence lives in chrome:
+  // a watch indicator in the address bar (like the bookmark star) + tab states
+  $("auroraWaypoint").innerHTML = ""; $("faresWaypoint").innerHTML = "";
+  $("auroraPrice").classList.remove("waypointed");
+  renderUrlEye();
+  if (S.activeTab === "report") renderReport();
+  if (S.activeTab === "hub") renderHub();
+  // pinned live strip (Concept A): one line per live watch, above the sidebar thread
+  const pin = $("sbPin"); pin.innerHTML = "";
+  if (S.sidebarOpen && S.sbView === "chat") {
+    for (const w of S.watches.filter(w => w.status !== "paused").slice(0, 2)) {
+      const l = el(`<div class="pin-line${w.status === "met" ? " met" : ""}"><span class="pulse"></span><span><b>${w.status === "met" ? "Hit:" : "Watching:"}</b> ${w.title}</span><span class="meta">${w.status === "met" ? "see Den" : fmt(w.price) + " · " + w.checked}</span></div>`);
+      l.onclick = () => { setSbView("shelf"); };
+      pin.appendChild(l);
+    }
+  }
+}
+function renderHub() {
+  const live = $("hubLive"); live.innerHTML = "";
+  for (const w of S.watches) {
+    const t = el(`<div class="agent-tile"><div class="at-head"><div class="so-glyph">${eyeGlyph}</div>
+      <div><div class="so-title" style="font-size:13px">${w.title}</div><div class="so-sub">${w.semantic.join(" · ") || (w.target ? "alert at $" + w.target : "")}${w.retailers > 1 ? " · " + w.retailers + " retailers" : ""}</div></div>
+      <span class="so-badge ${w.status}" style="margin-left:auto">${w.status}</span></div>
+      <div class="at-body"><div style="flex:1">${spark(w)}</div>
+      <div class="at-numbers"><div class="at-price">${fmt(w.price)}</div><div class="at-target">checked ${w.checked}</div></div></div></div>`);
+    t.onclick = () => go(w.kind === "fare" ? "flights" : "soundhub");
+    live.appendChild(t);
+  }
+  if (!S.watches.length) live.innerHTML = '<div class="so-sub">Nothing live right now.</div>';
+  const reps = $("hubReports"); reps.innerHTML = S.reports.length ? "" : '<div class="so-sub">No reports yet.</div>';
+  for (const r of S.reports) { const d = shelfObjNode(r); reps.appendChild(d); }
+  $("hubFeed").innerHTML = S.activity.slice(0, 9).map(a => `<div class="feed-item"><span class="feed-day">${a.day === S.day ? "today" : "d" + a.day}</span><span>${a.text}</span></div>`).join("") || '<div class="so-sub">Quiet so far.</div>';
+}
+
+/* shelf (both hosts) */
+function shelfObjNode(o) {
+  const d = document.createElement("div");
+  d.className = "shelf-obj" + (o.status === "met" && !o.seen ? " unread" : "");
+  if (o.path === undefined && o.linkedChat) { // report
+    d.innerHTML = `<div class="so-head"><div class="so-glyph report">${repGlyph}</div>
+      <div><div class="so-title">${o.title}</div><div class="so-sub">${o.status === "working" ? "working…" : "finished " + (o.createdDay === S.day ? "today" : DAYS[o.createdDay % DAYS.length]) + " · opens as a page with its chat attached"}</div></div>
+      <span class="so-badge kept">${o.status === "working" ? "…" : "Kept"}</span></div>`;
+    if (o.status === "done") d.onclick = () => openReport(o.id);
+    return d;
+  }
+  const low = Math.min(...o.history);
+  d.innerHTML = `<div class="so-head"><div class="so-glyph">${eyeGlyph}</div>
+    <div><div class="so-title">${o.title}</div>
+    <div class="so-sub">${o.status === "met" ? `<b style="color:var(--violet-60)">${fmt(o.price)} — condition met</b>` : `${fmt(o.price)} now${o.target ? " · alert at $" + o.target : ""}${o.semantic.length ? " · " + o.semantic.join(", ") : ""}`}${o.retailers > 1 ? " · " + o.retailers + " retailers" : ""}</div></div>
+    <span class="so-badge ${o.status}">${o.status}</span></div>
+    <div class="so-detail">${spark(o)}
+      <div class="so-meta"><span>⏱ checked ${o.checked}</span><span>low ${fmt(low)}</span>${o.promoDay ? "<span>🏷 Scout: SAVE10 verified</span>" : ""}<span>↩ from chat — tap to reopen</span></div>
+      <div class="so-actions"><button class="ac-btn" data-a="pause">${o.status === "paused" ? "▶ Resume" : "⏸ Pause"}</button>${(o.kind === "fare" ? S.activeTab !== "flights" : S.activeTab !== "soundhub") ? '<button class="ac-btn" data-a="src">Open the page</button>' : ""}</div></div>`;
+  d.onclick = e => { if (e.target.dataset?.a) return; d.classList.toggle("expanded"); o.seen = true; d.classList.remove("unread"); };
+  d.querySelector('[data-a="pause"]').onclick = () => { o.status = o.status === "paused" ? "live" : "paused"; renderAll(); };
+  const srcBtn = d.querySelector('[data-a="src"]'); if (srcBtn) srcBtn.onclick = () => { go(o.kind === "fare" ? "flights" : "soundhub"); };
+  return d;
+}
+function spark(w) {
+  if (w.history.length < 2) return "";
+  const max = Math.max(...w.history), min = Math.min(...w.history, w.target || 1e9);
+  const pts = w.history.map((p, i) => `${(i / (w.history.length - 1)) * 270},${6 + 30 * (1 - (p - min) / (max - min || 1))}`).join(" ");
+  const ty = w.target ? 6 + 30 * (1 - (w.target - min) / (max - min || 1)) : null;
+  return `<svg width="100%" height="42" viewBox="0 0 270 42" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#7542e5" stroke-width="2"/>${ty ? `<line x1="0" y1="${ty}" x2="270" y2="${ty}" stroke="#d0bfff" stroke-width="1" stroke-dasharray="4 4"/>` : ""}</svg>`;
+}
+function denSuggestions(chat) {
+  const out = [];
+  const pw = S.watches.find(w => w.kind === "price");
+  const fw = S.watches.find(w => w.kind === "fare");
+  if (chat === "sb") {
+    if (S.activeTab === "soundhub" && !pw && !S.suggDismissed["price"]) out.push({ k: "price", t: "Watch this price", s: "I can alert you at $75 — or if Scout finds a working code", btn: "Set it up" });
+    if (S.activeTab === "flights" && !fw && !S.suggDismissed["fares"]) out.push({ k: "fares", t: "Watch these fares", s: "Nonstop below $850 · Mar 12 – 26 · 4 sites", btn: "Set it up" });
+  }
+  if (chat === "sw" && S.day >= 2 && !S.suggDismissed["weekend"]) out.push({ k: "weekend", t: "Weekend events in Phoenix", s: "I can build this every Friday morning", btn: "Build it weekly" });
+  return out;
+}
+function suggCard(g) {
+  const d = el(`<div class="sugg-card"><div class="sg-t">${g.t}</div><div class="sg-s">${g.s}</div>
+    <div class="sg-row"><button class="ac-btn primary">${g.btn}</button><span class="sg-no">No thanks</span></div>
+    <div class="sg-foot">Suggestions expire unless you save them.</div></div>`);
+  d.querySelector(".ac-btn").onclick = () => {
+    if (g.k === "weekend") { S.suggDismissed[g.k] = true; aiMsgTo("sw", `Done — <b>Weekend events in Phoenix</b> will be ready every Friday morning, right here in your Den.`); S.reports.push({ id: S.id++, chat: "sw", type: "report", title: "Weekend events in Phoenix", status: "done", weekly: true, createdDay: S.day, linkedChat: [{ who: "a", text: "Built from your Friday habit — saved weekly." }] }); }
+    else { S.suggDismissed[g.k] = true; S.sidebarOpen = true; setSbView("chat"); renderAll(); proposeWatchFromOffer(g.k === "fares" ? "fares" : "aurora"); return; }
+    renderAll();
+  };
+  d.querySelector(".sg-no").onclick = () => { S.suggDismissed[g.k] = true; renderAll(); };
+  return d;
+}
+function renderShelves() {
+  for (const [hostEl, chat] of [[$("sbShelfList"), "sb"], [$("swShelfList"), "sw"]]) {
+    hostEl.innerHTML = "";
+    const ws = S.watches.filter(w => w.chat === chat);
+    const rs = S.reports.filter(r => r.chat === chat);
+    const sugg = denSuggestions(chat);
+    if (ws.length) { hostEl.insertAdjacentHTML("beforeend", `<div class="den-label">Active watches <span class="cnt">${ws.length}</span></div>`); ws.forEach(w => hostEl.appendChild(shelfObjNode(w))); }
+    if (rs.length) { hostEl.insertAdjacentHTML("beforeend", `<div class="den-label" style="margin-top:14px">Reports <span class="cnt">${rs.length}</span></div>`); rs.forEach(r => hostEl.appendChild(shelfObjNode(r))); }
+    if (sugg.length) { hostEl.insertAdjacentHTML("beforeend", `<div class="den-label" style="margin-top:14px">Suggested</div>`); sugg.forEach(g => hostEl.appendChild(suggCard(g))); }
+    if (!ws.length && !rs.length && !sugg.length) hostEl.innerHTML = `<div class="shelf-empty">Nothing in this chat's den yet.<br>Ask Smart Window to <b>watch</b> a page or <b>research</b> something — whatever this chat makes lands here.</div>`;
+  }
+  const unseenFor = chat => S.watches.filter(w => w.chat === chat && w.status === "met" && !w.seen).length + S.reports.filter(r => r.chat === chat && r.status === "done" && !r.opened && !r.seen).length + denSuggestions(chat).filter(g => !S.suggSeen[g.k]).length;
+  const swU = unseenFor("sw"), sbU = unseenFor("sb");
+  $("shelfBub").style.display = swU ? "" : "none"; $("shelfBub").textContent = swU; $("shelfBub").classList.toggle("dot", !!swU && !S.watches.some(w => w.chat === "sw" && w.status === "met" && !w.seen));
+  $("sbShelfBub").style.display = sbU ? "" : "none"; $("sbShelfBub").textContent = sbU; $("sbShelfBub").classList.toggle("dot", !!sbU && !S.watches.some(w => w.chat === "sb" && w.status === "met" && !w.seen));
+  document.querySelectorAll("[data-viewall]").forEach(v => v.style.display = hubUnlocked() ? "" : "none");
+  const fb = $("footBub");
+  if (fb) { const n = S.watches.filter(w => w.status === "met" && !w.seen).length; fb.style.display = n ? "inline-flex" : "none"; fb.textContent = n; }
+}
+function bumpShelf() { renderShelves(); }
+
+function renderReport() {
+  const r = S.reports.find(r => r.id === S.openReportId);
+  if (!r) return;
+  const pw = S.watches.find(w => w.kind === "price");
+  $("rvDoc").innerHTML = `
+    <div class="rv-kicker">${repGlyph} Research report · Smart Window</div>
+    <h1>${r.title}</h1>
+    <div class="rv-meta">6 options · 14 pages read · every source linked · also in your Den</div>
+    <div style="display:flex;gap:8px;margin:10px 0 14px"><button class="ac-btn">🔗 Copy link</button><button class="ac-btn">🖨 Print</button><button class="ac-btn">⭐ Bookmark</button></div>
+    <div class="pick-card"><div><div class="pick-rank">Top pick</div><div class="pick-name">Aurora ANC Wireless</div><div class="pick-why">Best ANC per dollar · 42h battery · firmware fixed the hiss issue</div></div>
+      <div class="pick-price">${pw ? "$89→" + fmt(pw.price) : "$89"}</div></div>
+    <h3>How they compare</h3>
+    <table class="ai-chat-table"><thead><tr><th>Model</th><th>ANC</th><th>Battery</th><th>Price</th><th>Verdict</th></tr></thead><tbody>
+      <tr><td>Aurora ANC</td><td>Excellent</td><td>42h</td><td>${pw ? fmt(pw.price) : "$89"}</td><td>${pw ? "Top pick — being watched" : "Top pick"}</td></tr>
+      <tr><td>Drift Q3</td><td>Good</td><td>60h</td><td>$79</td><td>Battery champ</td></tr>
+      <tr><td>Pulse Air 2</td><td>Excellent</td><td>28h</td><td>$99</td><td>Best for calls</td></tr>
+      <tr><td>Echo Lite</td><td>Fair</td><td>35h</td><td>$59</td><td>Budget option</td></tr></tbody></table>
+    <h3>What I'd do</h3><p>The Aurora is the strongest buy${pw ? " and it's already being watched at your $" + pw.target + " target" : " but it's worth watching for a drop rather than buying today"}. If battery decides it, the Drift Q3 at $79 is the safe immediate pick.</p>`;
+  $("rvChat").innerHTML = `<div class="lc-label">Linked chat</div>
+    ${r.linkedChat.map(m => `<div class="lc-msg ${m.who}">${esc(m.text)}</div>`).join("")}
+    <button class="lc-btn" id="rvContinue">Continue this conversation</button>
+    <button class="lc-btn" id="rvWatch" ${pw ? "disabled" : ""}>${pw ? "✓ Top pick is being watched" : "👁 Watch the top pick for a drop"}</button>`;
+  $("rvContinue").onclick = () => { go("sw"); activateChat(); aiMsg(`Picking up from <b>${r.title}</b> — what would you like to dig into?`, ["Which one has the best battery?", "Watch the top pick for a price drop"]); };
+  $("rvWatch").onclick = () => {
+    if (S.watches.find(w => w.kind === "price")) return;
+    go("soundhub"); S.sidebarOpen = true; setSbView("chat"); renderAll();
+    userMsg("Watch the top pick for a price drop");
+    proposeWatch(parse("watch this at $75 with promos"), false);
+  };
+}
+function openReport(id) { S.openReportId = id; const r = S.reports.find(r => r.id === id); if (r) { r.opened = true; r.seen = true; } closeSwShelf(); S.activeTab = "report"; renderAll(); }
+
+/* address-bar watch indicator — chrome-owned, page untouched */
+function renderUrlEye() {
+  const slot = $("tbWatchSlot"); slot.innerHTML = "";
+  const w = pageWatch();
+  if (!w) return;
+  const eye = el(`<span class="tb-eye${w.status === "met" ? " met" : ""}"><span class="pulse"></span>${w.status === "met" ? "Hit " + fmt(w.price) : "Watching"}</span>`);
+  eye.onclick = e => { e.stopPropagation(); toggleWatchPopover(w); };
+  eye.onmouseenter = () => { if (!document.querySelector(".watch-popover")) toggleWatchPopover(w); };
+  slot.appendChild(eye);
+}
+function toggleWatchPopover(w) {
+  const ex = document.querySelector(".watch-popover");
+  if (ex) { ex.remove(); return; }
+  const low = Math.min(...w.history);
+  const pop = el(`<div class="watch-popover">
+    <div class="wp-t"><span class="pulse" style="width:8px;height:8px;border-radius:50%;background:${w.status === "met" ? "var(--violet-40)" : "var(--green)"}"></span>${w.title}</div>
+    <div class="wp-s">${w.status === "met" ? `<b style="color:var(--violet-60)">${fmt(w.price)} — condition met</b>` : `${fmt(w.price)} now${w.target ? " · alert at $" + w.target : ""}${w.semantic.length ? " · " + w.semantic.join(", ") : ""}`}</div>
+    ${spark(w)}
+    <div class="wp-meta"><span>⏱ checked ${w.checked}</span><span>low ${fmt(low)}${w.price < w.history[0] ? " · down " + fmt(w.history[0] - w.price) + " since you started" : ""}</span>${w.promoDay ? "<span>🏷 Scout: SAVE10 verified</span>" : ""}</div>
+    <div class="wp-actions"><button class="ac-btn" data-a="pause">${w.status === "paused" ? "▶ Resume" : "⏸ Pause"}</button><button class="ac-btn" data-a="den">Open Den</button></div>
+  </div>`);
+  pop.querySelector('[data-a="pause"]').onclick = () => { w.status = w.status === "paused" ? "live" : "paused"; pop.remove(); renderAll(); };
+  pop.querySelector('[data-a="den"]').onclick = () => { pop.remove(); S.sidebarOpen = true; setSbView("shelf"); w.seen = true; renderAll(); };
+  document.querySelector(".toolbar").style.position = "relative";
+  document.querySelector(".toolbar").appendChild(pop);
+  document.addEventListener("click", function close(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", close); } }, { once: false });
+}
+/* anchored callouts */
+function denSavedCallout() {
+  document.querySelectorAll(".anchor-callout").forEach(n => n.remove());
+  const inSidebar = S.activeTab !== "sw" && S.sidebarOpen;
+  const host = inSidebar ? document.querySelector(".sb-header") : (S.activeTab === "sw" ? document.querySelector(".sw-corner") : document.querySelector(".toolbar"));
+  if (!host) return;
+  host.style.position = "relative";
+  const c = el(`<div class="anchor-callout"><span class="chk">✓</span>Saved to your Den</div>`);
+  if (inSidebar) { c.style.top = "40px"; c.style.right = "auto"; c.style.left = "60px"; }
+  host.appendChild(c);
+  setTimeout(() => c.remove(), 3200);
+}
+/* toasts */
+function toast(title, body, onClick) {
+  const t = el(`<div class="os-toast"><div class="ot-icon"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
+    <div><div class="ot-app">Firefox</div><div class="ot-title">${title}</div><div class="ot-body">${body}</div></div></div>`);
+  t.onclick = () => { t.remove(); onClick && onClick(); };
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("hide"), 6500); setTimeout(() => t.remove(), 7200);
+}
+
+/* ════════════════ wiring ════════════════ */
+function setSbView(v) { S.sbView = v; if (v === "shelf") denSuggestions("sb").forEach(g => S.suggSeen[g.k] = true); document.querySelectorAll(".sb-seg button").forEach(b => b.classList.toggle("active", b.dataset.v === v)); $("sbChatView").classList.toggle("active", v === "chat"); $("sbShelfView").classList.toggle("active", v === "shelf"); if (v === "shelf") { S.watches.forEach(w => w.seen = true); S.reports.forEach(r => r.seen = true); renderShelves(); } }
+function openSwShelf() { S.swShelfOpen = true; denSuggestions("sw").forEach(g => S.suggSeen[g.k] = true); $("swShelfOverlay").classList.add("open"); S.watches.forEach(w => w.seen = true); S.reports.forEach(r => r.seen = true); renderShelves(); }
+function closeSwShelf() { S.swShelfOpen = false; $("swShelfOverlay").classList.remove("open"); }
+
+function renderAll() { renderTabs(); renderToolbar(); renderPages(); renderShelves(); renderStarters(); }
+
+$("daySkip").onclick = advanceDay;
+$("shelfBtn").onclick = () => S.swShelfOpen ? closeSwShelf() : openSwShelf();
+$("swFootAgents").onclick = () => { S.hubVisited = true; go("hub"); };
+$("shelfClose").onclick = closeSwShelf;
+$("newChatBtn").onclick = () => { S.chatActive = false; $("page-sw").classList.remove("chat-active"); $("swThread").innerHTML = ""; S.watches.forEach(w => { if (w.chat === "sw") w.chat = "archived"; }); S.reports.forEach(r => { if (r.chat === "sw") r.chat = "archived"; }); renderAll(); };
+$("sbNew").onclick = () => { $("sbThread").innerHTML = ""; S.sbGreeted = {}; S.watches.forEach(w => { if (w.chat === "sb") w.chat = "archived"; }); S.reports.forEach(r => { if (r.chat === "sb") r.chat = "archived"; }); renderAll(); greetSidebar(); };
+$("sbClose").onclick = () => { S.sidebarOpen = false; renderAll(); };
+$("sbToggle").onclick = () => { S.sidebarOpen = !S.sidebarOpen; if (S.sidebarOpen) { setSbView("chat"); renderAll(); greetSidebar(); } else renderAll(); };
+/* cold entry: opening the sidebar greets with what the agent can see on THIS page */
+function greetSidebar() {
+  if (S.sbGreeted[S.activeTab] || $("sbThread").children.length) return;
+  S.sbGreeted[S.activeTab] = true;
+  if (S.activeTab === "soundhub") {
+    const pw = S.watches.find(w => w.kind === "price");
+    if (pw) aiMsg(`I'm already watching this page — ${statusLine(pw)}`);
+    else aiMsg(`I'm reading this page — <b>Aurora ANC Headphones, $89</b> (down from $129). I can keep an eye on it for you, or compare it against everything else out there. I read pages; I never click, fill, or buy.`,
+      ["Watch this price for me", "Find me the best deal on these", "Help me pick ANC headphones under $100"]);
+  } else if (S.activeTab === "report") {
+    const r = S.reports.find(r => r.id === S.openReportId);
+    if (r) aiMsg(`This is your report — <b>${r.title}</b>. Its conversation is attached on the right, and it stays in your Den.`, ["Watch the top pick for a price drop"]);
+  } else if (S.activeTab === "flights") {
+    const fw = S.watches.find(w => w.kind === "fare");
+    if (fw) aiMsg(`I'm already watching these fares — ${statusLine(fw)}`);
+    else aiMsg(`I'm reading this search — <b>47 fares, YVR → NRT in March</b>, best is $867 non-refundable. I can watch it against rules a price tracker can't read, like "refundable" or "weekday only."`,
+      ["Watch these fares — refundable, under $850"]);
+  }
+}
+document.querySelectorAll(".sb-seg button").forEach(b => b.onclick = () => setSbView(b.dataset.v));
+document.querySelectorAll("[data-pa]").forEach(p => p.onclick = () => { S.watches.forEach(w => { if (w.status === "live") w.status = "paused"; }); log("Paused all watches."); renderAll(); });
+document.querySelectorAll("[data-viewall]").forEach(v => v.onclick = () => { closeSwShelf(); S.sidebarOpen = false; go("hub"); });
+
+/* slash invocation (Concept A): "/" in any smartbar opens the verb menu */
+function attachSlash(wrapId, inputId) {
+  const wrap = $(wrapId), input = $(inputId);
+  let pop = null;
+  const close = () => { pop?.remove(); pop = null; };
+  input.addEventListener("input", () => {
+    if (input.value === "/") {
+      if (pop) return;
+      pop = el(`<div class="slash-pop">
+        <div class="slash-item" data-s="watch"><div class="so-glyph">${eyeGlyph}</div><div><div class="si-name"><code>/watch</code>Watch</div><div class="si-desc">Keep an eye on this page until a condition is met</div></div></div>
+        <div class="slash-item" data-s="research"><div class="so-glyph report">${repGlyph}</div><div><div class="si-name"><code>/research</code>Research</div><div class="si-desc">Compare options and keep a report</div></div></div></div>`);
+      pop.querySelector('[data-s="watch"]').onclick = () => { close(); input.value = ""; submit(S.activeTab === "sw" ? "Watch something new for me" : "Watch this for me"); };
+      pop.querySelector('[data-s="research"]').onclick = () => { close(); input.value = ""; submit("Help me pick ANC headphones under $100"); };
+      if (wrapId === "tbWrap") { pop.style.bottom = "auto"; pop.style.top = "calc(100% + 6px)"; }
+      wrap.style.position = "relative"; wrap.appendChild(pop);
+    } else close();
+  });
+  input.addEventListener("blur", () => setTimeout(close, 180));
+}
+attachSlash("swBarWrap", "swInput"); attachSlash("sbBarWrap", "sbInput"); attachSlash("tbWrap", "tbInput");
+
+for (const [wrapId, inputId] of [["swBarWrap", "swInput"], ["sbBarWrap", "sbInput"], ["tbWrap", "tbInput"]]) {
+  const input = $(inputId);
+  input.addEventListener("focus", () => $(wrapId).classList.add("focus"));
+  input.addEventListener("blur", () => $(wrapId).classList.remove("focus"));
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const v = input.value; input.value = "";
+      if (inputId === "tbInput") {
+        if (S.activeTab === "sw") { activateChat(); submit(v); }
+        else { S.sidebarOpen = true; setSbView("chat"); renderAll(); submit(v); }
+      } else submit(v);
+    }
+  });
+}
+$("swSend").onclick = () => { const v = $("swInput").value; $("swInput").value = ""; submit(v); };
+$("sbSend").onclick = () => { const v = $("sbInput").value; $("sbInput").value = ""; submit(v); };
+
+/* ════════ live-prototype layer: concepts A–E ════════ */
+const ICONS = {
+  pencil: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.3 2.7l2 2L5 13l-2.6.6L3 11z"/></svg>',
+  pause: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3v10M10 3v10"/></svg>',
+  trash: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5h10M6.5 4V3h3v1M5 4.5l.6 8h4.8l.6-8"/></svg>',
+  play: '<svg class="ico" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l8 5-8 5z"/></svg>',
+  eye: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg>',
+};
+function iconBtn(kind, label, danger){ return `<button class="icon-act${danger?' danger':''}" data-ia="${kind}">${ICONS[kind]||''}${label}</button>`; }
+
+document.querySelectorAll('.cbtn').forEach(b=>b.onclick=()=>{
+  S.concept=b.dataset.c;
+  document.querySelectorAll('.cbtn').forEach(x=>x.classList.toggle('cbtn-on',x===b));
+  if(S.concept!=='C' && S.sbView==='shelf') setSbView('chat');
+  if(S.activeTab==='hub' && S.concept!=='B') S.activeTab='sw';
+  if(S.activeTab==='fxv' && !['A','E'].includes(S.concept)) S.activeTab='sw';
+  renderAll();
+});
+
+/* ── question cards (Claude pattern) ── */
+function askQuestion({title, opts, allowInput=true}, onPick, host){
+  const t = host || threadEl();
+  const ex = t.querySelector('.qcard'); if (ex) ex.remove();
+  const q = el(`<div class="qcard">
+    <div class="qc-head"><div class="qc-title">${title}</div><span class="qc-page">‹ 1 of 1 ›</span><span class="qc-x">✕</span></div>
+    ${opts.map((o,i)=>`<div class="qc-opt" data-v="${o.v}"><span class="n">${i+1}</span>${o.t}</div>`).join('')}
+    <div class="qc-else"><span class="pen">✎</span>${allowInput?'<input placeholder="Something else — type it" id="qElse">':'Something else'}<button class="qc-skip">Skip</button></div></div>`);
+  q.querySelectorAll('.qc-opt').forEach(o=>o.onclick=()=>{ q.remove(); onPick(o.dataset.v); });
+  q.querySelector('.qc-skip').onclick=()=>{ q.remove(); onPick(null); };
+  q.querySelector('.qc-x').onclick=()=>{ q.remove(); onPick(null); };
+  const inp=q.querySelector('#qElse');
+  if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&inp.value.trim()){ q.remove(); onPick(inp.value.trim()); }});
+  t.appendChild(q); scrollEl().scrollTop=1e6;
+  return q;
+}
+function targetQuestion(cb){
+  const onFlights = S.activeTab==='flights';
+  const cur = onFlights?867:89;
+  askQuestion({ title:'What price should trigger the alert?', opts:[
+    {v:String(Math.round(cur*0.92)), t:`Below $${Math.round(cur*0.92)} — about 8% under today`},
+    {v:String(Math.round(cur*0.85)), t:`Below $${Math.round(cur*0.85)} — a real deal`},
+    {v:String(Math.round(cur*0.75)), t:`Below $${Math.round(cur*0.75)} — only if it really drops`},
+    {v:'best', t:`Anything that beats today's best ($${cur})`},
+  ]}, v=>{
+    let target = v==='best'||v===null ? (onFlights?850:75) : parseInt(String(v).replace(/[^0-9]/g,''))||(onFlights?850:75);
+    cb(target);
+  });
+}
+
+/* ── per-concept chrome ── */
+function renderConceptChrome(){
+  // Den segment only in C
+  $("segShelf").style.display = S.concept==='C' ? '' : 'none';
+  // old mini-pin off; our pin bar handles A & B
+  $("sbPin").style.display='none';
+  // urlbar eye only in D
+  if(S.concept!=='D'){ $("tbWatchSlot").innerHTML=''; const wp=document.querySelector('.watch-popover'); if(wp) wp.remove(); }
+  // offer chip only C & E (renderToolbar already draws it; strip otherwise)
+  if(!['C','E'].includes(S.concept)){ $("tbOfferSlot").innerHTML=''; }
+  // B feature callout on watchable pages
+  const key = S.activeTab==='soundhub'?'aurora':S.activeTab==='flights'?'fares':null;
+  const watched = key && S.watches.some(w=>key==='aurora'?w.kind==='price':w.kind==='fare');
+  const showCallout = S.concept==='B' && key && !watched && !S.calloutShown['b'+key];
+  $("featCallout").classList.toggle('open', !!showCallout);
+  if(showCallout){
+    $("fcGo").onclick=()=>{ S.calloutShown['b'+key]=true; $("featCallout").classList.remove('open'); S.sidebarOpen=true; setSbView('chat'); renderAll(); proposeWatchFromOffer(key); };
+    $("fcX").onclick=()=>{ S.calloutShown['b'+key]=true; $("featCallout").classList.remove('open'); };
+  }
+  renderPinBar(); renderNtAgents();
+  const u = S.watches.filter(w=>w.status==='met'&&!w.seen).length;
+  $("fxvBub").classList.toggle('on', !!u); $("fxvBub").textContent=u;
+}
+function renderPinBar(){
+  const bar=$("pinBar"); bar.innerHTML='';
+  const show = ['A','B'].includes(S.concept) && S.watches.length;
+  bar.classList.toggle('on', !!show);
+  if(!show) return;
+  for(const w of S.watches){
+    const pin=el(`<span class="pin-item${w.status==='met'?' hit':''}"><span class="pic">${ICONS.eye}</span>${w.title}<span class="pdot"></span></span>`);
+    pin.onclick=()=>togglePinDetail(bar,w);
+    bar.appendChild(pin);
+  }
+}
+function togglePinDetail(bar,w){
+  const ex=bar.querySelector('.pin-detail'); if(ex){ ex.remove(); return; }
+  const d=el(`<div class="pin-detail open">
+    <div style="font-size:12.5px;font-weight:700;margin-bottom:2px">${w.title}</div>
+    <div class="rule-chips">${(w.target?[`≤ $${w.target}`]:[]).concat(w.semantic).map(x=>`<span class="rule-chip">${x}</span>`).join('')}</div>
+    ${spark(w)}
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--gray-50);margin:4px 0 9px"><span><b style="color:var(--gray-100)">${fmt(w.price)}</b> now</span><span><b style="color:var(--gray-100)">${fmt(Math.min(...w.history))}</b> low</span><span><b style="color:var(--gray-100)">${w.history.length}</b> checks</span></div>
+    <div style="display:flex;gap:6px">${iconBtn('pencil','Edit')}${iconBtn('pause', w.status==='paused'?'Resume':'Pause')}${iconBtn('trash','Delete',true)}</div></div>`);
+  d.querySelector('[data-ia="pencil"]').onclick=()=>{ d.remove(); openPanelChat(); editWatch(w); };
+  d.querySelector('[data-ia="pause"]').onclick=()=>{ w.status=w.status==='paused'?'live':'paused'; d.remove(); renderAll(); };
+  d.querySelector('[data-ia="trash"]').onclick=()=>{ S.watches=S.watches.filter(x=>x!==w); d.remove(); renderAll(); };
+  bar.appendChild(d);
+}
+function openPanelChat(){ if(S.activeTab!=='sw'){ S.sidebarOpen=true; } setSbView('chat'); renderAll(); }
+function editWatch(w){
+  askQuestion({ title:'What should trigger the alert?', opts:[
+    {v:String(Math.max(5,(w.target||80)-5)), t:`Below $${Math.max(5,(w.target||80)-5)} — tighter`},
+    {v:String((w.target||80)+5), t:`Below $${(w.target||80)+5} — alert me sooner`},
+    {v:'promo', t:'Add: a verified promo counts too'},
+    {v:'drop10', t:'Any drop of 10% or more'},
+  ]}, v=>{
+    if(v==null) return;
+    if(v==='promo'){ if(!w.semantic.includes('verified promo found')) w.semantic.push('verified promo found'); }
+    else if(v==='drop10'){ w.target=null; w.semantic=['any drop ≥ 10%']; }
+    else { const n=parseInt(String(v).replace(/[^0-9]/g,'')); if(n) w.target=n; }
+    aiMsg(`Updated — <b>${w.title}</b>: ${w.target?'alert at $'+w.target:''} ${w.semantic.join(', ')}.`, false);
+    renderAll();
+  });
+}
+function renderNtAgents(){
+  const n=$("ntAgents"); if(!n) return;
+  const show = S.concept==='B' && S.activeTab==='sw' && (S.watches.length||S.reports.length);
+  n.classList.toggle('on', !!show);
+  if(!show) return;
+  const liveN=S.watches.filter(w=>w.status==='live').length, metN=S.watches.filter(w=>w.status==='met').length;
+  n.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:9px">
+    <div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#9959FF,#ED49AE);display:flex;align-items:center;justify-content:center;color:#fff">${ICONS.eye}</div>
+    <div><div style="font-size:14px;font-weight:700">Your agents</div>
+    <div style="font-size:11.5px;color:var(--gray-50)">${liveN} watching · ${S.reports.length} report${S.reports.length===1?'':'s'}${metN?' · '+metN+' needs your attention':''}</div></div>
+    <span style="margin-left:auto;font-size:12px;font-weight:700;color:#fff;background:var(--violet-50);border-radius:99px;padding:7px 15px">Open Agent Hub →</span></div>
+    <div style="border-top:1px solid rgba(117,66,229,0.12);padding-top:7px">${S.watches.slice(0,3).map(w=>`<div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--gray-70);padding:3.5px 0"><span style="width:7px;height:7px;border-radius:50%;background:${w.status==='met'?'var(--violet-50)':'var(--green)'}"></span><b style="color:var(--gray-100)">${w.title}</b> — ${fmt(w.price)}${w.target?', alert at $'+w.target:''}</div>`).join('')}</div>`;
+  n.onclick=()=>{ S.hubVisited=true; go('hub'); };
+}
+
+/* ── Firefox View (A: Chats · E: Agents) ── */
+function renderFxv(){
+  $("fxvChatsItem").classList.toggle('active', S.fxvMode==='chats');
+  $("fxvAgentsItem").classList.toggle('active', S.fxvMode==='agents');
+  const m=$("fxvMain");
+  if(S.fxvMode==='chats'){
+    m.innerHTML=`<h1>Chats</h1><div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 14px;max-width:760px">
+      <div style="font-size:13px;font-weight:700;padding:6px 2px 8px">Today</div>
+      <div class="fxv-row">Ø&nbsp; This conversation ${S.watches.length?'':'<span style="margin-left:auto;font-size:11px;color:rgba(255,255,255,0.4)">no agents yet</span>'}</div>
+      ${S.watches.map(w=>`<div class="fxv-child" data-w="${w.id}"><span style="width:24px;height:24px;border-radius:7px;background:rgba(151,110,255,0.22);color:#d4bfff;display:inline-flex;align-items:center;justify-content:center">${ICONS.eye}</span><span><span class="t2">Watch: ${w.title}</span><div class="s2">${w.status==='met'?'<b style="color:#7fe07a">HIT '+fmt(w.price)+'</b>':'<b style="color:#7fe07a">● LIVE</b>'} · ${w.target?'alert at $'+w.target:''} ${w.semantic.join(', ')}</div></span></div>`).join('')}
+      ${S.reports.map(r=>`<div class="fxv-child"><span style="width:24px;height:24px;border-radius:7px;background:rgba(255,151,40,0.18);color:#ffb95e;display:inline-flex;align-items:center;justify-content:center">📄</span><span><span class="t2">Report: ${r.title}</span><div class="s2">${r.status==='working'?'working…':'finished'}</div></span></div>`).join('')}
+    </div>`;
+    m.querySelectorAll('[data-w]').forEach(c=>c.onclick=()=>{ S.activeTab='soundhub'; S.sidebarOpen=true; setSbView('chat'); renderAll(); });
+  } else {
+    m.innerHTML=`<h1>Agents</h1><div class="fxv-sec">Active watches</div>
+      ${S.watches.length?S.watches.map(w=>{
+        const checks=w.history.length;
+        return `<div class="agent-bigcard" data-id="${w.id}">
+        <div class="ab-t"><span class="ab-dot${w.status==='met'?' met':''}"></span>${w.title}</div>
+        <div class="ab-rule">${w.target?'Alert when the price drops below <b>$'+w.target+'</b>':''} ${w.semantic.length?'· '+w.semantic.join(' · '):''}</div>
+        <div class="ab-meta"><span class="chkdots">${Array.from({length:12},(_,i)=>`<span style="${i<checks?'background:'+(w.status==='met'&&i===checks-1?'#7fe07a':'rgba(255,255,255,0.45)'):''}"></span>`).join('')}</span>
+        <span>${checks} check${checks===1?'':'s'} · last check ${w.checked} · ${w.retailers||1} site${(w.retailers||1)===1?'':'s'}</span></div>
+        <div class="ab-acts"><span data-aa="check">Check now</span><span data-aa="pause">${w.status==='paused'?'Resume':'Pause'}</span>${(w.kind==='fare'?S.activeTab!=='flights':S.activeTab!=='soundhub')?'<span data-aa="open">Open page</span>':''}<span class="del" data-aa="del">Delete</span></div>
+        ${w.status==='met'?`<div class="alert-strip">↘ <span><b>Dropped to ${fmt(w.price)}</b> — ${w.target?Math.round((1-w.price/w.target)*100)+'% below your target':'condition met'}</span><button class="go" data-aa="open2">Open page</button></div>`:''}
+      </div>`;}).join(''):'<div style="font-size:13px;color:rgba(255,255,255,0.5)">Nothing here yet — ask Smart Window to watch something.</div>'}
+      <div class="fxv-sec" style="margin-top:22px">Reports</div>
+      ${S.reports.length?S.reports.map(r=>`<div class="agent-bigcard" style="cursor:pointer" data-r="${r.id}"><div class="ab-t">📄 ${r.title}</div><div class="ab-rule">${r.status==='working'?'working…':'finished · opens with its chat attached'}</div></div>`).join(''):'<div style="font-size:12.5px;color:rgba(255,255,255,0.5)">Nothing here yet — ask Smart Window to research something.</div>'}`;
+    m.querySelectorAll('.agent-bigcard[data-id]').forEach(card=>{
+      const w=S.watches.find(x=>x.id==card.dataset.id);
+      card.querySelector('[data-aa="check"]').onclick=()=>{ w.history.push(w.price); w.checked='just now'; renderFxv(); };
+      card.querySelector('[data-aa="pause"]').onclick=()=>{ w.status=w.status==='paused'?'live':'paused'; renderFxv(); };
+      const op=card.querySelector('[data-aa="open"]'); if(op) op.onclick=()=>go(w.kind==='fare'?'flights':'soundhub');
+      const op2=card.querySelector('[data-aa="open2"]'); if(op2) op2.onclick=()=>go(w.kind==='fare'?'flights':'soundhub');
+      card.querySelector('[data-aa="del"]').onclick=()=>{ S.watches=S.watches.filter(x=>x!==w); renderFxv(); renderAll(); };
+    });
+    m.querySelectorAll('[data-r]').forEach(c=>c.onclick=()=>openReport(+c.dataset.r));
+    S.watches.forEach(w=>w.seen=true);
+  }
+}
+$("fxvChatsItem").onclick=()=>{ S.fxvMode='chats'; renderFxv(); };
+$("fxvAgentsItem").onclick=()=>{ S.fxvMode='agents'; renderFxv(); };
+
+/* ── D: floating action card on hit ── */
+function showFloatCard(w, judgment){
+  const f=$("floatCard");
+  f.innerHTML=`<div style="font-size:9.5px;color:var(--gray-40);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px">Firefox · Smart Window</div>
+    <div class="fc-t">${w.title}: ${fmt(w.price)}</div>
+    <div class="fc-b">${judgment}</div>
+    <div><button class="fc-btn" data-f="open">Open ${w.source}</button><button class="fc-btn ghost" data-f="snooze">Snooze a day</button><button class="fc-btn ghost" data-f="stop">Stop watching</button></div>`;
+  f.classList.add('open');
+  f.querySelector('[data-f="open"]').onclick=()=>{ f.classList.remove('open'); go(w.kind==='fare'?'flights':'soundhub'); };
+  f.querySelector('[data-f="snooze"]').onclick=()=>f.classList.remove('open');
+  f.querySelector('[data-f="stop"]').onclick=()=>{ f.classList.remove('open'); S.watches=S.watches.filter(x=>x!==w); renderAll(); };
+}
+
+/* footer routing per concept */
+(function(){
+  const items=document.querySelectorAll('.sw-foot-item');
+  if(items[1]) items[1].onclick=()=>{ S.fxvMode='chats'; go('fxv'); };
+  if(items[2]) items[2].onclick=()=>{ if(S.concept==='B'){ S.hubVisited=true; go('hub'); } else { S.fxvMode='agents'; go('fxv'); } };
+})();
+
+/* hook concept chrome into renderAll */
+const _renderAll = renderAll;
+renderAll = function(){ _renderAll(); renderConceptChrome(); };
+
+renderAll();
+</script>
+</body>
+</html>
