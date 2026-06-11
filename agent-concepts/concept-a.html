@@ -110,6 +110,8 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 @keyframes breathe { 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.45; transform:scale(0.82);} }
 .pin-text { font-size:11.5px; color:var(--grey-80); line-height:1.35; }
 .pin-text strong { color:var(--violet-60); font-weight:600; }
+.pin-detail { margin:0 12px 8px; background:#fff; border:1px solid var(--violet-10); border-radius:12px; padding:12px 14px; display:none; box-shadow:0 6px 20px rgba(43,27,85,0.12); animation:arrive var(--d-moderate) var(--ease-arrive) forwards; }
+.pin-detail.open { display:block; }
 .pin-meta { margin-left:auto; font-size:10.5px; color:var(--grey-40); white-space:nowrap; }
 
 .sw-thread { flex:1; overflow-y:auto; padding:16px 16px 8px; display:flex; flex-direction:column; gap:12px; min-height:0; }
@@ -344,6 +346,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
           <div class="pin-text"><strong>Watching:</strong> Aurora ANC · alert at $75 <span id="pinExtra"></span></div>
           <div class="pin-meta" id="pinMeta">checked 2m ago</div>
         </div>
+        <div class="pin-detail" id="pinDetail"></div>
       </div>
 
       <!-- Chat thread -->
@@ -430,6 +433,27 @@ function aSpark(points, target){
     <circle cx="270" cy="${pts.split(' ').pop().split(',')[1]}" r="3.5" fill="#ED49AE"/>
     <text x="4" y="${ty-4}" font-size="8.5" fill="#976eff" font-family="system-ui">target $75</text></svg>`;
 }
+function aRetailerQuestion(host, onPick){
+  const ex=document.querySelector('.qcard'); if(ex){ ex.remove(); return; }
+  const q=el(`<div class="qcard">
+    <div class="qc-head"><div class="qc-title">Which retailers should I add?</div><span class="qc-page">‹ 1 of 1 ›</span><span class="qc-x">✕</span></div>
+    <div class="qc-opt" data-n="3" data-names="Best Buy + manufacturer\u2019s store"><span class="n">1</span>Best Buy + the manufacturer\u2019s store</div>
+    <div class="qc-opt" data-n="2" data-names="Best Buy"><span class="n">2</span>Just Best Buy</div>
+    <div class="qc-opt" data-n="4" data-names="Best Buy, manufacturer, Amazon"><span class="n">3</span>Those two plus Amazon</div>
+    <div class="qc-opt" data-n="5" data-names="everywhere it\u2019s sold"><span class="n">4</span>Everywhere it\u2019s sold</div>
+    <div class="qc-else"><span class="pen">✎</span>Something else<button class="qc-skip">Skip</button></div></div>`);
+  q.querySelectorAll('.qc-opt').forEach(o=>o.onclick=()=>{ onPick(+o.dataset.n, o.dataset.names); q.remove(); });
+  q.querySelector('.qc-skip').onclick=()=>q.remove();
+  q.querySelector('.qc-x').onclick=()=>q.remove();
+  host.insertAdjacentElement('afterend', q);
+  thread.scrollTop=1e6;
+}
+function applyRetailers(n, names){
+  const r=document.getElementById('aRet'); if(r) r.textContent=n;
+  const pe=document.getElementById('pinExtra'); if(pe) pe.textContent='· '+n+' retailers';
+  const sub=document.querySelector('.agent-card-sub'); if(sub) sub.textContent='Aurora ANC Headphones · '+n+' retailers';
+  addMsg('<div class="msg ai"><div class="ai-bubble">Done — now watching <b>'+n+' retailers as one group</b> ('+names+'). One alert with the best of them, not '+n+' alerts.</div></div>');
+}
 function aRuleQuestion(card){
   const ex=document.querySelector('.qcard'); if(ex){ ex.remove(); return; }
   const q=el(`<div class="qcard">
@@ -491,14 +515,20 @@ const steps = [
       </div>`);
       const aCard = thread.lastChild;
       aCard.querySelector('[data-a="edit"]').onclick=()=>aRuleQuestion(aCard);
-      aCard.querySelector('[data-a="ret"]').onclick=()=>{ document.getElementById('aRet').textContent='3'; const pe=document.getElementById('pinExtra'); if(pe) pe.textContent='· 3 retailers'; };
+      aCard.querySelector('[data-a="ret"]').onclick=()=>aRetailerQuestion(aCard, applyRetailers);
       aCard.querySelector('[data-a="pause"]').onclick=e=>{ const b=e.target; b.textContent=b.textContent.includes('Pause')?'▶ Resume':'⏸ Pause'; };
       aCard.querySelector('[data-a="del"]').onclick=()=>{ aCard.remove(); pinStrip.classList.remove('visible');
         addMsg('<div class="msg ai"><div class="ai-bubble">Deleted — I\u2019ve stopped watching. The record stays in this thread.</div></div>'); };
     } },
 
-  { cap:'<strong>4 · The pinned strip.</strong> The thread is left, but the watch stays alive. Concept A\'s single concession to persistence: a pinned strip at the top of the panel showing live agents. It breathes (3000ms ambient cycle) — alive, not alarming. This is the entire "surface."',
-    run(){ pinStrip.classList.add('visible'); addMsg('<div class="msg user">thanks — also add Best Buy and the manufacturer\'s store</div>'); setTimeout(()=>{ addMsg('<div class="msg ai"><div class="ai-bubble">Done — now watching <b>3 retailers as one group</b>. You\'ll get one alert with the best of the three, not three alerts.</div></div>'); document.getElementById('pinExtra').textContent='· 3 retailers'; const r=document.getElementById('aRet'); if(r) r.textContent='3'; },700); } },
+  { cap:'<strong>4 · The pinned strip — and questions before changes.</strong> The watch pins to the top of the panel so chat can continue below it. Asking to add retailers doesn\'t just happen: the little question card confirms <em>which</em> ones first, then the card and the pin both update. Click the pin any time — it expands into the full live detail.',
+    run(){ pinStrip.classList.add('visible');
+      addMsg('<div class="msg user">thanks — also add Best Buy and the manufacturer\'s store</div>');
+      const aCard=document.querySelector('.agent-card');
+      setTimeout(()=>{ aRetailerQuestion(aCard||thread.lastChild, applyRetailers);
+        setTimeout(()=>{ const opt=document.querySelector('.qcard .qc-opt'); if(opt) opt.click(); }, 1500);
+      }, 600);
+    } },
 
   { cap:'<strong>5 · Delivery — the notification IS the product.</strong> Two days later, an OS notification. Not "page changed": a sentence of judgment — price, target delta, working code, which retailer won. This is the LLM-layer value a classic watcher can\'t produce. Clicking deep-links back into the original thread.',
     run(){ osToast.classList.add('show'); document.getElementById('pinMeta').textContent='condition met ✓';
@@ -516,7 +546,7 @@ const dots=document.getElementById('dots');
 steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-dot'; d.onclick=()=>goto(i); dots.appendChild(d); });
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
 function reset(){
-  thread.innerHTML=''; clearComposer(); pinStrip.classList.remove('visible');
+  thread.innerHTML=''; clearComposer(); pinStrip.classList.remove('visible'); const pd=document.getElementById('pinDetail'); if(pd) pd.classList.remove('open');
   histOverlay.classList.remove('open'); osToast.classList.remove('show');
   document.getElementById('fxview').classList.remove('open');
   document.getElementById('fxvChild').classList.remove('fxv-hl');
@@ -532,6 +562,26 @@ function goto(n){
 }
 document.getElementById('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; caption.innerHTML='<strong>Concept A · All in the chat.</strong> Zero new surfaces. Click <strong>Start walkthrough</strong>.'; renderDots(); document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
 document.getElementById('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
+document.querySelector('.pin-card').onclick=()=>{
+  const d=document.getElementById('pinDetail');
+  if(d.classList.contains('open')){ d.classList.remove('open'); return; }
+  const now=(document.getElementById('aNow')||{}).textContent||'$89';
+  const low=(document.getElementById('aLow')||{}).textContent||'$89';
+  const checks=(document.getElementById('aChecks')||{}).textContent||'1';
+  const ret=(document.getElementById('aRet')||{}).textContent||'1';
+  const cond=(document.querySelector('.cond-row')||{}).innerHTML||'⏱ Alert when <code>price ≤ $75</code>';
+  d.innerHTML=`<div style="font-size:12.5px;font-weight:700;margin-bottom:4px">Aurora ANC Headphones</div>
+    <div class="cond-row" style="margin-top:0">${cond}</div>
+    ${aSpark(checks>10?[89,86,84,82,79,75,72]:[89,89],75)}
+    <div class="wc-stats"><span><b>${now}</b>now</span><span><b>${low}</b>low</span><span><b>${checks}</b>checks</span><span><b>${ret}</b>retailers</span></div>
+    <div class="wc-acts" style="padding:10px 0 0"><button class="wc-act" data-p="edit">✎ Edit</button><button class="wc-act" data-p="pause">⏸ Pause</button><button class="wc-act del" data-p="del">🗑 Delete</button></div>`;
+  d.classList.add('open');
+  d.querySelector('[data-p="edit"]').onclick=()=>{ const card=document.querySelector('.agent-card'); if(card){ d.classList.remove('open'); aRuleQuestion(card); } };
+  d.querySelector('[data-p="pause"]').onclick=e=>{ const b=e.target; b.textContent=b.textContent.includes('Pause')?'▶ Resume':'⏸ Pause'; };
+  d.querySelector('[data-p="del"]').onclick=()=>{ d.classList.remove('open'); pinStrip.classList.remove('visible');
+    const card=document.querySelector('.agent-card'); if(card) card.remove();
+    addMsg('<div class="msg ai"><div class="ai-bubble">Deleted — I\u2019ve stopped watching.</div></div>'); };
+};
 document.getElementById('histBtn').onclick=()=>document.getElementById('fxview').classList.add('open');
 document.getElementById('fxview').onclick=e=>{ if(e.target.id==='fxvChild'||e.target.closest('#fxvChild')){ document.getElementById('fxview').classList.remove('open'); } };
 document.getElementById('histClose').onclick=()=>histOverlay.classList.remove('open');
