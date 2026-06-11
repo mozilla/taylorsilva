@@ -917,8 +917,21 @@ function submit(text) {
   }
   if (intent.kind === "research") return startResearch(intent.query);
   aiMsg(`I can <b>watch</b> pages for you (price drops, deals, fare rules) or <b>research</b> options when you don't know what you want yet. I read pages; I never click, fill, or buy.`);
+  maybeSuggestWatch();
 }
 
+function maybeSuggestWatch() {
+  const key = S.activeTab === "soundhub" ? "aurora" : S.activeTab === "flights" ? "fares" : null;
+  if (!key || pageWatch() || S.midSuggested?.[key]) return;
+  (S.midSuggested = S.midSuggested || {})[key] = true;
+  setTimeout(() => {
+    const d = document.createElement("div"); d.className = "msg-ai";
+    d.innerHTML = `By the way — I'm reading this page, and I can <b>watch ${key === "fares" ? "these fares" : "this price"}</b> for you while we talk.`;
+    threadEl().appendChild(d);
+    renderFollowups([key === "fares" ? "Watch these fares — refundable, under $850" : "Watch this price for me"]);
+    scrollEl().scrollTop = 1e6;
+  }, 900);
+}
 function statusLine(w) {
   if (w.status === "met") return `<b>${w.title}</b>: hit — ${fmt(w.price)}${w.target ? ` (target $${w.target})` : ""}.`;
   if (w.status === "paused") return `<b>${w.title}</b>: paused.`;
@@ -985,10 +998,12 @@ function proposeWatch(intent, forcePrice) {
     S.pendingSites = 1;
     card.querySelector('[data-act="start"]').onclick = () => {
       startWatch();
-      const b = card.querySelector(".watching-badge"); b.hidden = false; b.textContent = `Watching · ${S.pendingSites || sites.length} sites`;
+      const w = S.watches[S.watches.length - 1];
+      const b = card.querySelector(".watching-badge"); b.hidden = false; b.textContent = `Watching · ${S.pendingSites || 1} site${(S.pendingSites||1)===1?"":"s"}`;
       card.querySelector(".ac-foot").remove();
-      card.insertAdjacentHTML("afterend", `<div class="added-line"><span class="chk">✓</span>Added to your Den</div>`);
-      denSavedCallout();
+      enhanceCard(card, w);
+      postStartLine(w);
+      if (['C','F'].includes(S.concept)) denSavedCallout();
       S.lastPlanCard = null;
     };
     card.querySelector('[data-act="no"]').onclick = () => { card.remove(); S.pending = null; S.lastPlanCard = null; renderFollowups(); };
@@ -1006,13 +1021,6 @@ function startWatch() {
     aiMsg(`Watching this page now — it's in your <b>Den</b>, and you'll see it marked right on the price when you come back. I'll alert you once, with the why.`);
   }
   log(`Started watching ${S.watches[S.watches.length - 1].title}.`);
-  if (S.concept === 'E') setTimeout(()=>renderFollowups(['Open in Dens — Firefox View']), 700);
-  if (S.concept === 'F') setTimeout(()=>{
-    const d=document.createElement('div'); d.className='msg-ai';
-    d.innerHTML='It\u2019s in this chat\u2019s Den — and you can also find it in <a href="#" style="color:var(--violet-50);font-weight:700" id="densLink">your Dens</a>.';
-    threadEl().appendChild(d); scrollEl().scrollTop=1e6;
-    document.getElementById('densLink').onclick=e=>{ e.preventDefault(); S.fxvMode='agents'; go('fxv'); };
-  }, 700);
   if (firstWatch) {
     const ds = document.querySelector(".day-skip");
     ds.classList.add("nudge"); setTimeout(() => ds.classList.remove("nudge"), 4000);
@@ -1054,6 +1062,42 @@ function runScout() {
       renderAll();
     }
   }, 900);
+}
+function enhanceCard(card, w) {
+  card.dataset.wid = w.id;
+  card.insertAdjacentHTML("beforeend", `<div class="ac-body live-extras" style="border-top:1px solid var(--gray-05);padding-top:9px">
+    <div data-spark>${spark(w)}</div>
+    <div style="display:flex;gap:13px;font-size:10px;color:var(--gray-50);margin:4px 0 9px"><span><b data-now style="color:var(--gray-100);font-size:11.5px">${fmt(w.price)}</b> now</span><span><b data-low style="color:var(--gray-100);font-size:11.5px">${fmt(Math.min(...w.history))}</b> low</span><span><b data-chk style="color:var(--gray-100);font-size:11.5px">${w.history.length}</b> checks</span></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding-bottom:4px">${iconBtn('pencil','Edit')}${iconBtn('pause','Pause')}${iconBtn('trash','Delete',true)}</div></div>`);
+  card.querySelector('[data-ia="pencil"]').onclick = () => editWatch(w);
+  card.querySelector('[data-ia="pause"]').onclick = e => { w.status = w.status === "paused" ? "live" : "paused"; e.target.closest("button").innerHTML = (w.status==="paused"?ICONS.play+"Resume":ICONS.pause+"Pause"); renderAll(); };
+  card.querySelector('[data-ia="trash"]').onclick = () => { S.watches = S.watches.filter(x => x !== w); card.remove(); aiMsg(`Deleted — I've stopped watching. The record stays in this chat.`, false); renderAll(); };
+}
+function refreshChatCards() {
+  document.querySelectorAll("[data-wid]").forEach(card => {
+    const w = S.watches.find(x => x.id == card.dataset.wid);
+    if (!w) return;
+    const sp = card.querySelector("[data-spark]"); if (sp) sp.innerHTML = spark(w);
+    const n = card.querySelector("[data-now]"); if (n) n.textContent = fmt(w.price);
+    const l = card.querySelector("[data-low]"); if (l) l.textContent = fmt(Math.min(...w.history));
+    const c = card.querySelector("[data-chk]"); if (c) c.textContent = w.history.length;
+    const b = card.querySelector(".watching-badge"); if (b && w.status === "met") { b.textContent = "Hit " + fmt(w.price); b.style.background = "var(--violet-10)"; b.style.color = "var(--violet-60)"; }
+  });
+}
+function postStartLine(w) {
+  const d = document.createElement("div"); d.className = "msg-ai";
+  const dest = {
+    A: `It's <b>pinned at the top of this chat</b> — click the pin any time for the full detail.`,
+    B: `It's <b>pinned at the top of this chat</b> — and it lives in your <a href="#" data-go="hub" style="color:var(--violet-50);font-weight:700">Agent Hub</a>.`,
+    C: `It's saved in this chat's <b>Den</b>.`,
+    D: `The <b>eye in the address bar</b> carries it on this page; alerts will find you anywhere.`,
+    E: `You can find it any time in <a href="#" data-go="fxv" style="color:var(--violet-50);font-weight:700">your Dens</a> in Firefox View.`,
+    F: `It's in this chat's <b>Den</b> — and you can also find it in <a href="#" data-go="fxv" style="color:var(--violet-50);font-weight:700">your Dens</a>.`,
+  }[S.concept];
+  d.innerHTML = dest;
+  threadEl().appendChild(d); scrollEl().scrollTop = 1e6;
+  const a = d.querySelector("[data-go]");
+  if (a) a.onclick = e => { e.preventDefault(); if (a.dataset.go === "hub") { S.hubVisited = true; go("hub"); } else { S.fxvMode = "agents"; go("fxv"); } };
 }
 function startResearch(query) {
   const isHeadphones = /headphone|anc/i.test(query);
@@ -1346,7 +1390,7 @@ function setSbView(v) { S.sbView = v; if (v === "shelf") denSuggestions("sb").fo
 function openSwShelf() { S.swShelfOpen = true; denSuggestions("sw").forEach(g => S.suggSeen[g.k] = true); $("swShelfOverlay").classList.add("open"); S.watches.forEach(w => w.seen = true); S.reports.forEach(r => r.seen = true); renderShelves(); }
 function closeSwShelf() { S.swShelfOpen = false; $("swShelfOverlay").classList.remove("open"); }
 
-function renderAll() { renderTabs(); renderToolbar(); renderPages(); renderShelves(); renderStarters(); }
+function renderAll() { refreshChatCards(); renderTabs(); renderToolbar(); renderPages(); renderShelves(); renderStarters(); }
 
 $("daySkip").onclick = advanceDay;
 $("shelfBtn").onclick = () => S.swShelfOpen ? closeSwShelf() : openSwShelf();
@@ -1476,7 +1520,6 @@ function renderConceptChrome(){
   // urlbar eye only in D
   if(!['D','F'].includes(S.concept)){ $("tbWatchSlot").innerHTML=''; const wp=document.querySelector('.watch-popover'); if(wp) wp.remove(); }
   // offer chip only C & E (renderToolbar already draws it; strip otherwise)
-  if(!['C','E','F'].includes(S.concept)){ $("tbOfferSlot").innerHTML=''; }
   // B feature callout on watchable pages
   const key = S.activeTab==='soundhub'?'aurora':S.activeTab==='flights'?'fares':null;
   const watched = key && S.watches.some(w=>key==='aurora'?w.kind==='price':w.kind==='fare');
