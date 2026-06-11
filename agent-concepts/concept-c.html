@@ -196,7 +196,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .shelf-foot .pause-all:hover { color:var(--red); }
 
 /* OS toast */
-.os-toast { position:absolute; top:16px; right:400px; width:330px; background:rgba(28,27,34,0.97); backdrop-filter:blur(10px); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.4); display:flex; gap:11px; z-index:30; opacity:0; transform:translateY(-14px); transition:all var(--d-considered) var(--ease-arrive); }
+.os-toast { position:fixed; top:60px; right:24px; width:330px; background:rgba(28,27,34,0.97); backdrop-filter:blur(10px); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.4); display:flex; gap:11px; z-index:30; opacity:0; transform:translateY(-14px); transition:all var(--d-considered) var(--ease-arrive); }
 .os-toast.show { opacity:1; transform:translateY(0); }
 .os-toast-icon { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,var(--violet-50),var(--violet-40)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .os-toast-title { font-size:12px; font-weight:700; color:#fff; }
