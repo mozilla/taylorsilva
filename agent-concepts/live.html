@@ -136,6 +136,9 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 /* followup mode: column, start-aligned (smartwindow-prompts.css :host([mode=followup])) */
 .sw-prompts.followup { flex-direction:column; align-items:flex-start; padding-block:2px 14px; gap:8px; justify-content:flex-start; }
 .sw-prompts.sidebar { flex-direction:column; align-items:flex-end; padding-block:2px 14px; gap:8px; justify-content:flex-start; }
+.sb-chip-dock { display:flex; flex-direction:column; align-items:flex-end; padding:0 4px; }
+.sb-chip-dock .sw-prompts { flex-direction:column; align-items:flex-end; padding-block:0 10px; gap:7px; justify-content:flex-start; }
+.tab-ctx { width:fit-content; max-width:78%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; font-weight:600; color:#fff; background:var(--violet-50); border-radius:8px; padding:3.5px 11px; margin:0 0 7px; }
 .sw-prompts.followup .sw-prompt-button { text-align:start; }
 
 /* chat-active conversation (ai-chat-content.css) */
@@ -648,8 +651,10 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
           <div class="pin-bar" id="pinBar"></div>
           <div class="sb-thread-scroll" id="sbScroll"><div class="sb-thread" id="sbThread"></div></div>
           <div class="sb-dock">
+            <div class="sb-chip-dock" id="sbChipDock"></div>
             <div class="sw-smartbar-wrap" id="sbBarWrap">
               <div class="sw-smartbar">
+                <div class="tab-ctx" id="sbTabCtx">🎧 Aurora ANC — SoundHub</div>
                 <textarea id="sbInput" placeholder="Ask about this page, or type /" rows="1"></textarea>
                 <div class="row"><span class="plus">＋</span><button class="send" id="sbSend">→</button></div>
               </div>
@@ -689,10 +694,10 @@ const repGlyph = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" st
 
 function parse(text) {
   const t = text.toLowerCase();
-  if (/research|compare|help me (pick|choose|decide|find)|which (one|should)|what should i|don't know/.test(t) && !/watch this/.test(t))
+  if (/research|compare|help me (pick|choose|decide|find)|which (one|should)|what should i|when should i|keep a report|don't know/.test(t) && !/watch this/.test(t))
     return { kind: "research", query: text.trim() };
-  if (/find (me )?(the )?best|best (deal|price)|promo code|coupon code|any (deals|codes|coupons)|deal on (these|this)|cheaper (somewhere|anywhere)/.test(t) && !/watch|monitor|keep/.test(t))
-    return { kind: "scout" };
+  if (/find (me )?(the )?best|best (deal|price)|promo code|coupon code|any (deals|codes|coupons)|deal on (these|this)|cheaper (somewhere|anywhere)|\bscout\b/.test(t) && !/watch|monitor|keep/.test(t))
+    return { kind: "scout", query: t };
   if (/watch|monitor|alert|tell me|notify|track|let me know|deal|promo|coupon|price drop/.test(t)) {
     const m = [...t.matchAll(/\$\s?(\d+)/g)].pop() || [...t.matchAll(/\b(\d{2,4})\b/g)].pop();
     const semantic = [];
@@ -790,7 +795,7 @@ function loader(text) { return addNode(el(`<div class="assistant-loader"><div cl
 function activateChat() {
   if (S.activeTab === "sw" && !S.chatActive) { S.chatActive = true; $("page-sw").classList.add("chat-active"); }
 }
-function clearFollowups() { document.querySelectorAll(".sw-prompts.followup, .sw-prompts.sidebar").forEach(n => n.remove()); }
+function clearFollowups() { document.querySelectorAll(".sw-prompts.followup, .sw-prompts.sidebar").forEach(n => n.remove()); const d = $("sbChipDock"); if (d) d.innerHTML = ""; }
 
 /* smartwindow-prompts: starters (row) and followups (column) */
 function chipRow(prompts, mode) {
@@ -809,9 +814,13 @@ function renderFollowups(custom) {
   clearFollowups();
   const list = (custom || computeFollowups()).filter(p => !S.usedChips.has(p)).slice(0, 3);
   if (!list.length) return;
-  // real smartwindow-prompts: starters sit on the user side (right-aligned),
-  // follow-ups under a response sit left (followup mode)
+  // real smartwindow-prompts: cold-state starters dock right-aligned just above
+  // the input; follow-ups under a response sit left in the thread
   const hasUserMsg = !!threadEl().querySelector(".chat-bubble-user");
+  if (!hasUserMsg && S.activeTab !== "sw") {
+    const dock = $("sbChipDock");
+    if (dock) { dock.appendChild(chipRow(list, "sidebar")); return; }
+  }
   threadEl().appendChild(chipRow(list, hasUserMsg ? "followup" : "sidebar"));
   scrollEl().scrollTop = 1e6;
 }
@@ -833,7 +842,8 @@ function computeFollowups() {
   if (rep && !pw) out.push("Watch the top pick for a price drop");
   if (!pw && !rep && S.activeTab === "soundhub") out.push("Watch this price for me", "Find me the best deal on these", "Help me pick ANC headphones under $100");
   if (S.activeTab === "soundhub" && !S.scoutRan && (pw || rep)) out.push("Find me the best deal on these");
-  if (!fw && S.activeTab === "flights") out.push("Watch these fares — refundable, under $850");
+  if (!fw && S.activeTab === "flights") out.push("Watch these fares — refundable, under $850", "Scout the other fare sites right now", "When should I book? Keep a report");
+  if (S.activeTab === "flights" && fw && !S.fareScoutRan) out.push("Scout the other fare sites right now");
   if (!out.length) out.push("What can you watch for me?");
   return [...new Set(out)];
 }
@@ -897,6 +907,7 @@ function submit(text) {
 
   const intent = parse(text);
   if (intent.kind === "scout") {
+    if (S.activeTab === "flights" || /fare|flight/.test(intent.query || "")) return runFareScout();
     if (S.activeTab !== "soundhub")
       return aiMsg(`Scout needs a product to hunt for — point me at one.`, ["Take me to the headphones page"]);
     return runScout();
@@ -1027,6 +1038,39 @@ function startWatch() {
   }
   renderAll();
 }
+function runFareScout() {
+  const fw0 = S.watches.find(w => w.kind === "fare");
+  if (S.fareScoutRan) {
+    return aiMsg(`Scout's latest fare sweep: best right now is <b>$899 at Google Flights</b> — refundable, matches your dates. ${fw0 ? "The Monitor checks all 4 sites from here." : "Want me to keep watching for your price?"}`,
+      fw0 ? null : ["Watch these fares — refundable, under $850"]);
+  }
+  S.fareScoutRan = true;
+  const steps = ["Scout is sweeping 4 fare sites…", "Matching your dates and cabin…", "Checking refundability on each fare…"];
+  const ld = loader(steps[0]); let i = 1;
+  const t = setInterval(() => {
+    if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
+    else {
+      clearInterval(t); ld.remove();
+      log("Scout swept 4 fare sites — best $899 at Google Flights, refundable.");
+      const fw = S.watches.find(w => w.kind === "fare");
+      const card = addNode(el(`<div class="action-card">
+        <div class="ac-head"><div class="ac-glyph"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></div>
+          <div><div class="ac-title">Scout — fares right now</div><div class="ac-sub">4 sites swept · one-time · read-only, nothing booked</div></div></div>
+        <div class="ac-body">
+          <div class="ac-row"><span class="ic">🏆</span><span><b>$899 — Google Flights</b> · refundable · matches your dates</span></div>
+          <div class="ac-row"><span class="ic">·</span><span>${fmt(fw ? fw.price : 912)} — FlightFinder (this page) · $934 — Expedia · $951 — Kayak</span></div>
+          ${fw ? '<div class="ac-row"><span class="ic">→</span><span style="color:var(--green);font-weight:600">Handed to the Monitor — it now checks all 4 sites. Still above your target, so no alert.</span></div>' : ''}
+        </div>
+        ${fw ? '' : '<div class="ac-foot"><button class="ac-btn primary" data-act="hunt">Keep hunting — watch these fares</button><button class="ac-btn" data-act="done">That is all I needed</button></div>'}</div>`));
+      if (!fw) {
+        card.querySelector("[data-act=hunt]").onclick = () => { card.querySelector(".ac-foot").remove(); submit("Watch these fares — refundable, under $850"); };
+        card.querySelector("[data-act=done]").onclick = () => { card.querySelector(".ac-foot").remove(); renderFollowups(); };
+      }
+      setTimeout(() => renderFollowups(), 250);
+      renderAll();
+    }
+  }, 900);
+}
 function runScout() {
   if (S.scoutRan) {
     const pw = S.watches.find(w => w.kind === "price");
@@ -1124,6 +1168,34 @@ function watchHome() {
 }
 function startResearch(query) {
   const isHeadphones = /headphone|anc/i.test(query);
+  const isFares = /\bbook\b|fare|flight|trip|nrt|tokyo/i.test(query) || (!isHeadphones && S.activeTab === "flights");
+  if (isFares) {
+    const title = "When to book — YVR → NRT";
+    const ex = S.reports.find(r => r.title === title);
+    if (ex) {
+      if (ex.status === "working") return aiMsg(`Still working on that one — about a minute.`);
+      return aiMsg(`I already wrote that one — it's ${reportHome(true)}.`, ["Open the report"]);
+    }
+    const r = { id: S.id++, chat: currentHost(), type: "report", title, status: "working", createdDay: S.day, linkedChat: [{ who: "u", text: query }, { who: "a", text: "On it — I'll read the fare history and write up when to book." }] };
+    S.reports.push(r);
+    const steps = ["Reading 3 months of fare history…", "Comparing day-of-week patterns…", "Checking refundable inventory…", "Writing the report…"];
+    const ld = loader(steps[0]); let i = 1;
+    const t = setInterval(() => {
+      if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
+      else {
+        clearInterval(t); ld.remove(); r.status = "done"; log(`Report finished: ${r.title}.`);
+        aiMsg(`Done — <b>${r.title}</b>. Book 3–6 weeks out; fares dip Tue–Wed. It's <b>${reportHome()}</b>.`, false);
+        const rc = addNode(el(`<div class="report-card"><div class="rc-glyph">${repGlyph}</div>
+          <div><div class="rc-title">${r.title}</div><div class="rc-sub">3 months of history · 4 sites · ${reportHome(true)}</div></div>
+          <span class="rc-open">Open →</span></div>`));
+        rc.onclick = () => openReport(r.id);
+        setTimeout(() => renderFollowups(), 200);
+        bumpShelf(); renderAll();
+      }
+    }, 1000);
+    renderAll();
+    return;
+  }
   if (!isHeadphones)
     return aiMsg(`Happy to research that — tell me a bit more about what you're choosing between, or pick a starting point:`, ["Help me pick ANC headphones under $100"]);
   const title = "ANC headphones under $100";
@@ -1327,10 +1399,38 @@ function renderShelves() {
   if (fb) { const n = S.watches.filter(w => w.status === "met" && !w.seen).length; fb.style.display = n ? "inline-flex" : "none"; fb.textContent = n; }
 }
 function bumpShelf() { renderShelves(); }
+function renderFareReport(r) {
+  const fw = S.watches.find(w => w.kind === "fare");
+  $("rvDoc").innerHTML = `
+    <div class="rv-kicker">${repGlyph} Research report · Smart Window</div>
+    <h1>${r.title}</h1>
+    <div class="rv-meta">3 months of fare history · 4 sites · every source linked</div>
+    <div style="display:flex;gap:8px;margin:10px 0 14px"><button class="ac-btn">🔗 Copy link</button><button class="ac-btn">🖨 Print</button><button class="ac-btn">⭐ Bookmark</button></div>
+    <div class="pick-card"><div><div class="pick-rank">The call</div><div class="pick-name">Book 3–6 weeks out</div><div class="pick-why">Fares dip Tue–Wed · your $850 cap cleared twice last quarter — realistic</div></div>
+      <div class="pick-price">${fw ? fmt(fw.price) + " now" : "$912 now"}</div></div>
+    <h3>The windows</h3>
+    <table class="ai-chat-table"><thead><tr><th>Window</th><th>Typical low</th><th>Refundable</th><th>Odds under $850</th></tr></thead><tbody>
+      <tr><td>6–8 weeks out</td><td>$905</td><td>Plenty</td><td>Low</td></tr>
+      <tr><td>3–6 weeks out</td><td>$861</td><td>Enough</td><td>Good — the window</td></tr>
+      <tr><td>1–2 weeks out</td><td>$968</td><td>Scarce</td><td>Poor</td></tr></tbody></table>
+    <h3>What I'd do</h3><p>${fw ? "Let the Monitor keep working — it checks all the sites and will catch the Tue–Wed dips for you." : "Start a watch rather than checking by hand — the dips last a day or two and are easy to miss."}</p>`;
+  $("rvChat").innerHTML = `<div class="lc-label">Linked chat</div>
+    ${r.linkedChat.map(m => `<div class="lc-msg ${m.who}">${esc(m.text)}</div>`).join("")}
+    <button class="lc-btn" id="rvContinue">Continue this conversation</button>
+    <button class="lc-btn" id="rvWatch" ${fw ? "disabled" : ""}>${fw ? "✓ These fares are being watched" : "👁 Watch these fares for a drop"}</button>`;
+  $("rvContinue").onclick = () => { go("sw"); activateChat(); aiMsg(`Picking up from <b>${r.title}</b> — what would you like to dig into?`, ["Scout the other fare sites right now"]); };
+  $("rvWatch").onclick = () => {
+    if (S.watches.find(w => w.kind === "fare")) return;
+    go("flights"); S.sidebarOpen = true; setSbView("chat"); renderAll();
+    userMsg("Watch these fares — refundable, under $850");
+    proposeWatch(parse("watch these fares refundable under $850"), false);
+  };
+}
 
 function renderReport() {
   const r = S.reports.find(r => r.id === S.openReportId);
   if (!r) return;
+  if (/when to book/i.test(r.title)) { renderFareReport(r); return; }
   const pw = S.watches.find(w => w.kind === "price");
   $("rvDoc").innerHTML = `
     <div class="rv-kicker">${repGlyph} Research report · Smart Window</div>
@@ -1523,6 +1623,10 @@ function targetQuestion(cb){
 
 /* ── per-concept chrome ── */
 function renderConceptChrome(){
+  const ctx = $("sbTabCtx");
+  if (ctx) ctx.textContent = ({ soundhub: "🎧 Aurora ANC — SoundHub", flights: "✈️ YVR → NRT — FlightFinder", report: "📄 Report", hub: "👁 Your agents", fxv: "⊙ Firefox View" })[S.activeTab] || "This page";
+  // cold state: the docked chips follow the page until the conversation starts
+  if (S.sidebarOpen && S.sbView === "chat" && S.activeTab !== "sw" && !$("sbThread").querySelector(".chat-bubble-user")) renderFollowups();
   // Den segment in C and F
   $("segShelf").style.display = ['C','F'].includes(S.concept) ? '' : 'none';
   // newtab footer: a cross-chat destination only where the concept has one
