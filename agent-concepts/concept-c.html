@@ -427,10 +427,17 @@ const steps=[
         pc.querySelectorAll('.plan-row')[1].innerHTML = '<span class="ic">⚡</span><span>Alert when a fare is <b>' + r + '</b></span>';
       }); } },
 
-  { cap:'<strong>3 · The rule is a sentence — this is why it\'s an LLM.</strong> The user refines by talking: <em>refundable, under $850, weekday</em>. A classic page-diff watcher matches pixels and selectors; it cannot know "refundable" from "basic," survive a site redesign, or judge 47 results against three soft constraints. The semantic condition is the LLM-only capability — and the whole answer to "why not a classic window?"',
-    run(){ typeInto('only refundable fares, under $850, weekday departures', ()=>{
-      addMsg('<div class="msg user">only refundable fares, under $850, weekday departures</div>'); clearComposer();
-      setTimeout(()=>addMsg('<div class="msg ai"><div class="ai-bubble">Got it — <b>refundable · ≤ $850 · Mon–Fri departures</b>. Today\'s best refundable is $934, so I\'ll stay quiet until that changes. Watching now.</div></div>'),500); }); } },
+  { cap:'<strong>3 · Change the rule — pick, save, go.</strong> Hitting <em>Start watching</em> needs zero typing: everything was suggested from the page. Hitting <em>Change the rule</em> opens the little question card — numbered options, <em>Something else</em>, <em>Skip</em> — pick one and it saves the rule and goes. (These options are semantic rules — "refundable" — that a pixel-watcher can\'t evaluate; that\'s the LLM\'s job.)',
+    run(){
+      const pc = thread.querySelector('.plan-card');
+      if(!pc) return;
+      ruleQuestion(pc, r => {
+        pc.querySelectorAll('.plan-row')[1].innerHTML = '<span class="ic">⚡</span><span>Alert when a fare is <b>' + r + '</b></span>';
+        addMsg('<div class="msg ai"><div class="ai-bubble">Got it — <b>' + r + '</b>. Today\'s best refundable is $934, so I\'ll stay quiet until that changes. Watching now.</div></div>');
+      });
+      // storyboard auto-picks option 2 after a beat
+      setTimeout(()=>{ const opt=document.querySelectorAll('.qcard .qc-opt')[1]; if(opt) opt.click(); }, 1600);
+    } },
 
   { cap:'<strong>4 · It lands in this chat\'s Den.</strong> Every conversation has its own Den — only what <em>this chat</em> created lives here, nothing from other conversations. And before you make anything the Den isn\'t empty: it carries <em>suggestions</em> drawn from the page ("Watch these fares"), so there\'s no dead tab. The thread keeps its copy too — redundancy is deliberate.',
     run(){ const w=el(`<div class="shelf-obj">
