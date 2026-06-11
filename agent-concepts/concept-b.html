@@ -522,8 +522,12 @@ function buildBPlan(){
     document.getElementById('bStart').onclick=()=>{
       document.getElementById('bBadge').style.display='inline-block';
       document.getElementById('bStart').remove();
-      t.insertAdjacentHTML('beforeend','<div class="bmsg-a">Watching — saved to your <b>Agent Hub</b>. You\u2019ll find it on the new tab.</div>');
-      t.scrollTop=1e6;
+      const plan=t.querySelector('.bplan');
+      plan.insertAdjacentHTML('afterbegin','<div style="font-size:9.5px;font-weight:800;letter-spacing:0.6px;color:var(--violet-60);margin-bottom:6px">📌 PINNED TO THIS CHAT</div>');
+      t.insertBefore(plan, t.firstChild);
+      t.insertAdjacentHTML('beforeend','<div class="bmsg-a">Watching — this card stays <b>pinned to the top of this chat</b> at all times, and it lives in your <a href="#" id="hubLink" style="color:var(--violet-60);font-weight:700">Agent Hub</a>.</div>');
+      document.getElementById('hubLink').onclick=(e)=>{ e.preventDefault(); steps[4].run(); caption.innerHTML=steps[4].cap; cur=4; renderDots(); };
+      t.scrollTop=0;
     };
   },420);
 }
@@ -542,12 +546,9 @@ const steps=[
       if(!t.querySelector('.bmsg-u')) buildQuestions(true); else askQ(0);
     } },
 
-  { cap:'<strong>3 · Answers become the prefilled card.</strong> The questions resolve into the editable setup card — rule, target, retailers — one primary action. Start it, and the confirmation names the home: <em>saved to your Agent Hub</em>.',
+  { cap:'<strong>3 · Answers become the prefilled card — start it.</strong> The questions resolve into the editable setup card. On start, the card <em>pins to the top of this chat</em> so it never scrolls away — and the confirmation links straight to the <em>Agent Hub</em>, its other home. Click the link.',
     run(){ show('shop'); buildBPlan(); setTimeout(()=>{ const b=document.getElementById('bStart'); if(b) b.click(); }, 1100); } },
-
-  { cap:'<strong>4 · The front door.</strong> The new tab carries a "Your agents" card that summarizes the whole hub — every live watch with its rule and last check, the report count, what needs attention — and an explicit <em>Open Agent Hub →</em> button, so it reads as a doorway to a full surface, not a notification about one item. The new tab is the one surface every user already visits daily, so discoverability is structural.',
-    run(){ show('newtab'); } },
-  { cap:'<strong>5 · The hub — and the new watch is already there.</strong> Click through to <em>about:agents</em> — a true destination. Left: live agents as tiles with real state (price sparkline vs. target line, grouped retailers, semantic fare conditions). Right: the reports library and an activity feed showing every check the agents made. <em>Transparency builds the trust that background agents spend.</em>',
+  { cap:'<strong>4 · The Agent Hub — the watch is already there.</strong> Click through to <em>about:agents</em> — a true destination. Left: live agents as tiles with real state (price sparkline vs. target line, grouped retailers, semantic fare conditions). Right: the reports library and an activity feed showing every check the agents made. <em>Transparency builds the trust that background agents spend.</em>',
     run(){ if(!document.getElementById('newTile')){
         const t=document.createElement('div'); t.className='agent-tile'; t.id='newTile'; t.style.animationDelay='0ms';
         t.innerHTML=`<div class="at-head"><div class="at-glyph watch"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
@@ -557,6 +558,9 @@ const steps=[
         const live=document.querySelector('.hub-cols > div');
         live.insertBefore(t, live.children[1]);
       } show('hub'); } },
+
+  { cap:'<strong>5 · Getting back tomorrow: the front door.</strong> The new tab carries a "Your agents" card that summarizes the whole hub — every live watch with its rule and last check, the report count, what needs attention — and an explicit <em>Open Agent Hub →</em> button, so it reads as a doorway to a full surface, not a notification about one item. The new tab is the one surface every user already visits daily, so discoverability is structural.',
+    run(){ show('newtab'); } },
   { cap:'<strong>6 · Built for the proactive future.</strong> The "Suggested" row is where habit-learning lives: the browser noticed a Thursday pattern and offers a weekly weekend-events digest. In a hub model, proactive agents have an obvious place to be offered, accepted, and managed — this is the strongest argument for Concept B.',
     run(){ show('hub'); setTimeout(()=>{ document.querySelectorAll('.agent-tile')[3].style.boxShadow='0 0 0 3px rgba(0,96,223,0.25)'; },400); } },
   { cap:'<strong>7 · The gallery — creating from the hub works too.</strong> "New agent" opens a gallery: Watch (Monitor + Scout unified), Research, and dashed future slots — Routine (habit reports) and Errand (end-to-end tasks, parked behind payment/auth blockers but visibly on the roadmap). The hub scales by adding cards, not surfaces.',
