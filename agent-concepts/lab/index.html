@@ -518,8 +518,10 @@ let activeTab = "soundhub";
 let panelOpen = true;
 let activeView = "chat";
 let pendingIntent = null;
+let lastPlanCard = null;
 let openReportId = null;
 let offerDismissed = {};
+const usedChips = new Set();
 
 const PAGES = {
   soundhub: { url: "soundhub.com/aurora-anc-headphones", title: "Aurora ANC — SoundHub", fav: "🎧", watchKey: "aurora" },
@@ -550,12 +552,73 @@ function submit(text) {
   openPanel(); setView("chat");
   addMsg("msg-user", esc(text));
   $("siInput").value = "";
+  usedChips.add(text);
+
+  // 1) Follow-ups on an existing watch take priority over new tasks
+  const ctx = resolveWatch(text);
+  const fu = ctx ? engine.followUp(text, ctx) : null;
+  if (fu) return handleFollowUp(fu, ctx);
+
+  // 2) "Open the report" style retrieval
+  if (/open .*(report|it)|show me the report|where('| i)?s (the|my) report/i.test(text)) {
+    const r = [...engine.reports].reverse().find(r => r.status === "done");
+    if (r) { openReport(r.id); return; }
+    return aiSay("No finished reports yet — ask me to research something first.");
+  }
+
   const intent = engine.parse(text, activeTab);
-  if (intent.kind === "watch") proposeWatch(intent);
-  else if (intent.kind === "research") startResearch(intent.query);
-  else setTimeout(() => addMsg("msg-ai", "This prototype's brain only does two verbs — <b>watch</b> (“watch this, alert me at $75”) and <b>research</b> (“help me pick…”). In production this is a full assistant."), 400);
+
+  // 3) Refining a plan that's still pending: edit it in place, don't stack cards
+  if (intent.kind === "watch" && pendingIntent && lastPlanCard?.isConnected) {
+    if (intent.target) pendingIntent.target = intent.target;
+    if (intent.semantic.length) pendingIntent.semantic = intent.semantic;
+    const rule = lastPlanCard.querySelector("[data-rule]");
+    if (rule) rule.innerHTML = pendingIntent.onFlights
+      ? `Alert when a fare is <b>${pendingIntent.semantic.join(" · ") || "matching"} · ≤ $${pendingIntent.target}</b>`
+      : `Alert when <b>price ≤ $${pendingIntent.target}</b>${pendingIntent.semantic.includes("verified promo found") ? " or a <b>verified promo</b> appears" : ""}`;
+    return aiSay(`Updated the plan — ${pendingIntent.target ? "target $" + pendingIntent.target : pendingIntent.semantic.join(", ")}. Start it when you're ready.`);
+  }
+
+  // 4) Duplicate guard: don't propose a watch that already exists
+  if (intent.kind === "watch") {
+    const existing = pageWatch();
+    if (existing) {
+      if (intent.target && intent.target !== existing.target) return handleFollowUp({ kind: "retarget", target: intent.target }, existing);
+      return aiSay(`Already watching this — <b>${existing.title}</b>${existing.target ? ", alert at $" + existing.target : ""}. Tell me a new rule ("change it to $70"), add a retailer, or ask how it's doing.`);
+    }
+    return proposeWatch(intent);
+  }
+  if (intent.kind === "research") return startResearch(intent.query);
+  aiSay("This prototype's brain only does two verbs — <b>watch</b> (“watch this, alert me at $75”) and <b>research</b> (“help me pick…”). In production this is a full assistant.");
 }
 const esc = s => s.replace(/</g, "&lt;");
+const aiSay = html => setTimeout(() => addMsg("msg-ai", html), 380);
+
+/* which watch is the user talking about? explicit mention > page context > only watch */
+function resolveWatch(text) {
+  const t = text.toLowerCase();
+  if (/fare|flight|nrt|yvr|tokyo/.test(t)) return engine.watches.find(w => w.kind === "fare");
+  if (/headphone|aurora|anc/.test(t)) return engine.watches.find(w => w.kind === "price");
+  return pageWatch() || (engine.watches.length === 1 ? engine.watches[0] : null);
+}
+function pageWatch() {
+  const key = PAGES[activeTab].watchKey;
+  if (key === "aurora") return engine.watches.find(w => w.kind === "price");
+  if (key === "fares") return engine.watches.find(w => w.kind === "fare");
+  return null;
+}
+
+function handleFollowUp(fu, w) {
+  if (fu.kind === "pause") { engine.pauseWatch(w.id); aiSay(`Paused <b>${w.title}</b> — nothing will check it until you say resume.`); }
+  else if (fu.kind === "resume") { engine.resumeWatch(w.id); aiSay(`Back on it — <b>${w.title}</b> is live again.`); }
+  else if (fu.kind === "retarget") {
+    engine.retarget(w.id, fu.target);
+    if (w.status !== "met") aiSay(`Done — alert at <b>$${fu.target}</b> now. It's $${w.price.toFixed(2)} today, so I'll stay quiet until it gets there.`);
+  }
+  else if (fu.kind === "add-retailer") { engine.addRetailer(w.id, fu.name); aiSay(`Added <b>${fu.name}</b> — now ${w.retailers} retailers as one group. One alert, best of all of them.`); }
+  else if (fu.kind === "status") { aiSay(engine.statusSummary(w)); }
+  renderAll();
+}
 
 function proposeWatch(intent) {
   const onFlights = activeTab === "flights";
@@ -564,11 +627,11 @@ function proposeWatch(intent) {
   pendingIntent = { onFlights, target, semantic };
   const rows = onFlights
     ? `<div class="plan-row"><span class="ic">👁</span><span>I'll re-run this search <b>a few times a day</b> and read all 47 results like you would</span></div>
-       <div class="plan-row"><span class="ic">⚡</span><span>Alert when a fare is <b>${semantic.join(" · ")} · ≤ $${target}</b></span></div>`
+       <div class="plan-row"><span class="ic">⚡</span><span data-rule>Alert when a fare is <b>${semantic.join(" · ")} · ≤ $${target}</b></span></div>`
     : `<div class="plan-row"><span class="ic">👁</span><span>I'll check this page <b>a few times a day</b> — sale banners, bundles, member prices all count</span></div>
-       <div class="plan-row"><span class="ic">⚡</span><span>Alert when <b>price ≤ $${target}</b>${semantic.includes("verified promo found") ? " or a <b>verified promo</b> appears" : ""}</span></div>`;
+       <div class="plan-row"><span class="ic">⚡</span><span data-rule>Alert when <b>price ≤ $${target}</b>${semantic.includes("verified promo found") ? " or a <b>verified promo</b> appears" : ""}</span></div>`;
   setTimeout(() => {
-    const card = addMsg("plan-card", `
+    const card = lastPlanCard = addMsg("plan-card", `
       <div class="plan-head"><div class="plan-glyph">${watchGlyph}</div>
         <div><div class="plan-title">Watch ${onFlights ? "these fares" : "this price"}?</div>
         <div class="plan-sub">${PAGES[activeTab].title} · from this page</div></div></div>
@@ -578,8 +641,8 @@ function proposeWatch(intent) {
         <button class="sugg-chip primary" data-act="start">Start watching</button>
         <button class="sugg-chip" data-act="no">No thanks</button>
       </div>`);
-    card.querySelector('[data-act="start"]').onclick = () => { startWatch(); card.querySelector(".plan-foot").innerHTML = `<span style="font-size:11px;color:#7fe07a;font-weight:700">✓ Watching</span>`; };
-    card.querySelector('[data-act="no"]').onclick = () => { card.remove(); pendingIntent = null; };
+    card.querySelector('[data-act="start"]').onclick = () => { startWatch(); card.querySelector(".plan-foot").innerHTML = `<span style="font-size:11px;color:#7fe07a;font-weight:700">✓ Watching</span>`; lastPlanCard = null; };
+    card.querySelector('[data-act="no"]').onclick = () => { card.remove(); pendingIntent = null; lastPlanCard = null; };
   }, 450);
 }
 
@@ -598,6 +661,15 @@ function startWatch() {
 }
 
 function startResearch(query) {
+  // duplicate guard: same topic → offer the existing report, don't regenerate
+  const dupe = engine.reports.find(r => r.title === engine._reportTitle(query));
+  if (dupe) {
+    if (dupe.status === "working") return aiSay(`Still working on <b>${dupe.title}</b> — almost there.`);
+    aiSay(`I already wrote that one — <b>${dupe.title}</b>, finished day ${dupe.createdDay}.`);
+    const open = addMsg("plan-card", `<div class="plan-foot" style="padding:10px 13px"><button class="sugg-chip primary">Open the report</button></div>`);
+    open.querySelector("button").onclick = function(){ this.textContent = "Opened ✓"; this.disabled = true; this.style.opacity = .6; openReport(dupe.id); };
+    return;
+  }
   const r = engine.createReport(query);
   const prog = addMsg("msg-prog", `<span class="spinner"></span><span id="prog-${r.id}">Planning…</span>`);
   engine.addEventListener("report-progress", e => {
@@ -612,7 +684,7 @@ function startResearch(query) {
     } else {
       addMsg("msg-ai", `Done — <b>${r.title}</b> is ready. ${concept === "B" ? "It's in your <b>Agent Hub</b> library." : "It's on your <b>Shelf</b> under Reports."}`);
       const open = addMsg("plan-card", `<div class="plan-foot" style="padding:10px 13px"><button class="sugg-chip primary">Open the report</button></div>`);
-      open.querySelector("button").onclick = () => openReport(r.id);
+      open.querySelector("button").onclick = function(){ this.textContent = "Opened ✓"; this.disabled = true; this.style.opacity = .6; openReport(r.id); };
     }
     if (activeView !== "shelf") bumpBadge();
     renderAll();
@@ -634,7 +706,12 @@ engine.addEventListener("promo-found", e => {
 });
 engine.addEventListener("day", () => renderAll());
 
-$("advanceBtn").onclick = () => { engine.advanceDay(); $("dayNum").textContent = engine.day; };
+$("advanceBtn").onclick = () => {
+  if (!engine.watches.some(w => w.status === "live")) {
+    toast("Nothing is watching yet", engine.watches.length ? "Everything is paused or already hit — resume a watch first." : "Start a watch first — try the chip in the address bar, or ask in the panel.");
+  }
+  engine.advanceDay(); $("dayNum").textContent = engine.day;
+};
 
 /* ───────────────────────── toast ───────────────────────── */
 function toast(title, body, onClick) {
@@ -859,14 +936,41 @@ function renderWaypoints() {
   }
 }
 
+/* Chips are computed from state — every action you take changes what's
+   offered, and nothing already done is offered again. */
 function renderSuggs() {
   const s = $("swSuggs"); s.innerHTML = "";
-  const suggs = activeTab === "flights"
-    ? ["Watch these fares — refundable, under $850, weekday", "Research: when to book YVR→NRT for March"]
-    : activeTab === "soundhub"
-      ? ["Watch this — alert me at $75, grab promos too", "Help me pick ANC headphones under $100"]
-      : ["Help me pick ANC headphones under $100"];
-  for (const t of suggs) {
+  const aw = engine.watches.find(w => w.kind === "price");
+  const fw = engine.watches.find(w => w.kind === "fare");
+  const report = engine.reports.find(r => r.status === "done");
+  const suggs = [];
+
+  const watchChips = (w, lowerTo, addName) => {
+    if (w.status === "paused") { suggs.push(`Resume the ${w.kind === "fare" ? "fare " : ""}watch`); return; }
+    if (w.status === "met") { suggs.push("What did you find?", `Stop watching ${w.kind === "fare" ? "fares" : "it"}`); return; }
+    suggs.push("How's my watch doing?");
+    if (w.target) suggs.push(`Change the target to $${lowerTo}`);
+    if (w.kind === "price" && w.retailers < 4) suggs.push(`Add ${addName} as well`);
+    suggs.push("Pause it");
+  };
+
+  if (activeTab === "soundhub") {
+    if (!aw) suggs.push("Watch this — alert me at $75, grab promos too");
+    else watchChips(aw, Math.max((aw.target || 75) - 5, Math.floor(aw.price) - 1), (aw.retailerNames || []).includes("Best Buy") ? "the manufacturer's store" : "Best Buy");
+    if (!report) suggs.push("Help me pick ANC headphones under $100");
+  } else if (activeTab === "flights") {
+    if (!fw) suggs.push("Watch these fares — refundable, under $850, weekday");
+    else watchChips(fw, Math.max((fw.target || 850) - 50, Math.floor(fw.price) - 10));
+    if (!report) suggs.push("Research: when to book YVR→NRT for March");
+  } else {
+    if (report && activeTab !== "report") suggs.push("Open the report");
+    if (!report) suggs.push("Help me pick ANC headphones under $100");
+    if (aw || fw) suggs.push("How's my watch doing?");
+  }
+
+  // queries and toggles stay reusable; actions are one-shot
+  const repeatable = t => /^(How's|What did|Pause it|Resume|Open the report)/.test(t);
+  for (const t of suggs.filter(t => repeatable(t) || !usedChips.has(t)).slice(0, 3)) {
     const b = document.createElement("button");
     b.className = "sugg-chip"; b.textContent = t;
     b.onclick = () => submit(t);
@@ -915,7 +1019,7 @@ function renderReport() {
     <h3>What I'd do</h3><p>${c.verdict}</p>`;
   $("rvChat").innerHTML = `<div class="lc-label">Linked chat</div>
     ${r.linkedChat.map(m => `<div class="lc-msg ${m.who === "user" ? "u" : "a"}">${esc(m.text)}</div>`).join("")}
-    <button class="sugg-chip" style="width:100%;color:var(--violet-60);border-color:var(--violet-30);margin-top:4px" id="rvWatch">👁 ${aw ? "Top pick is already being watched" : "Watch the top pick for a drop"}</button>`;
+    <button class="sugg-chip" style="width:100%;color:var(--violet-60);border-color:var(--violet-30);margin-top:4px${aw ? ";opacity:.55;cursor:default" : ""}" id="rvWatch" ${aw ? "disabled" : ""}>👁 ${aw ? "✓ Top pick is already being watched" : "Watch the top pick for a drop"}</button>`;
   $("rvWatch").onclick = () => {
     if (!engine.watches.find(w => w.kind === "price")) {
       activeTab = "soundhub";
@@ -946,7 +1050,11 @@ document.querySelectorAll(".fp").forEach(p => p.onclick = () => {
   p.classList.add("active"); $("histList").dataset.filter = p.dataset.f; renderHistory();
 });
 $("pauseAll").onclick = () => { engine.pauseAll(); renderAll(); };
-$("hubNew").onclick = () => { openPanel(); setView("chat"); $("siInput").focus(); addMsg("msg-ai", "Tell me what to do — e.g. <b>“watch this page, alert me at $75”</b> or <b>“help me pick…”</b>"); };
+let hubHintShown = false;
+$("hubNew").onclick = () => {
+  openPanel(); setView("chat"); $("siInput").focus();
+  if (!hubHintShown) { hubHintShown = true; addMsg("msg-ai", "Tell me what to do — e.g. <b>“watch this page, alert me at $75”</b> or <b>“help me pick…”</b>"); }
+};
 $("notesBtn").onclick = () => $("notesScrim").classList.add("open");
 
 const si = $("siInput");

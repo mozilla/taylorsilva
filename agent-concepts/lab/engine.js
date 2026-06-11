@@ -51,6 +51,64 @@ class AgentEngine extends EventTarget {
     return { kind: "chat", query: text.trim() };
   }
 
+  /* ── Follow-up parsing ──
+     Once a watch exists, most input about it is a follow-up, not a new
+     task. Resolved against a context watch BEFORE generic parsing so
+     "also watch Best Buy" doesn't spawn a duplicate. */
+  followUp(text, w) {
+    if (!w) return null;
+    const t = text.toLowerCase();
+    if (/\b(pause|stop|hold off|cancel|kill)\b/.test(t)) return { kind: "pause" };
+    if (/\b(resume|unpause|restart|keep going|continue)\b/.test(t)) return { kind: "resume" };
+    const m = t.match(/(?:to|at|target|cap(?: to| at)?|under)\s*\$?\s*(\d+)/);
+    if (m && /\b(change|set|make|raise|lower|drop|update|bump|move)\b/.test(t)) return { kind: "retarget", target: +m[1] };
+    if (/\b(add|also|include)\b/.test(t) && !/\bwatch this\b/.test(t)) {
+      const nm = t.match(/(?:add|also watch|also|include)\s+([a-z0-9'& ]+?)(?:\s+(?:too|as well|please|to it))?\s*$/);
+      return { kind: "add-retailer", name: nm ? nm[1].trim().replace(/\b\w/g, c => c.toUpperCase()) : "another retailer" };
+    }
+    if (/\b(status|progress|doing|going|any (luck|news|update|movement)|how.?s\b|update me|check in)\b|what did you find|find anything/.test(t)) return { kind: "status" };
+    return null;
+  }
+
+  /* ── Follow-up actions ── */
+  retarget(id, target) {
+    const w = this.watches.find(w => w.id === id);
+    if (!w) return null;
+    w.target = target;
+    this.log(`${w.title}: rule changed — alert at $${target}.`);
+    if (w.status === "live" && w.price <= target) {
+      w.status = "met";
+      const judgment = `Already there — $${w.price.toFixed(2)} today, $${(target - w.price).toFixed(2)} under your new $${target} target.`;
+      this.log(`Condition met immediately: ${w.title}`);
+      this.emit("watch-hit", { watch: w, judgment });
+    }
+    this.emit("watch-updated", w);
+    return w;
+  }
+  addRetailer(id, name) {
+    const w = this.watches.find(w => w.id === id);
+    if (!w) return null;
+    w.retailers++;
+    w.retailerNames = (w.retailerNames || [w.source]).concat(name);
+    this.log(`${w.title}: added ${name} — now ${w.retailers} retailers as one group.`);
+    this.emit("watch-updated", w);
+    return w;
+  }
+  statusSummary(w) {
+    if (w.status === "met") return `${w.title} already hit: $${w.price.toFixed(2)}${w.target ? `, your target was $${w.target}` : ""}.${w.promoFoundDay ? " Code SAVE10 still applies." : ""}`;
+    if (w.status === "paused") return `${w.title} is paused — nothing has checked it since day ${this.day}. Say "resume" to pick it back up.`;
+    const days = this.day - w.createdDay;
+    const h = w.history;
+    const trend = h.length > 1 ? (h[0] - h[h.length - 1]) / Math.max(days, 1) : 0;
+    const toGo = w.target ? (w.price - w.target) : null;
+    let s = `${w.title}: $${w.price.toFixed(2)} now`;
+    if (toGo !== null) s += toGo > 0 ? ` — $${toGo.toFixed(2)} above your $${w.target} target` : ` — under target`;
+    if (trend > 0.5) s += `. Trending down about $${trend.toFixed(0)}/day, so a hit looks ${toGo / trend <= 3 ? "close" : "possible this week"}`;
+    else if (days > 0) s += `. Flat so far`;
+    s += `. Checked ${w.lastChecked}, ${w.retailers > 1 ? w.retailers + " retailers grouped" : "1 source"}.${w.promoFoundDay ? " Found code SAVE10 (verified, not applied)." : ""}`;
+    return s;
+  }
+
   /* ── Watch lifecycle ── */
   createWatch({ title, source, kind, target, semantic = [], price, retailers = 1, path }) {
     const w = {
