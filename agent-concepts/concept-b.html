@@ -484,7 +484,7 @@ const QS = [
 function buildQuestions(fromSlash){
   const t=document.getElementById('bThread');
   if(t.querySelector('.qcard')||t.querySelector('.bplan')) return;
-  if(fromSlash) t.insertAdjacentHTML('beforeend','<div class="bmsg-u">/watch</div><div class="bmsg-a">Happy to — a couple of questions so I set this up right:</div>');
+  if(fromSlash && !t.querySelector('.bmsg-a')) t.insertAdjacentHTML('beforeend','<div class="bmsg-a">Happy to — a couple of questions so I set this up right:</div>');
   askQ(0);
 }
 function askQ(i){
@@ -528,16 +528,15 @@ function buildBPlan(){
   },420);
 }
 const steps=[
-  { cap:'<strong>1 · Three ways to start — all of them familiar.</strong> On the product page: type <em>/</em> in the chat for the slash menu; or Smart Window <em>recommends</em> it can watch the page for you; or a quiet <em>feature callout</em> by the toolbar suggests it. Three triggers, one destination — but they carry different amounts of context.',
+  { cap:'<strong>1 · It starts with the slash command.</strong> On the product page, the user types <em>/</em> in the chat sidebar — the menu offers the two verbs. Pick <em>/watch</em>.',
     run(){ show('shop');
-      document.getElementById('bThread').innerHTML='<div class="bmsg-a">I\u2019m reading this page — <b>Sony WH-1000XM6, $349</b>. I can keep an eye on it for you.</div>';
+      document.getElementById('featCallout').classList.remove('open');
+      document.getElementById('bThread').innerHTML='<div class="bmsg-u">/</div>';
       document.getElementById('slashPop').style.display='';
-      document.getElementById('featCallout').classList.add('open');
-      document.getElementById('fcGo').onclick=buildBPlan;
       document.querySelectorAll('#slashPop .r').forEach(r=>r.onclick=()=>buildQuestions(true));
     } },
 
-  { cap:'<strong>2 · No context? Smart Window asks — Claude\'s pattern, Smart Window\'s skin.</strong> The slash command carries no context, so setup questions appear inline in the chat: numbered options, <em>Something else</em> for free text, <em>Skip</em>, and ‹ 1 of 2 › pagination. A chip, recommendation, or callout already knows the page — those paths skip most or all of this.',
+  { cap:'<strong>2 · No context? Smart Window asks — Claude\'s pattern, Smart Window\'s skin.</strong> The slash command carries no context, so setup questions appear inline in the chat: numbered options, <em>Something else</em> for free text, <em>Skip</em>, and ‹ 1 of 2 › pagination.',
     run(){ show('shop');
       const t=document.getElementById('bThread');
       if(!t.querySelector('.bmsg-u')) buildQuestions(true); else askQ(0);
