@@ -190,7 +190,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 <div class="proto-bar">
   <a href="index.html">← All concepts</a>
   <span class="proto-chip">CONCEPT A</span>
-  <span class="proto-title">Threadline</span>
+  <span class="proto-title">All in the chat</span>
   <span class="proto-sub">Minimum footprint · the thread is the surface</span>
   <div class="proto-steps">
     <div class="step-dots" id="dots"></div>
@@ -198,7 +198,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
     <button class="proto-btn" id="nextBtn">Start walkthrough</button>
   </div>
 </div>
-<div class="step-caption" id="caption"><strong>Concept A · Threadline.</strong> Zero new surfaces. Agents are invoked from the slash panel in the existing Smart Window composer; live status pins to the thread; everything is retrieved through the history panel with one new filter. Click <strong>Start walkthrough</strong>.</div>
+<div class="step-caption" id="caption"><strong>Concept A · All in the chat.</strong> Zero new surfaces. Agents are invoked from the slash panel in the existing Smart Window composer; live status pins to the thread; everything is retrieved through the history panel with one new filter. Click <strong>Start walkthrough</strong>.</div>
 
 <div class="browser">
   <div class="tabstrip">
@@ -411,7 +411,7 @@ function goto(n){
   caption.innerHTML=steps[cur].cap; renderDots();
   document.getElementById('nextBtn').textContent = cur>=steps.length-1 ? 'Restart' : 'Next';
 }
-document.getElementById('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; caption.innerHTML='<strong>Concept A · Threadline.</strong> Zero new surfaces. Click <strong>Start walkthrough</strong>.'; renderDots(); document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
+document.getElementById('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; caption.innerHTML='<strong>Concept A · All in the chat.</strong> Zero new surfaces. Click <strong>Start walkthrough</strong>.'; renderDots(); document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
 document.getElementById('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
 document.getElementById('histBtn').onclick=()=>histOverlay.classList.add('open');
 document.getElementById('histClose').onclick=()=>histOverlay.classList.remove('open');

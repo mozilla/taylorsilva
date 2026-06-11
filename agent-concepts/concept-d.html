@@ -288,7 +288,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
 <div class="proto-bar">
   <a href="index.html">← All concepts</a>
   <span class="proto-chip">CONCEPT D · LEADING DIRECTION</span>
-  <span class="proto-title">Waypoints</span>
+  <span class="proto-title">The list + marks on the page</span>
   <span class="proto-sub">Nova Smart Window components · works in Classic windows</span>
   <div class="proto-steps">
     <div class="step-dots" id="dots"></div>
@@ -296,7 +296,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
     <button class="proto-btn" id="nextBtn">Start walkthrough</button>
   </div>
 </div>
-<div class="step-caption" id="caption"><strong>Concept D · Waypoints.</strong> The red-team amendment, built with the Nova Smart Window Library: the Shelf stays as index and report home, but live watches <em>also</em> manifest where their subject lives — a Tab Context Badge on the watched page, a sleeping tab in the strip. One object, three manifestations. Click <strong>Start walkthrough</strong>.</div>
+<div class="step-caption" id="caption"><strong>Concept D · The list + marks on the page.</strong> The red-team amendment, built with the Nova Smart Window Library: the Shelf stays as index and report home, but live watches <em>also</em> manifest where their subject lives — a Tab Context Badge on the watched page, a sleeping tab in the strip. One object, three manifestations. Click <strong>Start walkthrough</strong>.</div>
 
 <div class="browser">
   <div class="tabstrip">
@@ -588,7 +588,7 @@ function goto(n){
   document.getElementById('nextBtn').textContent = cur>=steps.length-1 ? 'Restart' : 'Next';
 }
 document.getElementById('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ resetAll(); cur=-1; renderDots();
-  caption.innerHTML='<strong>Concept D · Waypoints.</strong> Click <strong>Start walkthrough</strong>.'; document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
+  caption.innerHTML='<strong>Concept D · The list + marks on the page.</strong> Click <strong>Start walkthrough</strong>.'; document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
 document.getElementById('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
 waypoint.onclick=()=>wpPopover.classList.toggle('open');
 priceNow.onclick=()=>{ if(priceNow.classList.contains('waypointed')) wpPopover.classList.toggle('open'); };

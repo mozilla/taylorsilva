@@ -316,10 +316,10 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
   <span class="lab-chip">WORKING PROTOTYPE</span>
   <span class="lab-title">Agent Lab</span>
   <div class="concept-switch" id="conceptSwitch">
-    <button class="cs-btn" data-c="A">A · Threadline</button>
-    <button class="cs-btn" data-c="B">B · Mission Control</button>
-    <button class="cs-btn" data-c="C">C · Shelf</button>
-    <button class="cs-btn active" data-c="D">D · Waypoints</button>
+    <button class="cs-btn" data-c="A">A · In the chat</button>
+    <button class="cs-btn" data-c="B">B · Agents page</button>
+    <button class="cs-btn" data-c="C">C · Saved list</button>
+    <button class="cs-btn active" data-c="D">D · List + page marks</button>
   </div>
   <div class="lab-right">
     <span class="day-pill">Day <b id="dayNum">0</b></span>
@@ -1068,10 +1068,10 @@ document.querySelectorAll(".cs-btn").forEach(b => b.onclick = () => {
   document.querySelectorAll(".cs-btn").forEach(q => q.classList.toggle("active", q === b));
   if (concept === "B" && activeTab === "hub") {} else if (activeTab === "hub" && concept !== "B") activeTab = "newtab";
   $("labHint").innerHTML = {
-    A: `<b>Concept A · Threadline.</b> No Shelf — watches pin to the top of the chat, reports are artifact cards in the thread, retrieval is History (clock icon) → <b>Agents</b> filter. Same objects as the other concepts.`,
-    B: `<b>Concept B · Mission Control.</b> Open a <b>New Tab</b> → "Your agents" card → the Hub at about:agents with live tiles, library and activity feed. Launch still happens in chat.`,
-    C: `<b>Concept C · Shelf.</b> Watch for the quiet <b>offer chip in the address bar</b> on shoppable pages; objects live in the panel's <b>Shelf</b> segment; reports open as canvas with linked chat.`,
-    D: `<b>Concept D · Waypoints.</b> Everything in C, plus: the watched price gets a <b>badge on the page itself</b>, and a fare watch becomes a <b>sleeping tab 🌙</b> that wakes when the condition hits — try it in a Classic window flow.`,
+    A: `<b>Concept A · In the chat.</b> No Shelf — watches pin to the top of the chat, reports are artifact cards in the thread, retrieval is History (clock icon) → <b>Agents</b> filter. Same objects as the other concepts.`,
+    B: `<b>Concept B · Agents page.</b> Open a <b>New Tab</b> → "Your agents" card → the Hub at about:agents with live tiles, library and activity feed. Launch still happens in chat.`,
+    C: `<b>Concept C · Saved list.</b> Watch for the quiet <b>offer chip in the address bar</b> on shoppable pages; objects live in the panel's <b>Shelf</b> segment; reports open as canvas with linked chat.`,
+    D: `<b>Concept D · List + page marks.</b> Everything in C, plus: the watched price gets a <b>badge on the page itself</b>, and a fare watch becomes a <b>sleeping tab 🌙</b> that wakes when the condition hits — try it in a Classic window flow.`,
   }[concept];
   renderAll();
 });
