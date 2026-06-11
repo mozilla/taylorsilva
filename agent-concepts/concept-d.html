@@ -6,7 +6,7 @@
 <title>Concept D — Waypoints · Smart Window Agent Surfaces</title>
 <style>
 /* ================================================================
-   CONCEPT D — "WAYPOINTS" (The Shelf, manifested on the web)
+   CONCEPT D — "WAYPOINTS" (The Den, manifested on the web)
    Q3 Agent Surfaces · Monitor / Scout / Research
    Taylor Silva · Staff Product Designer, AI UX
 
@@ -296,7 +296,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
     <button class="proto-btn" id="nextBtn">Start walkthrough</button>
   </div>
 </div>
-<div class="step-caption" id="caption"><strong>Concept D · The list + marks on the page.</strong> The red-team amendment, built with the Nova Smart Window Library: the Shelf stays as index and report home, but live watches <em>also</em> manifest where their subject lives — a Tab Context Badge on the watched page, a sleeping tab in the strip. One object, three manifestations. Click <strong>Start walkthrough</strong>.</div>
+<div class="step-caption" id="caption"><strong>Concept D · The list + marks on the page.</strong> The red-team amendment, built with the Nova Smart Window Library: the Den stays as index and report home, but live watches <em>also</em> manifest where their subject lives — a Tab Context Badge on the watched page, a sleeping tab in the strip. One object, three manifestations. Click <strong>Start walkthrough</strong>.</div>
 
 <div class="browser">
   <div class="tabstrip">
@@ -366,7 +366,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
         </div>
         <div class="wpp-foot">
           <button class="sugg-chip">Change rule</button>
-          <button class="sugg-chip" id="openShelfBtn">Open Shelf</button>
+          <button class="sugg-chip" id="openShelfBtn">Open Den</button>
           <button class="sugg-chip">⏸ Pause</button>
         </div>
       </div>
@@ -438,7 +438,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
               <div class="ml-where">Tab strip · any window</div>
             </div>
             <div class="model-leaf">
-              <div class="ml-name">Shelf card</div>
+              <div class="ml-name">Den card</div>
               <div class="ml-desc">The index: full state, rule editing, trust log, pause-all. Reports live here and open as real pages.</div>
               <div class="ml-where">Smart Window panel</div>
             </div>
@@ -453,7 +453,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
         <div class="sw-logo"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
         <div class="sw-seg">
           <button class="seg-btn" id="segChat">Chat</button>
-          <button class="seg-btn active" id="segShelf">Shelf</button>
+          <button class="seg-btn active" id="segShelf">Den</button>
         </div>
       </div>
 
@@ -543,7 +543,7 @@ const steps=[
   { cap:'<strong>1 · The page is the surface.</strong> Nine days into the watch, the user revisits the product page — <em>in a Classic window</em> (see the toolbar). The watched price carries a dotted underline and a <em>Tab Context Badge</em> beneath it: violet-10 at rest, live state where the subject lives. Hover it — it goes deep violet (#3d2272) with white text, exactly per the Nova library. No panel needed, no mode required.',
     run(){ showContent('shop'); priceNow.classList.add('waypointed'); waypoint.classList.add('shown'); } },
 
-  { cap:'<strong>2 · The waypoint is the whole object.</strong> Click the badge: a Nova dark-surface popover with price history against the target line, the rule, and the <em>trust-tier cascade</em> — local → mozilla → third-party badges arriving in trust order (100ms stagger, scale 0.9→1.0, the Fiery pattern). Suggestion Chips (violet outline → orange-gradient hover) carry the actions. Everything Concept C kept in the Shelf, reachable from the page itself.',
+  { cap:'<strong>2 · The waypoint is the whole object.</strong> Click the badge: a Nova dark-surface popover with price history against the target line, the rule, and the <em>trust-tier cascade</em> — local → mozilla → third-party badges arriving in trust order (100ms stagger, scale 0.9→1.0, the Fiery pattern). Suggestion Chips (violet outline → orange-gradient hover) carry the actions. Everything Concept C kept in the Den, reachable from the page itself.',
     run(){ showContent('shop'); priceNow.classList.add('waypointed'); waypoint.classList.add('shown'); wpPopover.classList.add('open'); } },
 
   { cap:'<strong>3 · The sleeping tab.</strong> The fare watch lives as a hibernating tab — 🌙, dimmed, italic. Tabs are the browser\'s oldest object model for "things I\'m keeping alive," so the novelty tax is near zero. It costs no memory; it\'s a bookmark with a pulse.',
@@ -555,14 +555,14 @@ const steps=[
       tabFares.innerHTML='<span class="fav">✈️</span><b>$834 — YVR → NRT</b><span class="tab-badge"></span>';
       osToast.classList.add('show'); faresSub.innerHTML='<b style="color:#d4bfff">$834 refundable found</b> · Tuesday · $16 under cap'; } },
 
-  { cap:'<strong>5 · The Shelf is still the index — on the Nova surface.</strong> Open Smart Window: the signature gradient environment, the Shelf objects with their <em>manifestation chips</em> (waypoint · tab · shelf), and the Smart Input resting at 65% glow with "AI can make mistakes" beneath — the quiet honesty signal. One object, projected three ways; edit it anywhere, it updates everywhere.',
+  { cap:'<strong>5 · The Den is still the index — on the Nova surface.</strong> Open Smart Window: the signature gradient environment, the Den objects with their <em>manifestation chips</em> (waypoint · tab · shelf), and the Smart Input resting at 65% glow with "AI can make mistakes" beneath — the quiet honesty signal. One object, projected three ways; edit it anywhere, it updates everywhere.',
     run(){ osToast.classList.remove('show'); smartWindow.classList.add('open'); swToggle.classList.add('active');
       setTimeout(()=>inputFocusDemo('pause the headphones watch until June'),700); } },
 
-  { cap:'<strong>6 · Reports are real pages.</strong> Click the report on the Shelf: it opens as a page <em>with a URL</em> — printable, bookmarkable, shareable (fixing the canvas weakness the red team found). The linked chat is one Suggestion Chip away. And the report already knows its top pick is being watched — the agents keep composing.',
+  { cap:'<strong>6 · Reports are real pages.</strong> Click the report on the Den: it opens as a page <em>with a URL</em> — printable, bookmarkable, shareable (fixing the canvas weakness the red team found). The linked chat is one Suggestion Chip away. And the report already knows its top pick is being watched — the agents keep composing.',
     run(){ smartWindow.classList.add('open'); swToggle.classList.add('active'); showContent('report'); } },
 
-  { cap:'<strong>7 · The object model — why this direction leads.</strong> A watch is one user-level object; waypoint, sleeping tab, and Shelf card are projections of it. Surfaces stop being a debate: new agent types add <em>object types</em>, and existing projections render them. Footprint over Concept C: <em>+1 annotation affordance, +1 tab state</em> — both native browser primitives, both built from existing Nova components. <a href="index.html" style="color:#d4bfff">Back to the full analysis →</a>',
+  { cap:'<strong>7 · The object model — why this direction leads.</strong> A watch is one user-level object; waypoint, sleeping tab, and Den card are projections of it. Surfaces stop being a debate: new agent types add <em>object types</em>, and existing projections render them. Footprint over Concept C: <em>+1 annotation affordance, +1 tab state</em> — both native browser primitives, both built from existing Nova components. <a href="index.html" style="color:#d4bfff">Back to the full analysis →</a>',
     run(){ showContent('shop'); modelScrim.classList.add('open'); } },
 ];
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Concept C — The Shelf · Smart Window Agent Surfaces</title>
+<title>Concept C — The Den · Smart Window Agent Surfaces</title>
 <style>
 /* ================================================================
    CONCEPT C — "THE SHELF" (Ambient layer + typed-object shelf)
@@ -11,7 +11,7 @@
    Taylor Silva · Staff Product Designer, AI UX
 
    Thesis: extend the surface users already have. A quiet contextual
-   offer where intent happens; a typed-object Shelf inside the Smart
+   offer where intent happens; a typed-object Den inside the Smart
    Window panel (Live vs Reports); reports open as canvas with
    linked chat. Redundant with chat history by design.
    ================================================================ */
@@ -116,7 +116,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .lc-continue:hover { background:var(--violet-05); }
 .lc-continue.alt { border-color:var(--grey-20); color:var(--grey-70); }
 
-/* ─── Smart Window panel with Shelf ─── */
+/* ─── Smart Window panel with Den ─── */
 .smart-window { width:380px; flex-shrink:0; background:#fff; border-left:1px solid var(--grey-10); display:flex; flex-direction:column; min-height:0; position:relative; }
 .sw-header { display:flex; align-items:center; gap:8px; padding:10px 14px 0; flex-shrink:0; }
 .sw-logo { width:24px; height:24px; border-radius:7px; background:linear-gradient(135deg,var(--violet-50),var(--violet-40)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -160,7 +160,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 @keyframes blink { 50% { opacity:0; } }
 .send-btn { width:26px; height:26px; border-radius:8px; background:var(--violet-50); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 
-/* Shelf view */
+/* Den view */
 .shelf-scroll { flex:1; overflow-y:auto; padding:12px 14px; }
 .shelf-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--grey-40); margin:8px 2px 9px; display:flex; align-items:center; gap:6px; }
 .shelf-obj { border:1px solid var(--grey-10); border-radius:12px; background:#fff; padding:11px 13px; margin-bottom:9px; cursor:pointer; transition:all var(--d-quick) var(--ease-settle); opacity:0; transform:translateY(8px); animation:arrive var(--d-gracious) var(--ease-arrive) forwards; }
@@ -203,7 +203,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
     <button class="proto-btn" id="nextBtn">Start walkthrough</button>
   </div>
 </div>
-<div class="step-caption" id="caption"><strong>Concept C · A saved list in the panel.</strong> No new window-level surface — the Smart Window panel grows a second segment ("Shelf") holding two object types: <em>Live</em> watches and <em>Reports</em>. Entry happens where intent happens: a quiet, dismissible offer in the URL bar. Click <strong>Start walkthrough</strong>.</div>
+<div class="step-caption" id="caption"><strong>Concept C · A saved list in the panel.</strong> No new window-level surface — the Smart Window panel grows a second segment ("Den") holding two object types: <em>Live</em> watches and <em>Reports</em>. Entry happens where intent happens: a quiet, dismissible offer in the URL bar. Click <strong>Start walkthrough</strong>.</div>
 
 <div class="browser">
   <div class="tabstrip">
@@ -308,7 +308,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
         <div class="sw-logo"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
         <div class="sw-seg">
           <button class="seg-btn active" id="segChat">Chat</button>
-          <button class="seg-btn" id="segShelf">Shelf<span class="seg-badge" id="shelfBadge">1</span></button>
+          <button class="seg-btn" id="segShelf">Den<span class="seg-badge" id="shelfBadge">1</span></button>
         </div>
         <div class="sw-ha" title="New chat">＋</div>
       </div>
@@ -416,7 +416,7 @@ const steps=[
       addMsg('<div class="msg user">only refundable fares, under $850, weekday departures</div>'); clearComposer();
       setTimeout(()=>addMsg('<div class="msg ai"><div class="ai-bubble">Got it — <b>refundable · ≤ $850 · Mon–Fri departures</b>. Today\'s best refundable is $934, so I\'ll stay quiet until that changes. Watching now.</div></div>'),500); }); } },
 
-  { cap:'<strong>4 · It lands on the Shelf.</strong> The watch settles into the panel\'s second segment — the Shelf. Two object types only: <em>Live</em> (things still working: Monitor + Scout, unified as "watches") and <em>Reports</em> (things finished: Research). The thread keeps its copy too — redundancy is deliberate, the Claude-artifacts lesson. One look answers "what\'s mine, what\'s it doing."',
+  { cap:'<strong>4 · It lands on the Den.</strong> The watch settles into the panel\'s second segment — the Den. Two object types only: <em>Live</em> (things still working: Monitor + Scout, unified as "watches") and <em>Reports</em> (things finished: Research). The thread keeps its copy too — redundancy is deliberate, the Claude-artifacts lesson. One look answers "what\'s mine, what\'s it doing."',
     run(){ const w=el(`<div class="shelf-obj">
       <div class="so-head"><div class="so-glyph watch"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
       <div><div class="so-title">YVR → NRT fares, March</div><div class="so-sub">Refundable · ≤ $850 · weekday · best seen: $934</div></div>
@@ -424,19 +424,19 @@ const steps=[
       <div class="so-detail"><span>⏱ just started</span><span>🔔 push + watch</span></div></div>`);
       liveObjs.prepend(w); showView('shelf'); } },
 
-  { cap:'<strong>5 · Delivery is judgment, not a diff.</strong> Five days later: one notification. Price, rule match, <em>and context a scanner can\'t give</em> — "fares at this level lasted ~2 days last month." Teaser → full object: clicking opens the Shelf item with the full reasoning. Notification fatigue is the kill-risk for Monitor, so the bar is: every alert must be worth a sentence of judgment.',
+  { cap:'<strong>5 · Delivery is judgment, not a diff.</strong> Five days later: one notification. Price, rule match, <em>and context a scanner can\'t give</em> — "fares at this level lasted ~2 days last month." Teaser → full object: clicking opens the Den item with the full reasoning. Notification fatigue is the kill-risk for Monitor, so the bar is: every alert must be worth a sentence of judgment.',
     run(){ showView('shelf'); osToast.classList.add('show'); shelfBadge.classList.add('shown'); shelfBadge.textContent='1';
       const first=liveObjs.querySelector('.shelf-obj'); if(first){ first.classList.add('unread');
         first.querySelector('.so-sub').innerHTML='<b style="color:var(--violet-60)">$834 refundable found</b> · Tuesday · $16 under your cap'; } } },
 
-  { cap:'<strong>6 · Reports are kept objects.</strong> Two weeks after asking for headphone research, retrieval is one glance: Shelf → Reports. No scrolling chat history, no remembering which conversation. Click the report…',
+  { cap:'<strong>6 · Reports are kept objects.</strong> Two weeks after asking for headphone research, retrieval is one glance: Den → Reports. No scrolling chat history, no remembering which conversation. Click the report…',
     run(){ osToast.classList.remove('show'); showView('shelf');
       document.getElementById('reportObj').style.boxShadow='0 0 0 3px rgba(117,66,229,0.25)'; } },
 
   { cap:'<strong>7 · …and it opens as canvas, with its chat attached.</strong> The report takes the content area — a document, not a bubble (the pattern OpenAI retrofitted after reports-in-chat failed). The rail keeps the <em>linked chat</em> that produced it: continue the conversation, or hand the top pick to a new watch. <em>Research → Watch → notification: the three agents compose into one loop.</em>',
     run(){ document.getElementById('reportObj').style.boxShadow=''; showContent('canvas'); } },
 
-  { cap:'<strong>8 · Why this scales.</strong> The Shelf is a typed-object list, not a layout: future agents add <em>object types</em> (Routine digests, someday Errands), not surfaces. If shelf objects outgrow the panel, "View all" becomes the Mission Control page — Concept B is the Shelf\'s expansion path, not its competitor. Footprint today: <em>1 chip + 1 segment + 1 canvas template.</em> <a href="index.html">Compare all three →</a>',
+  { cap:'<strong>8 · Why this scales.</strong> The Den is a typed-object list, not a layout: future agents add <em>object types</em> (Routine digests, someday Errands), not surfaces. If shelf objects outgrow the panel, "View all" becomes the Mission Control page — Concept B is the Den\'s expansion path, not its competitor. Footprint today: <em>1 chip + 1 segment + 1 canvas template.</em> <a href="index.html">Compare all three →</a>',
     run(){ showContent('flights'); showView('shelf'); } },
 ];
 

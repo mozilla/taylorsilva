@@ -259,7 +259,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .si-glow.focus .si-send { background:rgba(255,255,255,0.3); color:#fff; }
 .sw-disclaimer { font-size:9.5px; color:rgba(255,255,255,0.3); text-align:center; padding:3px 0 9px; flex-shrink:0; }
 
-/* Shelf view */
+/* Den view */
 .sw-views { flex:1; min-height:0; position:relative; display:flex; }
 .sw-view { flex:1; display:none; flex-direction:column; min-height:0; }
 .sw-view.active { display:flex; }
@@ -426,7 +426,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
         <div class="sw-logo"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
         <div class="sw-seg" id="swSeg">
           <button class="seg-btn active" data-v="chat">Chat</button>
-          <button class="seg-btn" data-v="shelf" id="segShelf">Shelf<span class="seg-badge" id="shelfBadge" style="display:none">1</span></button>
+          <button class="seg-btn" data-v="shelf" id="segShelf">Den<span class="seg-badge" id="shelfBadge" style="display:none">1</span></button>
         </div>
         <div class="sw-ha" id="histBtn" title="History"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg></div>
         <div class="sw-ha" title="New chat">＋</div>
@@ -482,7 +482,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
     <pre>browser/components/aiwindow/
   AgentEngine.sys.mjs        ← engine.js (surface-independent core;
                                checks via nsIUpdateTimerManager)
-  content/smart-window.html  ← panel: Chat + Shelf segments
+  content/smart-window.html  ← panel: Chat + Den segments
   content/agent-objects.mjs  ← shelf cards, plan cards (lit, like
                                toolkit/content/widgets/*)
 
@@ -682,7 +682,7 @@ function startResearch(query) {
       const a = addMsg("artifact-card", `<div class="so-head"><div class="so-glyph report">${repGlyph}</div><div><div class="so-title" style="color:#ffd9ae">${r.title}</div><div class="so-sub">Report finished · tap to open · lives in this thread + History → Agents</div></div></div>`);
       a.onclick = () => openReport(r.id);
     } else {
-      addMsg("msg-ai", `Done — <b>${r.title}</b> is ready. ${concept === "B" ? "It's in your <b>Agent Hub</b> library." : "It's on your <b>Shelf</b> under Reports."}`);
+      addMsg("msg-ai", `Done — <b>${r.title}</b> is ready. ${concept === "B" ? "It's in your <b>Agent Hub</b> library." : "It's on your <b>Den</b> under Reports."}`);
       const open = addMsg("plan-card", `<div class="plan-foot" style="padding:10px 13px"><button class="sugg-chip primary">Open the report</button></div>`);
       open.querySelector("button").onclick = function(){ this.textContent = "Opened ✓"; this.disabled = true; this.style.opacity = .6; openReport(r.id); };
     }
@@ -795,7 +795,7 @@ function renderPanelChrome() {
   $("smartWindow").classList.toggle("open", panelOpen);
   $("swToggle").classList.toggle("active", panelOpen);
   if (panelOpen) $("swBub").style.display = "none";
-  // segments: Shelf only exists in C / D; History button only in A
+  // segments: Den only exists in C / D; History button only in A
   $("segShelf").style.display = (concept === "C" || concept === "D") ? "" : "none";
   $("histBtn").style.display = concept === "A" ? "" : "none";
   if ((concept !== "C" && concept !== "D") && activeView === "shelf") setView("chat");
@@ -1068,9 +1068,9 @@ document.querySelectorAll(".cs-btn").forEach(b => b.onclick = () => {
   document.querySelectorAll(".cs-btn").forEach(q => q.classList.toggle("active", q === b));
   if (concept === "B" && activeTab === "hub") {} else if (activeTab === "hub" && concept !== "B") activeTab = "newtab";
   $("labHint").innerHTML = {
-    A: `<b>Concept A · In the chat.</b> No Shelf — watches pin to the top of the chat, reports are artifact cards in the thread, retrieval is History (clock icon) → <b>Agents</b> filter. Same objects as the other concepts.`,
+    A: `<b>Concept A · In the chat.</b> No Den — watches pin to the top of the chat, reports are artifact cards in the thread, retrieval is History (clock icon) → <b>Agents</b> filter. Same objects as the other concepts.`,
     B: `<b>Concept B · Agents page.</b> Open a <b>New Tab</b> → "Your agents" card → the Hub at about:agents with live tiles, library and activity feed. Launch still happens in chat.`,
-    C: `<b>Concept C · Saved list.</b> Watch for the quiet <b>offer chip in the address bar</b> on shoppable pages; objects live in the panel's <b>Shelf</b> segment; reports open as canvas with linked chat.`,
+    C: `<b>Concept C · Saved list.</b> Watch for the quiet <b>offer chip in the address bar</b> on shoppable pages; objects live in the panel's <b>Den</b> segment; reports open as canvas with linked chat.`,
     D: `<b>Concept D · List + page marks.</b> Everything in C, plus: the watched price gets a <b>badge on the page itself</b>, and a fare watch becomes a <b>sleeping tab 🌙</b> that wakes when the condition hits — try it in a Classic window flow.`,
   }[concept];
   renderAll();

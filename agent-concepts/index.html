@@ -142,7 +142,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <p class="intro">Five concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
   <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
 
-  <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Shelf and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
+  <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Den and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
 
   <section id="framing">
     <h2>The problem is two-layered</h2>
@@ -164,7 +164,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <tr><td>Research</td><td>"I don't know what I want yet — compare options and tell me what you'd do."</td><td><b>One run</b>, minutes</td><td><b>Report</b> — finished document, kept</td></tr>
       </tbody>
     </table>
-    <p>The meeting flagged that Monitor vs. Scout is blurry from the user's side. The resolution here: <b>they share one surface object — a Watch on the Shelf — but Scout stays a named behavior the user actually meets.</b> "Find me the best deal on this" runs Scout immediately and shows its sweep; "Scout found SAVE10 — verified, not applied" is how deal results are attributed in alerts and on shelf cards. The real user-facing difference is <b>time shape</b>: Scout answers now, Monitor answers when the world changes — and a Scout that keeps hunting simply becomes a Watch. Shipping three top-level entry points would be a vocabulary tax (Arc died of novelty tax); shipping Scout as a visible, named behavior inside two verbs is not.</p>
+    <p>The meeting flagged that Monitor vs. Scout is blurry from the user's side. The resolution here: <b>they share one surface object — a Watch on the Den — but Scout stays a named behavior the user actually meets.</b> "Find me the best deal on this" runs Scout immediately and shows its sweep; "Scout found SAVE10 — verified, not applied" is how deal results are attributed in alerts and on shelf cards. The real user-facing difference is <b>time shape</b>: Scout answers now, Monitor answers when the world changes — and a Scout that keeps hunting simply becomes a Watch. Shipping three top-level entry points would be a vocabulary tax (Arc died of novelty tax); shipping Scout as a visible, named behavior inside two verbs is not.</p>
     <p>This also answers the Research-overlap worry: <b>Research is distinguished from the general assistant by its output contract</b> — it always produces a kept, citable, retrievable report, not an answer that evaporates upward in a scroll. If it doesn't deserve a report, it's just chat, and that's fine.</p>
   </section>
 
@@ -221,7 +221,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <div class="concept-card">
         <div class="cc-tag cc-c">CONCEPT C</div>
         <div class="cc-name">A saved list in the panel</div>
-        <div class="cc-thesis">A second tab inside the Smart Window panel — the Shelf — with two lists: what's still running, and finished reports. A small chip in the address bar offers to start a watch when you're on a page worth watching. Reports open as full documents with their chat attached.</div>
+        <div class="cc-thesis">A second tab inside the Smart Window panel — the Den — with two lists: what's still running, and finished reports. A small chip in the address bar offers to start a watch when you're on a page worth watching. Reports open as full documents with their chat attached.</div>
         <div class="cc-mini"><b>Footprint:</b> 1 offer chip · 1 panel segment · 1 canvas template<br><b>Ships in:</b> ~2 sprints; grows into B later</div>
         <a class="cc-btn c" href="concept-c.html">Storyboard →</a>
       </div>
@@ -294,7 +294,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     </div>
 
     <h3>Concept C — A saved list in the panel</h3>
-    <p>The synthesis. Entry: a quiet, dismissible chip in the URL bar when context warrants ("I can watch these fares") — pull-first proactivity. Confirmation: a plan-before-run card, read-only promise explicit. Home: a <b>Shelf</b> segment inside the existing Smart Window panel holding exactly two object types — Live and Reports. Reports open as canvas in the content area with the linked chat rail. Everything is redundantly reachable from its original thread.</p>
+    <p>The synthesis. Entry: a quiet, dismissible chip in the URL bar when context warrants ("I can watch these fares") — pull-first proactivity. Confirmation: a plan-before-run card, read-only promise explicit. Home: a <b>Den</b> segment inside the existing Smart Window panel holding exactly two object types — Live and Reports. Reports open as canvas in the content area with the linked chat rail. Everything is redundantly reachable from its original thread.</p>
     <div class="pro-con">
       <div class="pc-col pro"><h4>Pros</h4><ul>
         <li>Discoverability without sprawl: extends the panel users already open, no new window-level surface</li>
@@ -304,10 +304,10 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <li>Plan-before-run + activity log + pause-all = the Firefox restraint story made visible</li>
       </ul></div>
       <div class="pc-col con"><h4>Cons</h4><ul>
-        <li>Panel real estate is contested; Chat vs. Shelf segmentation must stay ruthlessly simple</li>
+        <li>Panel real estate is contested; Chat vs. Den segmentation must stay ruthlessly simple</li>
         <li>Offer-chip frequency capping is a real tuning problem (too chatty = Edge backlash; too quiet = never found)</li>
         <li>More design surface than A: segment, object cards, canvas template, chip behavior</li>
-        <li>Canvas-in-content-area needs a story for "I closed the tab" (answer: it's on the Shelf)</li>
+        <li>Canvas-in-content-area needs a story for "I closed the tab" (answer: it's on the Den)</li>
       </ul></div>
     </div>
 
@@ -324,7 +324,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <div class="pc-col con"><h4>Cons</h4><ul>
         <li>In-content annotation walks near the line Firefox historically refused to cross (modifying pages) — needs an AnonymousContent overlay, not DOM injection</li>
         <li>Page marks are only visible when you revisit the page; the saved list still carries the rest</li>
-        <li>Sleeping tabs are device-local; cross-device story still runs through the Shelf</li>
+        <li>Sleeping tabs are device-local; cross-device story still runs through the Den</li>
         <li>Three projections of one object = state-sync surface area to test</li>
       </ul></div>
     </div>
@@ -395,7 +395,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </tbody>
     </table>
     <h3>The idea behind D: the assumption A, B, and C all shared</h3>
-    <p>All three concepts assume agents live in <b>browser chrome</b>. The fourth answer: they live <b>on the web itself</b>. A watch is pinned to the thing being watched — the price element carries a Tab Context Badge with live state on revisit; the fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps only a thin index (the Shelf). It works in Classic windows — dissolving the mode-scoping break — and it's the one design no competitor can copy: ChatGPT, Comet, and Gemini bolt panels <em>beside</em> the web; only the rendering engine's owner can annotate <em>into</em> it.</p>
+    <p>All three concepts assume agents live in <b>browser chrome</b>. The fourth answer: they live <b>on the web itself</b>. A watch is pinned to the thing being watched — the price element carries a Tab Context Badge with live state on revisit; the fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps only a thin index (the Den). It works in Classic windows — dissolving the mode-scoping break — and it's the one design no competitor can copy: ChatGPT, Comet, and Gemini bolt panels <em>beside</em> the web; only the rendering engine's owner can annotate <em>into</em> it.</p>
     <p>The waypoint idea alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. <b>Concept D is C plus those on-page marks</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept D storyboard →</a></p>
   </section>
 

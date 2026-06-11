@@ -23,7 +23,7 @@
    · 580px content max-width (--smartwindow-content-max-width)
    No walkthrough chrome. Everything is live: chips are consumed and replaced
    by state-derived follow-ups; watches run on simulated days; storage is the
-   Shelf + the page itself; retrieval is notification → shelf → report.
+   Den + the page itself; retrieval is notification → shelf → report.
    ============================================================================ */
 :root {
   color-scheme: light;
@@ -207,7 +207,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 .sb-dock textarea { height:40px; padding:11px 14px 2px; font-size:12.5px; }
 .sb-disclaimer { text-align:center; }
 
-/* ─── Shelf (storage surface) ─── */
+/* ─── Den (storage surface) ─── */
 .shelf-scroll { flex:1; overflow-y:auto; padding:12px 14px; min-height:0; }
 .shelf-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--gray-40); margin:6px 2px 9px; }
 .shelf-obj { background:#fff; border-radius:12px; box-shadow:0 1px 5px rgba(43,27,85,0.09); padding:11px 13px; margin-bottom:9px; cursor:pointer; transition:box-shadow var(--d-quick); animation:arrive var(--d-gracious) var(--ease-arrive); }
@@ -295,6 +295,37 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 .lc-btn:hover { background:var(--violet-05); }
 .lc-btn[disabled] { opacity:0.55; cursor:default; }
 
+/* editable plan card pieces */
+.plan-sent { font-size:14px; line-height:1.6; color:var(--gray-100); padding:2px 0 4px; }
+.tok { border-bottom:2px dotted var(--violet-40); font-weight:700; cursor:pointer; padding-bottom:1px; }
+.tok:hover { background:var(--violet-05); }
+.plan-meta { font-size:11.5px; color:var(--gray-50); margin:6px 0 10px; }
+.site-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:9px; }
+.site-pill { font-family:var(--font); font-size:12px; font-weight:600; border-radius:99px; padding:6px 14px; border:1.5px solid #2f6fd0; background:transparent; color:#2f6fd0; cursor:pointer; transition:all var(--d-quick); }
+.site-pill::before { content:"✓ "; }
+.site-pill.off { border-color:var(--gray-20); color:var(--gray-40); }
+.site-pill.off::before { content:"+ "; }
+.plan-count { font-size:11.5px; color:var(--gray-50); margin-bottom:4px; }
+.watching-badge { font-size:10.5px; font-weight:700; background:#e7f5e7; color:var(--green); border-radius:99px; padding:3px 10px; margin-left:8px; white-space:nowrap; }
+.watching-badge::before { content:"● "; }
+.added-line { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--gray-50); margin:6px 2px 0; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.added-line .chk { width:17px; height:17px; border-radius:50%; background:var(--green); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:10px; }
+/* suggestion card (Den) */
+.den-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--gray-40); margin:6px 2px 9px; display:flex; align-items:center; gap:7px; }
+.den-label .cnt { background:rgba(43,27,85,0.1); color:var(--gray-70); border-radius:99px; min-width:17px; height:17px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; padding:0 5px; }
+.sugg-card { background:#fff; border-radius:12px; box-shadow:0 1px 5px rgba(43,27,85,0.09); padding:13px 14px; margin-bottom:9px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.sugg-card .sg-t { font-size:12.5px; font-weight:700; }
+.sugg-card .sg-s { font-size:11px; color:var(--gray-50); margin:2px 0 9px; }
+.sugg-card .sg-row { display:flex; align-items:center; gap:12px; }
+.sugg-card .sg-no { font-size:11.5px; font-weight:600; color:#2f6fd0; cursor:pointer; }
+.sugg-card .sg-foot { font-size:10px; color:var(--gray-40); margin-top:8px; }
+.sugg-card .ac-btn.primary { background:#2f6fd0; border-color:#2f6fd0; }
+/* anchored callout (near toggles) */
+.anchor-callout { position:absolute; top:46px; right:8px; background:rgba(28,27,34,0.97); color:#fff; border-radius:10px; padding:8px 13px; font-size:11.5px; display:flex; align-items:center; gap:8px; box-shadow:0 8px 26px rgba(0,0,0,0.35); z-index:50; white-space:nowrap; animation:arrive var(--d-considered) var(--ease-arrive); }
+.anchor-callout .chk { width:16px; height:16px; border-radius:50%; background:var(--green); display:inline-flex; align-items:center; justify-content:center; font-size:9px; }
+.anchor-callout button { font-family:var(--font); font-size:11px; font-weight:700; border:none; border-radius:99px; padding:4px 12px; cursor:pointer; background:var(--violet-50); color:#fff; }
+.anchor-callout .x { color:rgba(255,255,255,0.5); cursor:pointer; font-size:12px; padding:0 2px; }
+.bub.dot { min-width:8px; height:8px; padding:0; font-size:0; background:var(--violet-40); }
 /* slash menu (Concept A invocation) */
 .slash-pop { position:absolute; bottom:calc(100% + 6px); left:8px; right:8px; background:#fff; border-radius:12px; box-shadow:var(--smartwindow-shadow); overflow:hidden; z-index:20; animation:arrive var(--d-quick) var(--ease-arrive); }
 .slash-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; transition:background var(--d-instant); }
@@ -370,7 +401,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
         <div class="sw-corner">
           <button class="corner-btn" id="shelfBtn">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12M2 8h12M2 13h12"/><circle cx="13" cy="3" r="1.6" fill="currentColor" stroke="none"/></svg>
-            Shelf<span class="bub" id="shelfBub" style="display:none">1</span>
+            Den<span class="bub" id="shelfBub" style="display:none">1</span>
           </button>
           <button class="corner-btn icon-only" id="newChatBtn" title="New chat">＋</button>
         </div>
@@ -405,8 +436,8 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
         <div class="sw-shelf-overlay" id="swShelfOverlay">
           <div class="sw-corner" style="z-index:7"><button class="corner-btn icon-only" id="shelfClose">✕</button></div>
           <div class="sw-shelf-inner">
-            <h2>Shelf</h2>
-            <div class="sub">What your agents are watching, and what they've written. Saved here and in each conversation.</div>
+            <h2 id="swDenTitle">Den</h2>
+            <div class="sub">What this chat's agents are watching, and what they've written. Every chat has its own Den.</div>
             <div class="shelf-scroll" id="swShelfList"></div>
             <div class="shelf-foot"><span class="viewall" data-viewall style="display:none">View all →</span><span>Read-only · every check is logged</span><span class="pa" data-pa>⏸ Pause all</span></div>
           </div>
@@ -447,7 +478,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
       <div class="page" id="page-hub">
         <div class="hub-page">
           <h1>Your agents</h1>
-          <div class="hub-sub">Everything they're watching and everything they've written — every check logged. All of it also lives on your Shelf and in its conversation.</div>
+          <div class="hub-sub">Everything across all your chats — every check logged. Each item also lives in its own chat's Den.</div>
           <div class="hub-cols">
             <div><div class="hub-label">Live</div><div id="hubLive"></div></div>
             <div>
@@ -472,7 +503,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
       <div class="sb-header">
         <div class="sb-seg">
           <button class="active" data-v="chat">Chat</button>
-          <button data-v="shelf">Shelf<span class="bub" id="sbShelfBub" style="display:none">1</span></button>
+          <button data-v="shelf">Den<span class="bub" id="sbShelfBub" style="display:none">1</span></button>
         </div>
         <div class="sb-actions">
           <button class="corner-btn icon-only" id="sbNew" title="New chat" style="height:30px;width:30px">＋</button>
@@ -513,7 +544,7 @@ const S = {
   day: 0, watches: [], reports: [], id: 1,
   usedChips: new Set(), offerDismissed: {}, pending: null, lastPlanCard: null,
   activeTab: "soundhub", sidebarOpen: false, sbView: "chat", swShelfOpen: false,
-  openReportId: null, chatActive: false, sbGreeted: {}, activity: [],
+  openReportId: null, chatActive: false, sbGreeted: {}, activity: [], suggDismissed: {}, suggSeen: {}, calloutShown: {}, pendingSites: 0,
 };
 function log(text) { S.activity.unshift({ day: S.day, text }); }
 function hubUnlocked() { return S.watches.length + S.reports.filter(r => r.status === "done").length >= 2; }
@@ -561,6 +592,7 @@ function resolveWatch(text) {
   if (/headphone|aurora|anc|drift/.test(t)) return S.watches.find(w => w.kind === "price");
   return pageWatch() || (S.watches.length === 1 ? S.watches[0] : null);
 }
+function currentHost() { return S.activeTab === "sw" ? "sw" : "sb"; }
 function pageWatch() {
   if (S.activeTab === "soundhub") return S.watches.find(w => w.kind === "price");
   if (S.activeTab === "flights") return S.watches.find(w => w.kind === "fare");
@@ -612,6 +644,10 @@ function aiMsg(html, followups) {
   const n = addNode(el(`<div class="message-assistant">${html}</div>`));
   if (followups !== false) setTimeout(() => renderFollowups(followups), 120);
   return n;
+}
+function aiMsgTo(host, html) {
+  const t = host === "sw" ? $("swThread") : $("sbThread");
+  const d = document.createElement("div"); d.className = "msg-ai"; d.innerHTML = html; t.appendChild(d);
 }
 function loader(text) { return addNode(el(`<div class="assistant-loader"><div class="spin"></div><p>${text}</p></div>`)); }
 function activateChat() {
@@ -695,7 +731,7 @@ function submit(text) {
     return aiMsg(`Open the page you care about and tell me the condition there, so I can read it.`, ["Take me to the headphones page", "Take me to the flight search"]);
   if (/keep hunting/i.test(text)) {
     if (!S.watches.find(w => w.kind === "price")) { S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] }; startWatch(); }
-    else aiMsg(`Already on it — Scout reports through the headphones watch on your Shelf.`);
+    else aiMsg(`Already on it — Scout reports through the headphones watch in your Den.`);
     return;
   }
   if (/is that code legit|code legit/i.test(text))
@@ -708,7 +744,7 @@ function submit(text) {
   }
   if (/open the (soundhub|fare)/i.test(text)) { go(/fare/i.test(text) ? "flights" : "soundhub"); return; }
   if (/stop watching/i.test(text)) {
-    const w = resolveWatch(text); if (w) { S.watches = S.watches.filter(x => x !== w); aiMsg(`Stopped — <b>${w.title}</b> is no longer being watched. The history stays in this conversation.`); renderAll(); }
+    const w = resolveWatch(text); if (w) { S.watches = S.watches.filter(x => x !== w); aiMsg(`Stopped — <b>${w.title}</b> is no longer being watched. The card stays in this chat.`); renderAll(); }
     return;
   }
   if (/what can you watch/i.test(text))
@@ -758,7 +794,7 @@ function handleFollowUp(fu, w) {
   }
   else if (fu.kind === "add-retailer") { w.retailers++; w.names = (w.names || [w.source]).concat(fu.name); aiMsg(`Added <b>${fu.name}</b> — now ${w.retailers} retailers as one group. One alert, best of all of them.`); }
   else if (fu.kind === "status") aiMsg(statusLine(w));
-  else if (fu.kind === "cadence") aiMsg(`A few times a day — enough to catch sales windows without hammering the site. Every check is logged on the <b>Shelf</b>, so silence never means broken.`);
+  else if (fu.kind === "cadence") aiMsg(`A few times a day — enough to catch sales windows without hammering the site. Every check is logged in your <b>Den</b>, so silence never means broken.`);
   else if (fu.kind === "promo-info") aiMsg(`Yes — I test codes against the listed price before telling you. I report them; I never apply them to a cart. Read-only, always.`);
   renderAll();
 }
@@ -768,33 +804,59 @@ function proposeWatch(intent, forcePrice) {
   const target = intent.target ?? (onFlights ? 850 : 75);
   const semantic = intent.semantic?.length ? intent.semantic : (onFlights ? ["refundable", "weekday departure"] : []);
   S.pending = { onFlights, target, semantic };
-  const rows = onFlights
-    ? `<div class="ac-row"><span class="ic">👁</span><span>I'll re-run this search <b>a few times a day</b> and read all 47 results like you would</span></div>
-       <div class="ac-row"><span class="ic">⚡</span><span data-rule>Alert when a fare is <b>${semantic.join(" · ")} · ≤ $${target}</b></span></div>`
-    : `<div class="ac-row"><span class="ic">👁</span><span>I'll check this <b>a few times a day</b> — sale banners, bundles, member prices all count</span></div>
-       <div class="ac-row"><span class="ic">⚡</span><span data-rule>Alert when <b>price ≤ $${target}</b>${semantic.includes("verified promo found") ? " or <b>Scout</b> verifies a promo" : ""}</span></div>`;
+  const sites = onFlights ? ["FlightFinder", "Kayak", "Google Flights", "Expedia"] : ["SoundHub", "AudioOutlet", "BestBuy"];
+  const targets = onFlights ? [850, 800, 900] : [75, 70, 80];
+  aiMsg(`Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:`, false);
   setTimeout(() => {
+    const sent = onFlights
+      ? `Alert me when a <span class="tok" data-cycle="nonstop|any" data-k="kind">nonstop</span> fare drops <b>below</b> <span class="tok" data-k="target">$${target}</span> for <span class="tok" data-cycle="Mar 12 – 26|Mar 10 – 24" data-k="dates">Mar 12 – 26</span>`
+      : `Alert me when the price drops <b>below</b> <span class="tok" data-k="target">$${target}</span> — or <span class="tok" data-cycle="Scout finds a working code|price only" data-k="promo">Scout finds a working code</span>`;
     const card = S.lastPlanCard = addNode(el(`<div class="action-card">
-      <div class="ac-head"><div class="ac-glyph">${eyeGlyph}</div>
-        <div><div class="ac-title">Watch ${onFlights ? "these fares" : "this price"}?</div>
-        <div class="ac-sub">${onFlights ? "YVR → NRT · March — FlightFinder" : "Aurora ANC Headphones — SoundHub"}</div></div></div>
-      <div class="ac-body">${rows}
-        <div class="ac-row"><span class="ic">🔒</span><span><b>Read-only.</b> I never book, click, or fill anything. Every check is logged.</span></div></div>
+      <div class="ac-head"><div style="flex:1"><div class="ac-title">Watch ${onFlights ? "Tokyo fares" : "this price"}<span class="watching-badge" hidden></span></div></div></div>
+      <div class="ac-body">
+        <p class="plan-sent">${sent}</p>
+        <div class="plan-meta">Checking 4 times daily · Push notification · read-only, every check logged</div>
+        <div class="site-pills">${sites.map(x => `<button class="site-pill">${x}</button>`).join("")}</div>
+        <div class="plan-count">One watch, <span data-n>${sites.length}</span> sites</div>
+      </div>
       <div class="ac-foot"><button class="ac-btn primary" data-act="start">Start watching</button><button class="ac-btn" data-act="no">No thanks</button></div></div>`));
-    card.querySelector('[data-act="start"]').onclick = () => { startWatch(); card.querySelector(".ac-foot").innerHTML = '<span style="font-size:11.5px;color:var(--green);font-weight:700">✓ Watching — it\'s on your Shelf</span>'; S.lastPlanCard = null; };
+    // editable tokens
+    card.querySelectorAll(".tok").forEach(tk => tk.onclick = () => {
+      if (tk.dataset.k === "target") {
+        const i = (targets.indexOf(S.pending.target) + 1) % targets.length;
+        S.pending.target = targets[i]; tk.textContent = "$" + targets[i];
+      } else if (tk.dataset.cycle) {
+        const opts = tk.dataset.cycle.split("|");
+        const i = (opts.indexOf(tk.textContent) + 1) % opts.length;
+        tk.textContent = opts[i];
+        if (tk.dataset.k === "promo") S.pending.semantic = opts[i].startsWith("Scout") ? ["verified promo found"] : [];
+      }
+    });
+    // site pills
+    const recount = () => { const n = card.querySelectorAll(".site-pill:not(.off)").length; card.querySelector("[data-n]").textContent = n; S.pendingSites = n; };
+    card.querySelectorAll(".site-pill").forEach(pl => pl.onclick = () => { pl.classList.toggle("off"); recount(); });
+    S.pendingSites = sites.length;
+    card.querySelector('[data-act="start"]').onclick = () => {
+      startWatch();
+      const b = card.querySelector(".watching-badge"); b.hidden = false; b.textContent = `Watching · ${S.pendingSites || sites.length} sites`;
+      card.querySelector(".ac-foot").remove();
+      card.insertAdjacentHTML("afterend", `<div class="added-line"><span class="chk">✓</span>Added to your Den</div>`);
+      denSavedCallout();
+      S.lastPlanCard = null;
+    };
     card.querySelector('[data-act="no"]').onclick = () => { card.remove(); S.pending = null; S.lastPlanCard = null; renderFollowups(); };
     scrollEl().scrollTop = 1e6;
-  }, 420);
+  }, 800);
 }
 function startWatch() {
   const { onFlights, target, semantic } = S.pending; S.pending = null;
   const firstWatch = !S.watches.length;
   if (onFlights) {
-    S.watches.push({ id: S.id++, title: "YVR → NRT fares, March", source: "FlightFinder", kind: "fare", target, semantic, price: 912, history: [912], retailers: 1, status: "live", createdDay: S.day, checked: "just now", path: PATHS.fares });
-    aiMsg(`Watching. Today's best <b>${semantic[0] || "matching"}</b> fare is $934, so I'll stay quiet until that changes. It's saved to your <b>Shelf</b> — and this tab will sleep until something happens.`);
+    S.watches.push({ id: S.id++, chat: currentHost(), title: "YVR → NRT fares, March", source: "FlightFinder", kind: "fare", target, semantic, price: 912, history: [912], retailers: S.pendingSites || 4, status: "live", createdDay: S.day, checked: "just now", path: PATHS.fares });
+    aiMsg(`Watching. Today's best <b>${semantic[0] || "matching"}</b> fare is $934, so I'll stay quiet until that changes. It's in your <b>Den</b> — and this tab will sleep until something happens.`);
   } else {
-    S.watches.push({ id: S.id++, title: "Aurora ANC Headphones", source: "SoundHub", kind: "price", target, semantic, price: 89, history: [89], retailers: 1, status: "live", createdDay: S.day, checked: "just now", path: PATHS.aurora });
-    aiMsg(`Watching this page now — it's saved to your <b>Shelf</b>, and you'll see it marked right on the price when you come back. I'll alert you once, with the why.`);
+    S.watches.push({ id: S.id++, chat: currentHost(), title: "Aurora ANC Headphones", source: "SoundHub", kind: "price", target, semantic, price: 89, history: [89], retailers: S.pendingSites || 3, status: "live", createdDay: S.day, checked: "just now", path: PATHS.aurora });
+    aiMsg(`Watching this page now — it's in your <b>Den</b>, and you'll see it marked right on the price when you come back. I'll alert you once, with the why.`);
   }
   log(`Started watching ${S.watches[S.watches.length - 1].title}.`);
   if (firstWatch) {
@@ -831,7 +893,7 @@ function runScout() {
           S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] };
           startWatch();
         }
-        card.querySelector(".ac-foot").innerHTML = `<span style="font-size:11.5px;color:var(--green);font-weight:700">✓ Scout keeps hunting — saved to your Shelf as a watch</span>`;
+        card.querySelector(".ac-foot").innerHTML = `<span style="font-size:11.5px;color:var(--green);font-weight:700">✓ Scout keeps hunting — added to your Den as a watch</span>`;
       };
       card.querySelector("[data-act=done]").onclick = () => { card.querySelector(".ac-foot").remove(); renderFollowups(); };
       setTimeout(() => renderFollowups(["Keep hunting — watch at $75", "Is that code legit?"]), 250);
@@ -847,9 +909,9 @@ function startResearch(query) {
   const ex = S.reports.find(r => r.title === title);
   if (ex) {
     if (ex.status === "working") return aiMsg(`Still working on that one — about a minute.`);
-    return aiMsg(`I already wrote that one — it's on your Shelf.`, ["Open the report"]);
+    return aiMsg(`I already wrote that one — it's in this chat's Den.`, ["Open the report"]);
   }
-  const r = { id: S.id++, title, status: "working", createdDay: S.day, linkedChat: [{ who: "u", text: query }, { who: "a", text: "On it — I'll compare current options and write this up." }] };
+  const r = { id: S.id++, chat: currentHost(), type: "report", title, status: "working", createdDay: S.day, linkedChat: [{ who: "u", text: query }, { who: "a", text: "On it — I'll compare current options and write this up." }] };
   S.reports.push(r);
   const steps = ["Reading 14 pages…", "Comparing 6 options on 4 criteria…", "Checking price history…", "Writing the report…"];
   const ld = loader(steps[0]); let i = 1;
@@ -857,9 +919,9 @@ function startResearch(query) {
     if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
     else {
       clearInterval(t); ld.remove(); r.status = "done"; log(`Report finished: ${r.title}.`);
-      aiMsg(`Done — <b>${r.title}</b>. Six options compared; the Aurora ANC is the strongest buy. It's saved to your <b>Shelf</b> so you can find it any time.`, false);
+      aiMsg(`Done — <b>${r.title}</b>. Six options compared; the Aurora ANC is the strongest buy. It's in your <b>Den</b> so you can find it any time.`, false);
       const rc = addNode(el(`<div class="report-card"><div class="rc-glyph">${repGlyph}</div>
-        <div><div class="rc-title">${r.title}</div><div class="rc-sub">6 options · 14 pages read · saved to Shelf</div></div>
+        <div><div class="rc-title">${r.title}</div><div class="rc-sub">6 options · 14 pages read · in your Den</div></div>
         <span class="rc-open">Open →</span></div>`));
       rc.onclick = () => openReport(r.id);
       setTimeout(() => renderFollowups(), 200);
@@ -920,6 +982,7 @@ function proposeWatchFromOffer(key) {
 }
 function renderPages() {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  setTimeout(watchOfferCallout, 600);
   $("page-" + S.activeTab).classList.add("active");
   $("sidebar").classList.toggle("open", S.sidebarOpen && S.activeTab !== "sw");
   const pw = S.watches.find(w => w.kind === "price");
@@ -950,7 +1013,7 @@ function renderPages() {
   const pin = $("sbPin"); pin.innerHTML = "";
   if (S.sidebarOpen && S.sbView === "chat") {
     for (const w of S.watches.filter(w => w.status !== "paused").slice(0, 2)) {
-      const l = el(`<div class="pin-line${w.status === "met" ? " met" : ""}"><span class="pulse"></span><span><b>${w.status === "met" ? "Hit:" : "Watching:"}</b> ${w.title}</span><span class="meta">${w.status === "met" ? "see Shelf" : fmt(w.price) + " · " + w.checked}</span></div>`);
+      const l = el(`<div class="pin-line${w.status === "met" ? " met" : ""}"><span class="pulse"></span><span><b>${w.status === "met" ? "Hit:" : "Watching:"}</b> ${w.title}</span><span class="meta">${w.status === "met" ? "see Den" : fmt(w.price) + " · " + w.checked}</span></div>`);
       l.onclick = () => { setSbView("shelf"); };
       pin.appendChild(l);
     }
@@ -1004,19 +1067,44 @@ function spark(w) {
   const ty = w.target ? 6 + 30 * (1 - (w.target - min) / (max - min || 1)) : null;
   return `<svg width="100%" height="42" viewBox="0 0 270 42" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#7542e5" stroke-width="2"/>${ty ? `<line x1="0" y1="${ty}" x2="270" y2="${ty}" stroke="#d0bfff" stroke-width="1" stroke-dasharray="4 4"/>` : ""}</svg>`;
 }
-function renderShelves() {
-  for (const host of [$("sbShelfList"), $("swShelfList")]) {
-    host.innerHTML = "";
-    if (!S.watches.length && !S.reports.length) {
-      host.innerHTML = `<div class="shelf-empty">Nothing here yet.<br>Ask Smart Window to <b>watch</b> a page or <b>research</b> something — whatever it makes lands here, and stays in its conversation too.</div>`;
-      continue;
-    }
-    if (S.watches.length) { host.insertAdjacentHTML("beforeend", '<div class="shelf-label">Live</div>'); S.watches.forEach(w => host.appendChild(shelfObjNode(w))); }
-    if (S.reports.length) { host.insertAdjacentHTML("beforeend", '<div class="shelf-label" style="margin-top:14px">Reports</div>'); S.reports.forEach(r => host.appendChild(shelfObjNode(r))); }
+function denSuggestions(chat) {
+  const out = [];
+  const pw = S.watches.find(w => w.kind === "price");
+  const fw = S.watches.find(w => w.kind === "fare");
+  if (chat === "sb") {
+    if (S.activeTab === "soundhub" && !pw && !S.suggDismissed["price"]) out.push({ k: "price", t: "Watch this price", s: "I can alert you at $75 — or if Scout finds a working code", btn: "Set it up" });
+    if (S.activeTab === "flights" && !fw && !S.suggDismissed["fares"]) out.push({ k: "fares", t: "Watch these fares", s: "Nonstop below $850 · Mar 12 – 26 · 4 sites", btn: "Set it up" });
   }
-  const unseen = S.watches.filter(w => w.status === "met" && !w.seen).length + S.reports.filter(r => r.status === "done" && !r.opened && !r.seen).length;
-  $("shelfBub").style.display = unseen ? "" : "none"; $("shelfBub").textContent = unseen;
-  $("sbShelfBub").style.display = unseen ? "" : "none"; $("sbShelfBub").textContent = unseen;
+  if (chat === "sw" && S.day >= 2 && !S.suggDismissed["weekend"]) out.push({ k: "weekend", t: "Weekend events in Phoenix", s: "I can build this every Friday morning", btn: "Build it weekly" });
+  return out;
+}
+function suggCard(g) {
+  const d = el(`<div class="sugg-card"><div class="sg-t">${g.t}</div><div class="sg-s">${g.s}</div>
+    <div class="sg-row"><button class="ac-btn primary">${g.btn}</button><span class="sg-no">No thanks</span></div>
+    <div class="sg-foot">Suggestions expire unless you save them.</div></div>`);
+  d.querySelector(".ac-btn").onclick = () => {
+    if (g.k === "weekend") { S.suggDismissed[g.k] = true; aiMsgTo("sw", `Done — <b>Weekend events in Phoenix</b> will be ready every Friday morning, right here in your Den.`); S.reports.push({ id: S.id++, chat: "sw", type: "report", title: "Weekend events in Phoenix", status: "done", weekly: true, createdDay: S.day, linkedChat: [{ who: "a", text: "Built from your Friday habit — saved weekly." }] }); }
+    else { S.suggDismissed[g.k] = true; S.sidebarOpen = true; setSbView("chat"); renderAll(); proposeWatchFromOffer(g.k === "fares" ? "fares" : "aurora"); return; }
+    renderAll();
+  };
+  d.querySelector(".sg-no").onclick = () => { S.suggDismissed[g.k] = true; renderAll(); };
+  return d;
+}
+function renderShelves() {
+  for (const [hostEl, chat] of [[$("sbShelfList"), "sb"], [$("swShelfList"), "sw"]]) {
+    hostEl.innerHTML = "";
+    const ws = S.watches.filter(w => w.chat === chat);
+    const rs = S.reports.filter(r => r.chat === chat);
+    const sugg = denSuggestions(chat);
+    if (ws.length) { hostEl.insertAdjacentHTML("beforeend", `<div class="den-label">Active watches <span class="cnt">${ws.length}</span></div>`); ws.forEach(w => hostEl.appendChild(shelfObjNode(w))); }
+    if (rs.length) { hostEl.insertAdjacentHTML("beforeend", `<div class="den-label" style="margin-top:14px">Reports <span class="cnt">${rs.length}</span></div>`); rs.forEach(r => hostEl.appendChild(shelfObjNode(r))); }
+    if (sugg.length) { hostEl.insertAdjacentHTML("beforeend", `<div class="den-label" style="margin-top:14px">Suggested</div>`); sugg.forEach(g => hostEl.appendChild(suggCard(g))); }
+    if (!ws.length && !rs.length && !sugg.length) hostEl.innerHTML = `<div class="shelf-empty">Nothing in this chat's den yet.<br>Ask Smart Window to <b>watch</b> a page or <b>research</b> something — whatever this chat makes lands here.</div>`;
+  }
+  const unseenFor = chat => S.watches.filter(w => w.chat === chat && w.status === "met" && !w.seen).length + S.reports.filter(r => r.chat === chat && r.status === "done" && !r.opened && !r.seen).length + denSuggestions(chat).filter(g => !S.suggSeen[g.k]).length;
+  const swU = unseenFor("sw"), sbU = unseenFor("sb");
+  $("shelfBub").style.display = swU ? "" : "none"; $("shelfBub").textContent = swU; $("shelfBub").classList.toggle("dot", !!swU && !S.watches.some(w => w.chat === "sw" && w.status === "met" && !w.seen));
+  $("sbShelfBub").style.display = sbU ? "" : "none"; $("sbShelfBub").textContent = sbU; $("sbShelfBub").classList.toggle("dot", !!sbU && !S.watches.some(w => w.chat === "sb" && w.status === "met" && !w.seen));
   document.querySelectorAll("[data-viewall]").forEach(v => v.style.display = hubUnlocked() ? "" : "none");
 }
 function bumpShelf() { renderShelves(); }
@@ -1028,7 +1116,7 @@ function renderReport() {
   $("rvDoc").innerHTML = `
     <div class="rv-kicker">${repGlyph} Research report · Smart Window</div>
     <h1>${r.title}</h1>
-    <div class="rv-meta">6 options · 14 pages read · every source linked · also on your Shelf</div>
+    <div class="rv-meta">6 options · 14 pages read · every source linked · also in your Den</div>
     <div style="display:flex;gap:8px;margin:10px 0 14px"><button class="ac-btn">🔗 Copy link</button><button class="ac-btn">🖨 Print</button><button class="ac-btn">⭐ Bookmark</button></div>
     <div class="pick-card"><div><div class="pick-rank">Top pick</div><div class="pick-name">Aurora ANC Wireless</div><div class="pick-why">Best ANC per dollar · 42h battery · firmware fixed the hiss issue</div></div>
       <div class="pick-price">${pw ? "$89→" + fmt(pw.price) : "$89"}</div></div>
@@ -1053,6 +1141,31 @@ function renderReport() {
 }
 function openReport(id) { S.openReportId = id; const r = S.reports.find(r => r.id === id); if (r) { r.opened = true; r.seen = true; } closeSwShelf(); S.activeTab = "report"; renderAll(); }
 
+/* anchored callouts */
+function denSavedCallout() {
+  document.querySelectorAll(".anchor-callout").forEach(n => n.remove());
+  const inSidebar = S.activeTab !== "sw" && S.sidebarOpen;
+  const host = inSidebar ? document.querySelector(".sb-header") : (S.activeTab === "sw" ? document.querySelector(".sw-corner") : document.querySelector(".toolbar"));
+  if (!host) return;
+  host.style.position = "relative";
+  const c = el(`<div class="anchor-callout"><span class="chk">✓</span>Saved to your Den</div>`);
+  if (inSidebar) { c.style.top = "40px"; c.style.right = "auto"; c.style.left = "60px"; }
+  host.appendChild(c);
+  setTimeout(() => c.remove(), 3200);
+}
+function watchOfferCallout() {
+  const key = S.activeTab === "soundhub" ? "aurora" : S.activeTab === "flights" ? "fares" : null;
+  if (!key || S.sidebarOpen || S.calloutShown[key] || S.offerDismissed[key]) return;
+  const watched = S.watches.some(w => key === "aurora" ? w.kind === "price" : w.kind === "fare");
+  if (watched) return;
+  S.calloutShown[key] = true;
+  const host = document.querySelector(".toolbar"); host.style.position = "relative";
+  const c = el(`<div class="anchor-callout">✨ I can watch ${key === "fares" ? "these fares" : "this price"} for you<button>Watch</button><span class="x">✕</span></div>`);
+  c.querySelector("button").onclick = () => { c.remove(); S.sidebarOpen = true; setSbView("chat"); renderAll(); proposeWatchFromOffer(key); };
+  c.querySelector(".x").onclick = () => { c.remove(); S.offerDismissed[key] = true; renderAll(); };
+  host.appendChild(c);
+  setTimeout(() => c.remove(), 9000);
+}
 /* toasts */
 function toast(title, body, onClick) {
   const t = el(`<div class="os-toast"><div class="ot-icon"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
@@ -1063,8 +1176,8 @@ function toast(title, body, onClick) {
 }
 
 /* ════════════════ wiring ════════════════ */
-function setSbView(v) { S.sbView = v; document.querySelectorAll(".sb-seg button").forEach(b => b.classList.toggle("active", b.dataset.v === v)); $("sbChatView").classList.toggle("active", v === "chat"); $("sbShelfView").classList.toggle("active", v === "shelf"); if (v === "shelf") { S.watches.forEach(w => w.seen = true); S.reports.forEach(r => r.seen = true); renderShelves(); } }
-function openSwShelf() { S.swShelfOpen = true; $("swShelfOverlay").classList.add("open"); S.watches.forEach(w => w.seen = true); S.reports.forEach(r => r.seen = true); renderShelves(); }
+function setSbView(v) { S.sbView = v; if (v === "shelf") denSuggestions("sb").forEach(g => S.suggSeen[g.k] = true); document.querySelectorAll(".sb-seg button").forEach(b => b.classList.toggle("active", b.dataset.v === v)); $("sbChatView").classList.toggle("active", v === "chat"); $("sbShelfView").classList.toggle("active", v === "shelf"); if (v === "shelf") { S.watches.forEach(w => w.seen = true); S.reports.forEach(r => r.seen = true); renderShelves(); } }
+function openSwShelf() { S.swShelfOpen = true; denSuggestions("sw").forEach(g => S.suggSeen[g.k] = true); $("swShelfOverlay").classList.add("open"); S.watches.forEach(w => w.seen = true); S.reports.forEach(r => r.seen = true); renderShelves(); }
 function closeSwShelf() { S.swShelfOpen = false; $("swShelfOverlay").classList.remove("open"); }
 
 function renderAll() { renderTabs(); renderToolbar(); renderPages(); renderShelves(); renderStarters(); }
@@ -1072,8 +1185,8 @@ function renderAll() { renderTabs(); renderToolbar(); renderPages(); renderShelv
 $("daySkip").onclick = advanceDay;
 $("shelfBtn").onclick = () => S.swShelfOpen ? closeSwShelf() : openSwShelf();
 $("shelfClose").onclick = closeSwShelf;
-$("newChatBtn").onclick = () => { S.chatActive = false; $("page-sw").classList.remove("chat-active"); $("swThread").innerHTML = ""; renderStarters(); };
-$("sbNew").onclick = () => { $("sbThread").innerHTML = ""; };
+$("newChatBtn").onclick = () => { S.chatActive = false; $("page-sw").classList.remove("chat-active"); $("swThread").innerHTML = ""; S.watches.forEach(w => { if (w.chat === "sw") w.chat = "archived"; }); S.reports.forEach(r => { if (r.chat === "sw") r.chat = "archived"; }); renderAll(); };
+$("sbNew").onclick = () => { $("sbThread").innerHTML = ""; S.sbGreeted = {}; S.watches.forEach(w => { if (w.chat === "sb") w.chat = "archived"; }); S.reports.forEach(r => { if (r.chat === "sb") r.chat = "archived"; }); renderAll(); greetSidebar(); };
 $("sbClose").onclick = () => { S.sidebarOpen = false; renderAll(); };
 $("sbToggle").onclick = () => { S.sidebarOpen = !S.sidebarOpen; if (S.sidebarOpen) { setSbView("chat"); renderAll(); greetSidebar(); } else renderAll(); };
 /* cold entry: opening the sidebar greets with what the agent can see on THIS page */
@@ -1087,7 +1200,7 @@ function greetSidebar() {
       ["Watch this price for me", "Find me the best deal on these", "Help me pick ANC headphones under $100"]);
   } else if (S.activeTab === "report") {
     const r = S.reports.find(r => r.id === S.openReportId);
-    if (r) aiMsg(`This is your report — <b>${r.title}</b>. Its conversation is attached on the right, and it stays on your Shelf.`, ["Watch the top pick for a price drop"]);
+    if (r) aiMsg(`This is your report — <b>${r.title}</b>. Its conversation is attached on the right, and it stays in your Den.`, ["Watch the top pick for a price drop"]);
   } else if (S.activeTab === "flights") {
     const fw = S.watches.find(w => w.kind === "fare");
     if (fw) aiMsg(`I'm already watching these fares — ${statusLine(fw)}`);
