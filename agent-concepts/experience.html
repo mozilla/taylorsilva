@@ -71,6 +71,8 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 .day-skip b { color:var(--gray-80); font-weight:600; }
 .day-skip button { border:none; background:var(--violet-10); color:var(--violet-60); font-family:var(--font); font-size:11px; font-weight:600; border-radius:99px; padding:3px 11px; cursor:pointer; transition:background var(--d-instant); }
 .day-skip button:hover { background:var(--violet-20); }
+.day-skip.nudge button { animation:nudge 1.2s ease-in-out 3; }
+@keyframes nudge { 0%,100%{box-shadow:0 0 0 0 rgba(117,66,229,0)} 50%{box-shadow:0 0 0 5px rgba(117,66,229,0.25)} }
 
 .toolbar { background:#fff; display:flex; align-items:center; gap:10px; padding:7px 14px; border-bottom:1px solid var(--gray-05); flex-shrink:0; }
 .nav-arrows { color:var(--gray-40); font-size:15px; letter-spacing:6px; }
@@ -459,8 +461,8 @@ const PATHS = {
 const S = {
   day: 0, watches: [], reports: [], id: 1,
   usedChips: new Set(), offerDismissed: {}, pending: null, lastPlanCard: null,
-  activeTab: "sw", sidebarOpen: false, sbView: "chat", swShelfOpen: false,
-  openReportId: null, chatActive: false,
+  activeTab: "soundhub", sidebarOpen: false, sbView: "chat", swShelfOpen: false,
+  openReportId: null, chatActive: false, sbGreeted: {},
 };
 const $ = id => document.getElementById(id);
 const fmt = p => "$" + (p % 1 ? p.toFixed(2) : p);
@@ -630,7 +632,13 @@ function submit(text) {
     return aiMsg(S.watches.map(w => "• " + statusLine(w)).join("<br>"));
   }
   if (/watch something new/i.test(text))
-    return aiMsg(`Open the page you care about and tell me the condition — or try the <b>SoundHub</b> or <b>FlightFinder</b> tabs above. I read pages; I never click, fill, or buy.`);
+    return aiMsg(`Open the page you care about and tell me the condition there, so I can read it.`, ["Take me to the headphones page", "Take me to the flight search"]);
+  if (/take me to|go to/i.test(text)) {
+    const dest = /flight|fare/i.test(text) ? "flights" : "soundhub";
+    aiMsg(`Opening it — I'll be in the sidebar when you get there.`, false);
+    setTimeout(() => { go(dest); S.sidebarOpen = true; setSbView("chat"); renderAll(); greetSidebar(); }, 500);
+    return;
+  }
   if (/open the (soundhub|fare)/i.test(text)) { go(/fare/i.test(text) ? "flights" : "soundhub"); return; }
   if (/stop watching/i.test(text)) {
     const w = resolveWatch(text); if (w) { S.watches = S.watches.filter(x => x !== w); aiMsg(`Stopped — <b>${w.title}</b> is no longer being watched. The history stays in this conversation.`); renderAll(); }
@@ -651,7 +659,7 @@ function submit(text) {
       return aiMsg(`Already watching this — <b>${existing.title}</b>, alert at $${existing.target}. Tell me a new rule, add a retailer, or ask how it's doing.`);
     }
     if (S.activeTab === "sw" && !/top pick|aurora/i.test(text))
-      return aiMsg(`Sure — open the page you want watched and ask me there, so I can read it. Try the <b>SoundHub</b> or <b>FlightFinder</b> tab.`);
+      return aiMsg(`Sure — I just need to be on the page you want watched, so I can read it like you would.`, ["Take me to the headphones page", "Take me to the flight search"]);
     return proposeWatch(intent, /top pick|aurora/i.test(text));
   }
   if (intent.kind === "research") return startResearch(intent.query);
@@ -708,12 +716,17 @@ function proposeWatch(intent, forcePrice) {
 }
 function startWatch() {
   const { onFlights, target, semantic } = S.pending; S.pending = null;
+  const firstWatch = !S.watches.length;
   if (onFlights) {
     S.watches.push({ id: S.id++, title: "YVR → NRT fares, March", source: "FlightFinder", kind: "fare", target, semantic, price: 912, history: [912], retailers: 1, status: "live", createdDay: S.day, checked: "just now", path: PATHS.fares });
     aiMsg(`Watching. Today's best <b>${semantic[0] || "matching"}</b> fare is $934, so I'll stay quiet until that changes. It's saved to your <b>Shelf</b> — and this tab will sleep until something happens.`);
   } else {
     S.watches.push({ id: S.id++, title: "Aurora ANC Headphones", source: "SoundHub", kind: "price", target, semantic, price: 89, history: [89], retailers: 1, status: "live", createdDay: S.day, checked: "just now", path: PATHS.aurora });
     aiMsg(`Watching this page now — it's saved to your <b>Shelf</b>, and you'll see it marked right on the price when you come back. I'll alert you once, with the why.`);
+  }
+  if (firstWatch) {
+    const ds = document.querySelector(".day-skip");
+    ds.classList.add("nudge"); setTimeout(() => ds.classList.remove("nudge"), 4000);
   }
   renderAll();
 }
@@ -762,7 +775,7 @@ function renderTabs() {
     t.className = "tab" + (p === S.activeTab ? " active" : "") + (p === "sw" ? " sw-tab" : "");
     let label = TABS[p].label, extra = "";
     const fw = S.watches.find(w => w.kind === "fare");
-    if (p === "flights" && fw) {
+    if (p === "flights" && fw && p !== S.activeTab) {
       if (fw.status === "live") { t.classList.add("sleeping"); label = "🌙 YVR → NRT · watching"; }
       if (fw.status === "met") { t.classList.add("awake"); label = `${fmt(fw.price)} — YVR → NRT`; extra = '<span class="dot"></span>'; }
     }
@@ -924,7 +937,26 @@ $("shelfClose").onclick = closeSwShelf;
 $("newChatBtn").onclick = () => { S.chatActive = false; $("page-sw").classList.remove("chat-active"); $("swThread").innerHTML = ""; renderStarters(); };
 $("sbNew").onclick = () => { $("sbThread").innerHTML = ""; };
 $("sbClose").onclick = () => { S.sidebarOpen = false; renderAll(); };
-$("sbToggle").onclick = () => { S.sidebarOpen = !S.sidebarOpen; if (S.sidebarOpen) setSbView("chat"); renderAll(); };
+$("sbToggle").onclick = () => { S.sidebarOpen = !S.sidebarOpen; if (S.sidebarOpen) { setSbView("chat"); renderAll(); greetSidebar(); } else renderAll(); };
+/* cold entry: opening the sidebar greets with what the agent can see on THIS page */
+function greetSidebar() {
+  if (S.sbGreeted[S.activeTab] || $("sbThread").children.length) return;
+  S.sbGreeted[S.activeTab] = true;
+  if (S.activeTab === "soundhub") {
+    const pw = S.watches.find(w => w.kind === "price");
+    if (pw) aiMsg(`I'm already watching this page — ${statusLine(pw)}`);
+    else aiMsg(`I'm reading this page — <b>Aurora ANC Headphones, $89</b> (down from $129). I can keep an eye on it for you, or compare it against everything else out there. I read pages; I never click, fill, or buy.`,
+      ["Watch this price for me", "Help me pick ANC headphones under $100"]);
+  } else if (S.activeTab === "report") {
+    const r = S.reports.find(r => r.id === S.openReportId);
+    if (r) aiMsg(`This is your report — <b>${r.title}</b>. Its conversation is attached on the right, and it stays on your Shelf.`, ["Watch the top pick for a price drop"]);
+  } else if (S.activeTab === "flights") {
+    const fw = S.watches.find(w => w.kind === "fare");
+    if (fw) aiMsg(`I'm already watching these fares — ${statusLine(fw)}`);
+    else aiMsg(`I'm reading this search — <b>47 fares, YVR → NRT in March</b>, best is $867 non-refundable. I can watch it against rules a price tracker can't read, like "refundable" or "weekday only."`,
+      ["Watch these fares — refundable, under $850"]);
+  }
+}
 document.querySelectorAll(".sb-seg button").forEach(b => b.onclick = () => setSbView(b.dataset.v));
 document.querySelectorAll("[data-pa]").forEach(p => p.onclick = () => { S.watches.forEach(w => { if (w.status === "live") w.status = "paused"; }); renderAll(); });
 
