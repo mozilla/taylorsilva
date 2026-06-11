@@ -133,6 +133,24 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .chip-btn { font-size:11px; font-weight:600; padding:5px 12px; border-radius:99px; border:1px solid var(--grey-20); background:#fff; color:var(--grey-70); cursor:pointer; font-family:var(--font); transition:all var(--d-instant); }
 .chip-btn:hover { border-color:var(--violet-30); color:var(--violet-60); }
 .chip-btn.primary { background:var(--violet-50); border-color:var(--violet-50); color:#fff; }
+.wc-viz { border-top:1px solid var(--grey-05); margin:10px 14px 0; padding-top:9px; }
+.wc-stats { display:flex; gap:14px; font-size:10.5px; color:var(--grey-50); margin-top:5px; }
+.wc-stats b { color:var(--grey-100); font-size:12px; display:block; }
+.wc-acts { display:flex; gap:6px; padding:10px 14px 12px; flex-wrap:wrap; }
+.wc-act { font-family:var(--font); font-size:10.5px; font-weight:600; border-radius:99px; padding:5px 12px; cursor:pointer; border:1px solid var(--grey-20); background:#fff; color:var(--grey-70); }
+.wc-act:hover { border-color:var(--violet-30); color:var(--violet-60); }
+.wc-act.del:hover { border-color:var(--red); color:var(--red); }
+.qcard { background:#fff; border:1px solid var(--grey-10); border-radius:14px; box-shadow:0 4px 16px rgba(43,27,85,0.12); padding:13px 15px; margin-top:8px; animation:arrive var(--d-gracious) var(--ease-arrive) forwards; }
+.qc-head { display:flex; align-items:center; gap:10px; margin-bottom:3px; }
+.qc-title { font-size:13px; font-weight:700; flex:1; }
+.qc-page { font-size:10.5px; color:var(--grey-40); white-space:nowrap; }
+.qc-x { color:var(--grey-40); cursor:pointer; font-size:12px; }
+.qc-opt { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--grey-05); cursor:pointer; font-size:12px; }
+.qc-opt:hover { background:var(--violet-05); border-radius:8px; }
+.qc-opt .n { width:20px; height:20px; border-radius:6px; background:var(--violet-10); color:var(--violet-60); font-size:10.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.qc-else { display:flex; align-items:center; gap:9px; background:var(--grey-05); border-radius:9px; padding:8px 11px; margin-top:8px; font-size:11.5px; color:var(--grey-40); }
+.qc-else .pen { width:20px; height:20px; border-radius:6px; background:var(--violet-50); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:10px; }
+.qc-skip { margin-left:auto; font-family:var(--font); font-size:11px; font-weight:600; background:#fff; border:1px solid var(--grey-20); border-radius:7px; padding:4px 12px; cursor:pointer; color:var(--grey-70); }
 .cond-row { display:flex; align-items:center; gap:8px; background:var(--violet-05); border-radius:8px; padding:8px 11px; margin-top:8px; font-size:11.5px; color:var(--grey-80); }
 .cond-row code { font-family:var(--mono); font-size:10.5px; background:#fff; border:1px solid var(--violet-10); border-radius:4px; padding:1px 6px; color:var(--violet-60); }
 
@@ -402,6 +420,35 @@ const caption = document.getElementById('caption');
 const watchGlyph = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg>';
 const reportGlyph = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg>';
 
+function aSpark(points, target){
+  const max=Math.max(...points,target), min=Math.min(...points,target);
+  const pts=points.map((p,i)=>`${(i/(points.length-1))*270},${8+30*(1-(p-min)/(max-min||1))}`).join(' ');
+  const ty=8+30*(1-(target-min)/(max-min||1));
+  return `<svg width="100%" height="46" viewBox="0 0 270 46" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="#7542e5" stroke-width="2"/>
+    <line x1="0" y1="${ty}" x2="270" y2="${ty}" stroke="#d0bfff" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <circle cx="270" cy="${pts.split(' ').pop().split(',')[1]}" r="3.5" fill="#ED49AE"/>
+    <text x="4" y="${ty-4}" font-size="8.5" fill="#976eff" font-family="system-ui">target $75</text></svg>`;
+}
+function aRuleQuestion(card){
+  const ex=document.querySelector('.qcard'); if(ex){ ex.remove(); return; }
+  const q=el(`<div class="qcard">
+    <div class="qc-head"><div class="qc-title">What should trigger the alert?</div><span class="qc-page">‹ 1 of 1 ›</span><span class="qc-x">✕</span></div>
+    <div class="qc-opt" data-r="price ≤ $75|working promo code found"><span class="n">1</span>Below $75 — or a working promo</div>
+    <div class="qc-opt" data-r="price ≤ $70|"><span class="n">2</span>Below $70 — only a real deal</div>
+    <div class="qc-opt" data-r="price ≤ $80|working promo code found"><span class="n">3</span>Below $80 — alert me sooner</div>
+    <div class="qc-opt" data-r="any drop ≥ 10%|"><span class="n">4</span>Any drop of 10% or more</div>
+    <div class="qc-else"><span class="pen">✎</span>Something else<button class="qc-skip">Skip</button></div></div>`);
+  q.querySelectorAll('.qc-opt').forEach(o=>o.onclick=()=>{
+    const [a,b]=o.dataset.r.split('|');
+    card.querySelector('.cond-row').innerHTML='⏱ Alert when <code>'+a+'</code>'+(b?' or <code>'+b+'</code>':'');
+    q.remove();
+  });
+  q.querySelector('.qc-skip').onclick=()=>q.remove();
+  q.querySelector('.qc-x').onclick=()=>q.remove();
+  card.insertAdjacentElement('afterend', q);
+  thread.scrollTop=1e6;
+}
 function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
 function addMsg(html){ const n=el(html); thread.appendChild(n); thread.scrollTop=thread.scrollHeight; return n; }
 let typeTimer=null;
@@ -438,15 +485,24 @@ const steps = [
           <div><div class="agent-card-title">Watch started</div><div class="agent-card-sub">Aurora ANC Headphones · soundhub.com</div></div></div>
         <div class="agent-card-body">I'll check this page a few times a day and read it like you would — sale banners, bundle pricing, member prices all count.
           <div class="cond-row">⏱ Alert when <code>price ≤ $75</code> or <code>working promo code found</code></div></div>
-        <div class="agent-card-foot"><button class="chip-btn">Add more retailers</button><button class="chip-btn">Pause</button></div>
+        <div class="wc-viz">${aSpark([89,89],75)}
+          <div class="wc-stats"><span><b id="aNow">$89</b>now</span><span><b id="aLow">$89</b>low</span><span><b id="aChecks">1</b>checks</span><span><b id="aRet">1</b>retailer</span></div></div>
+        <div class="wc-acts"><button class="wc-act" data-a="edit">✎ Edit</button><button class="wc-act" data-a="ret">＋ Retailers</button><button class="wc-act" data-a="pause">⏸ Pause</button><button class="wc-act del" data-a="del">🗑 Delete</button></div>
       </div>`);
+      const aCard = thread.lastChild;
+      aCard.querySelector('[data-a="edit"]').onclick=()=>aRuleQuestion(aCard);
+      aCard.querySelector('[data-a="ret"]').onclick=()=>{ document.getElementById('aRet').textContent='3'; const pe=document.getElementById('pinExtra'); if(pe) pe.textContent='· 3 retailers'; };
+      aCard.querySelector('[data-a="pause"]').onclick=e=>{ const b=e.target; b.textContent=b.textContent.includes('Pause')?'▶ Resume':'⏸ Pause'; };
+      aCard.querySelector('[data-a="del"]').onclick=()=>{ aCard.remove(); pinStrip.classList.remove('visible');
+        addMsg('<div class="msg ai"><div class="ai-bubble">Deleted — I\u2019ve stopped watching. The record stays in this thread.</div></div>'); };
     } },
 
   { cap:'<strong>4 · The pinned strip.</strong> The thread is left, but the watch stays alive. Concept A\'s single concession to persistence: a pinned strip at the top of the panel showing live agents. It breathes (3000ms ambient cycle) — alive, not alarming. This is the entire "surface."',
-    run(){ pinStrip.classList.add('visible'); addMsg('<div class="msg user">thanks — also add Best Buy and the manufacturer\'s store</div>'); setTimeout(()=>{ addMsg('<div class="msg ai"><div class="ai-bubble">Done — now watching <b>3 retailers as one group</b>. You\'ll get one alert with the best of the three, not three alerts.</div></div>'); document.getElementById('pinExtra').textContent='· 3 retailers'; },700); } },
+    run(){ pinStrip.classList.add('visible'); addMsg('<div class="msg user">thanks — also add Best Buy and the manufacturer\'s store</div>'); setTimeout(()=>{ addMsg('<div class="msg ai"><div class="ai-bubble">Done — now watching <b>3 retailers as one group</b>. You\'ll get one alert with the best of the three, not three alerts.</div></div>'); document.getElementById('pinExtra').textContent='· 3 retailers'; const r=document.getElementById('aRet'); if(r) r.textContent='3'; },700); } },
 
   { cap:'<strong>5 · Delivery — the notification IS the product.</strong> Two days later, an OS notification. Not "page changed": a sentence of judgment — price, target delta, working code, which retailer won. This is the LLM-layer value a classic watcher can\'t produce. Clicking deep-links back into the original thread.',
-    run(){ osToast.classList.add('show'); document.getElementById('pinMeta').textContent='condition met ✓'; } },
+    run(){ osToast.classList.add('show'); document.getElementById('pinMeta').textContent='condition met ✓';
+      const viz=document.querySelector('.wc-viz'); if(viz){ viz.innerHTML=aSpark([89,86,84,82,79,75,72],75)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="wc-stats"')); const n=document.getElementById('aNow'); if(n){ n.textContent='$72'; document.getElementById('aLow').textContent='$72'; document.getElementById('aChecks').textContent='18'; } } } },
 
   { cap:'<strong>6 · Retrieval — where chat history actually lives.</strong> A week later: "where\'s that watch?" Chats don\'t live in the panel — they live in <strong>Firefox View → Chats</strong>. Concept A adds nothing new here except one thing…',
     run(){ osToast.classList.remove('show'); document.getElementById('fxview').classList.add('open'); } },
