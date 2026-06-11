@@ -1472,13 +1472,12 @@ const ICONS = {
 };
 function iconBtn(kind, label, danger){ return `<button class="icon-act${danger?' danger':''}" data-ia="${kind}">${ICONS[kind]||''}${label}</button>`; }
 
+/* Switching concepts restarts the experience from the very beginning —
+   a fresh page load with ?c=X, so every concept is felt as a cold start. */
 document.querySelectorAll('.cbtn').forEach(b=>b.onclick=()=>{
-  S.concept=b.dataset.c;
-  document.querySelectorAll('.cbtn').forEach(x=>x.classList.toggle('cbtn-on',x===b));
-  if(!['C','F'].includes(S.concept) && S.sbView==='shelf') setSbView('chat');
-  if(S.activeTab==='hub' && S.concept!=='B') S.activeTab='sw';
-  if(S.activeTab==='fxv' && !['A','E'].includes(S.concept)) S.activeTab='sw';
-  renderAll();
+  const u = new URL(location.href);
+  u.searchParams.set('c', b.dataset.c);
+  location.href = u.toString();
 });
 
 /* ── question cards (Claude pattern) ── */
@@ -1539,7 +1538,7 @@ function renderPinBar(){
   bar.classList.toggle('on', !!show);
   if(!show) return;
   for(const w of S.watches){
-    const pin=el(`<span class="pin-item${w.status==='met'?' hit':''}"><span class="pic">${ICONS.eye}</span>${w.title}<span class="pdot"></span></span>`);
+    const pin=el(`<span class="pin-item${w.status==='met'?' hit':''}"><span class="pic">${ICONS.eye}</span>${w.title} · ${w.status==='met'?'Hit '+fmt(w.price)+' ✓':(w.status==='paused'?'Paused':fmt(w.price))}<span class="pdot"></span></span>`);
     pin.onclick=()=>togglePinDetail(bar,w);
     bar.appendChild(pin);
   }
@@ -1665,6 +1664,10 @@ if(_qc && ['A','B','C','D','E','F'].includes(_qc.toUpperCase())){
   S.concept=_qc.toUpperCase();
   document.querySelectorAll('.cbtn').forEach(x=>x.classList.toggle('cbtn-on',x.dataset.c===S.concept));
 }
+/* one color per concept — same coding as the analysis page, for wayfinding */
+const CONCEPT_COLOR={A:'#9959FF',B:'#e66000',C:'#058b00',D:'#ED49AE',E:'#14b8a6',F:'#f59e0b'};
+const _onBtn=document.querySelector('.cbtn-on');
+if(_onBtn) _onBtn.style.background=CONCEPT_COLOR[S.concept]||'#9959FF';
 renderAll();
 </script>
 </body>

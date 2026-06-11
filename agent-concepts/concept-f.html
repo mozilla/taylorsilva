@@ -7,7 +7,7 @@
 <style>
 /* ================================================================
    CONCEPT F — DEN EVERYWHERE
-   Q3 Agent Surfaces · Monitor / Scout / Research
+   Agent Surfaces · Monitor / Scout / Research
    Taylor Silva · Staff Product Designer, AI UX
 
    Thesis: Concept B's management destination, but the end location
@@ -24,7 +24,7 @@
   --violet-10:#ede6ff; --violet-05:#f6f2ff;
   --grey-100:#15141a; --grey-80:#2b2a33; --grey-70:#52525e; --grey-50:#6b6b7b;
   --grey-40:#8f8f9d; --grey-20:#cfcfd8; --grey-10:#e0e0e6; --grey-05:#f0f0f4;
-  --orange:#e66000; --green:#058b00; --teal:#5ee8d6; --blue:#4a9df8; --red:#e22850;
+  --orange:#e66000; --green:#058b00; --teal:#fbbf24; --blue:#4a9df8; --red:#e22850;
   --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
   --d-instant:60ms; --d-quick:140ms; --d-moderate:240ms; --d-gracious:300ms;
   --d-considered:360ms; --d-breathe:3000ms;
@@ -38,7 +38,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .proto-bar { background:#15141a; color:rgba(255,255,255,0.85); padding:10px 16px; display:flex; align-items:center; gap:14px; font-size:12.5px; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.08); }
 .proto-bar a { color:var(--violet-30); text-decoration:none; }
 .proto-bar a:hover { text-decoration:underline; }
-.proto-chip { background:rgba(94,232,214,0.14); color:var(--teal); border:1px solid rgba(94,232,214,0.35); padding:2px 10px; border-radius:99px; font-weight:600; font-size:11px; letter-spacing:0.4px; }
+.proto-chip { background:rgba(245,158,11,0.14); color:var(--teal); border:1px solid rgba(245,158,11,0.4); padding:2px 10px; border-radius:99px; font-weight:600; font-size:11px; letter-spacing:0.4px; }
 .proto-title { font-weight:600; }
 .proto-sub { color:rgba(255,255,255,0.45); }
 .proto-steps { margin-left:auto; display:flex; align-items:center; gap:10px; }
@@ -180,6 +180,20 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .sb-head { display:flex; align-items:center; gap:9px; padding:12px 14px; flex-shrink:0; }
 .sb-logo { width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg,#9959FF,#ED49AE); }
 .sb-title { font-size:13px; font-weight:700; }
+.sw-seg { display:flex; background:rgba(255,255,255,0.1); border-radius:99px; padding:3px; margin-left:auto; }
+.seg-btn { font-family:var(--font); font-size:11.5px; font-weight:600; color:rgba(255,255,255,0.6); background:transparent; border:none; border-radius:99px; padding:5px 16px; cursor:pointer; position:relative; transition:all var(--d-quick) var(--ease-settle); }
+.seg-btn.active { background:#fff; color:#15141a; box-shadow:0 1px 4px rgba(0,0,0,0.3); }
+.seg-dot { position:absolute; top:-2px; right:4px; width:9px; height:9px; border-radius:50%; background:var(--teal); display:none; }
+.seg-dot.shown { display:block; }
+.sb-den { flex:1; overflow-y:auto; padding:14px; display:none; flex-direction:column; gap:10px; min-height:0; }
+.den-label { font-size:10px; font-weight:800; letter-spacing:1.2px; color:rgba(255,255,255,0.45); }
+.den-item { background:rgba(255,255,255,0.06); border:1px solid rgba(151,110,255,0.25); border-radius:13px; padding:12px 14px; }
+.den-item.sugg { border-style:dashed; border-color:rgba(245,158,11,0.4); }
+.den-kind { font-size:9.5px; font-weight:800; letter-spacing:1px; color:#d4bfff; background:rgba(151,110,255,0.18); border-radius:99px; padding:2px 9px; display:inline-block; }
+.den-t { font-size:13px; font-weight:700; margin-top:7px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.den-rule { font-size:11px; color:rgba(255,255,255,0.55); margin-top:3px; line-height:1.5; }
+.den-note { font-size:11.5px; color:rgba(255,255,255,0.45); line-height:1.55; }
+.den-badge { font-size:10px; font-weight:700; background:rgba(20,83,45,0.4); color:#7fe07a; border-radius:99px; padding:3px 10px; }
 .sb-thread { flex:1; overflow-y:auto; padding:14px 14px 18px; display:flex; flex-direction:column; gap:10px; min-height:0; }
 .msg-u { align-self:flex-end; background:rgba(255,255,255,0.1); border-radius:12px; max-width:84%; padding:9px 14px; font-size:12.5px; line-height:1.5; }
 .msg-a { align-self:stretch; font-size:12.5px; line-height:1.6; color:rgba(255,255,255,0.85); }
@@ -209,7 +223,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .pc-act { font-family:var(--font); font-size:10.5px; font-weight:600; border-radius:99px; padding:5px 12px; cursor:pointer; border:1px solid rgba(255,255,255,0.22); background:transparent; color:rgba(255,255,255,0.7); }
 .pc-act:hover { border-color:var(--violet-40); color:#d4bfff; }
 .pc-act.del:hover { border-color:#ff8da3; color:#ff8da3; }
-.pc-view { display:inline-flex; align-items:center; gap:6px; margin-top:9px; font-size:12px; font-weight:700; color:#5ee8d6; cursor:pointer; background:none; border:none; font-family:var(--font); padding:0; }
+.pc-view { display:inline-flex; align-items:center; gap:6px; margin-top:9px; font-size:12px; font-weight:700; color:#fbbf24; cursor:pointer; background:none; border:none; font-family:var(--font); padding:0; }
 .pc-view:hover { text-decoration:underline; }
 .sb-input { margin:0 12px 12px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:11px 14px; font-size:12.5px; color:rgba(255,255,255,0.4); flex-shrink:0; }
 /* OS toast */
@@ -334,8 +348,11 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 
     <!-- Smart Window sidebar -->
     <div class="sidebar" id="sidebar">
-      <div class="sb-head"><div class="sb-logo"></div><div class="sb-title">Smart Window</div></div>
+      <div class="sb-head"><div class="sb-logo"></div><div class="sb-title">Smart Window</div>
+        <div class="sw-seg"><button class="seg-btn active" id="segChat">Chat</button><button class="seg-btn" id="segDen">Den<span class="seg-dot" id="denDot"></span></button></div>
+      </div>
       <div class="sb-thread" id="sbThread"></div>
+      <div class="sb-den" id="sbDen"></div>
       <div class="sb-input">Ask about this page…</div>
     </div>
 
@@ -396,6 +413,63 @@ function eRuleQuestion(card){
   card.insertAdjacentElement('afterend', q);
   $('sbThread').scrollTop=1e6;
 }
+const denState = { started:false, paused:false, hit:false, report:false };
+function setSbView(v){
+  $('segChat').classList.toggle('active', v==='chat');
+  $('segDen').classList.toggle('active', v==='den');
+  $('sbThread').style.display = v==='chat' ? 'flex' : 'none';
+  document.querySelector('.sb-input').style.display = v==='chat' ? '' : 'none';
+  $('sbDen').style.display = v==='den' ? 'flex' : 'none';
+  if(v==='den'){ renderDen(); $('denDot').classList.remove('shown'); }
+}
+function denRuleQuestion(item){
+  const ex=$('sbDen').querySelector('.qcard'); if(ex){ ex.remove(); return; }
+  const q=document.createElement('div'); q.className='qcard';
+  q.innerHTML=`<div class="qc-head"><div class="qc-title">What should trigger the alert?</div><span class="qc-page">\u2039 1 of 1 \u203a</span><span class="qc-x">\u2715</span></div>
+    <div class="qc-opt" data-r='Nonstop below <b>$600</b> \u00b7 Oct 12 \u2013 26 \u00b7 4 sites \u00b7 checking 4\u00d7 daily'><span class="n">1</span>Below $600 \u2014 only a real deal</div>
+    <div class="qc-opt" data-r='Nonstop below <b>$650</b> \u00b7 Oct 12 \u2013 26 \u00b7 4 sites \u00b7 checking 4\u00d7 daily'><span class="n">2</span>Below $650 \u2014 alert me sooner</div>
+    <div class="qc-opt" data-r='Any flight below <b>$620</b> \u00b7 Oct 12 \u2013 26 \u00b7 4 sites \u00b7 checking 4\u00d7 daily'><span class="n">3</span>Any flight, stops OK, below $620</div>
+    <div class="qc-else"><span class="pen">\u270e</span>Something else<button class="qc-skip">Skip</button></div>`;
+  q.querySelectorAll('.qc-opt').forEach(o=>o.onclick=()=>{
+    item.querySelector('.den-rule').innerHTML=o.dataset.r;
+    const pc=$('planCard'); if(pc) pc.querySelector('.pc-sent').innerHTML='Alert me \u2014 '+o.dataset.r;
+    q.remove();
+  });
+  q.querySelector('.qc-skip').onclick=()=>q.remove();
+  q.querySelector('.qc-x').onclick=()=>q.remove();
+  item.insertAdjacentElement('afterend', q);
+}
+function renderDen(){
+  const d=$('sbDen');
+  if(!denState.started){
+    d.innerHTML=`<div class="den-label">DEN \u00b7 THIS CONVERSATION</div>
+      <div class="den-item sugg"><span class="den-kind" style="background:rgba(245,158,11,0.16);color:var(--teal)">SUGGESTED</span>
+        <div class="den-t">Watch Tokyo fares</div>
+        <div class="den-rule">From this page \u2014 alert when a nonstop drops below $620. Nothing typed yet.</div>
+        <button class="pc-start" id="denSuggStart" style="margin-top:9px">Start watching</button></div>
+      <div class="den-note">Suggestions fill the den before you\u2019ve made anything \u2014 it\u2019s never empty. Monitors, reports, and gen tabs from this chat all file in here; other chats keep their own dens.</div>`;
+    $('denSuggStart').onclick=()=>{ setSbView('chat'); buildCreation(); };
+    return;
+  }
+  const hit=denState.hit, paused=denState.paused;
+  d.innerHTML=`<div class="den-label">DEN \u00b7 THIS CONVERSATION</div>
+    <div class="den-item" id="denMon" style="${paused?'opacity:0.55':''}"><span class="den-kind">MONITOR</span>
+      <div class="den-t">Tokyo fares <span class="den-badge" style="${hit?'background:rgba(245,158,11,0.18);color:var(--teal)':''}">\u25cf ${paused?'Paused':(hit?'Hit $607':'Watching')}</span></div>
+      <div class="den-rule">Nonstop below <b>$620</b> \u00b7 Oct 12 \u2013 26 \u00b7 4 sites \u00b7 checking 4\u00d7 daily</div>
+      <div style="margin-top:8px">${hit?eSpark([684,679,668,671,654,632,607],620):eSpark([684,684],620)}</div>
+      <div class="pc-stats"><span><b>${hit?'$607':'$684'}</b>now</span><span><b>${hit?'$607':'$684'}</b>low</span><span><b>${hit?'21':'1'}</b>checks</span><span><b>4</b>sites</span></div>
+      <div class="pc-acts"><button class="pc-act" data-d="edit">\u270e Edit</button><button class="pc-act" data-d="pause">${paused?'\u25b6 Resume':'\u23f8 Pause'}</button><button class="pc-act del" data-d="del">\ud83d\uddd1 Delete</button></div></div>
+    ${denState.report?`<div class="den-item"><span class="den-kind" style="background:rgba(74,157,248,0.18);color:#8ec2ff">REPORT</span>
+      <div class="den-t">Tokyo trip \u2014 fare strategy</div>
+      <div class="den-rule">From this chat \u00b7 opens as a full page with the conversation attached</div></div>`:''}
+    <div class="den-note">${denState.report?'Gen tabs file in here too \u2014 every child keeps a link back to this chat.':'As this chat makes more \u2014 reports, gen tabs \u2014 they file in beside the monitor.'}</div>`;
+  d.querySelector('[data-d="edit"]').onclick=()=>denRuleQuestion($('denMon'));
+  d.querySelector('[data-d="pause"]').onclick=()=>{ denState.paused=!denState.paused; renderDen();
+    const pc=$('planCard'); if(pc){ const pb=pc.querySelector('[data-a="pause"]'); if(pb) pb.textContent=denState.paused?'\u25b6 Resume':'\u23f8 Pause'; const bb=$('pcBadge'); if(bb) bb.style.opacity=denState.paused?'0.45':'1'; } };
+  d.querySelector('[data-d="del"]').onclick=()=>{ denState.started=false;
+    const pc=$('planCard'); if(pc){ const db=pc.querySelector('[data-a="del"]'); if(db) db.click(); else pc.remove(); }
+    renderDen(); };
+}
 function buildPlanCard(){
   const t = $('sbThread');
   if (t.querySelector('.plan-card')) return;
@@ -414,6 +488,7 @@ function buildPlanCard(){
 function finishStart(){
   const b=$('pcBadge'); if(!b || b.classList.contains('on')) return;
   b.classList.add('on');
+  denState.started=true; if($('sbDen').style.display==='flex') renderDen();
   const st=$('pcStart'); if(st) st.remove();
   const card=$('planCard');
   card.insertAdjacentHTML('beforeend',`<div class="pc-viz" id="pcViz">${eSpark([684,684],620)}
@@ -421,8 +496,8 @@ function finishStart(){
     <div class="pc-acts"><button class="pc-act" data-a="edit">✎ Edit</button><button class="pc-act" data-a="pause">⏸ Pause</button><button class="pc-act del" data-a="del">🗑 Delete</button></div>
     <button class="pc-view" id="pcView">Open in your Dens →</button>`);
   card.querySelector('[data-a="edit"]').onclick=()=>eRuleQuestion(card);
-  card.querySelector('[data-a="pause"]').onclick=e=>{ const x=e.target; const paused=x.textContent.includes('Pause'); x.textContent=paused?'▶ Resume':'⏸ Pause'; b.style.opacity=paused?'0.45':'1'; };
-  card.querySelector('[data-a="del"]').onclick=()=>{ card.remove();
+  card.querySelector('[data-a="pause"]').onclick=e=>{ const x=e.target; const paused=x.textContent.includes('Pause'); x.textContent=paused?'▶ Resume':'⏸ Pause'; b.style.opacity=paused?'0.45':'1'; denState.paused=paused; if($('sbDen').style.display==='flex') renderDen(); };
+  card.querySelector('[data-a="del"]').onclick=()=>{ card.remove(); denState.started=false; if($('sbDen').style.display==='flex') renderDen();
     const t=$('sbThread'); const a=document.createElement('div'); a.className='msg-a';
     a.innerHTML='Deleted — removed here and from your <b>Dens</b> in Firefox View.'; t.appendChild(a); };
   document.getElementById('pcView').onclick=()=>show('page-fxv');
@@ -461,30 +536,33 @@ const steps = [
       setTimeout(buildCreation, 1100);
     } },
 
-  { cap:"<strong>2 · Started — the den line and the bar pill.</strong> The live card stays in the chat (viz, Edit · Pause · Delete) and the next line says it plainly: <em>it\u2019s in this chat\u2019s Den — and you can also find it in your Dens</em>, with the link. And because you\u2019re on the watched page, the URL bar now carries the labeled pill — <em>Watching · $684</em> — which updates as checks come in.",
+  { cap:"<strong>2 · Started — the den line and the bar pill.</strong> The live card stays in the chat (viz, Edit · Pause · Delete) and the next line says it plainly: <em>it\u2019s in this chat\u2019s Den — and you can also find it in your Dens</em>, with the link \u2014 and the panel header now carries the <em>Chat | Den</em> toggle. And because you\u2019re on the watched page, the URL bar now carries the labeled pill — <em>Watching · $684</em> — which updates as checks come in.",
     run(){ const t=$('sbThread');
       if(!t.querySelector('.plan-card')){ if(!t.children.length){ t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'watch these fares for me'})); } t.querySelectorAll('.qcard').forEach(n=>n.remove()); buildPlanCard(); }
       setTimeout(finishStart, 500);
       setTimeout(()=>{ const a=document.createElement('div'); a.className='msg-a';
-        a.innerHTML='It\u2019s in this chat\u2019s <b>Den</b> — and you can also find it in <a href="#" id="densLink" style="color:#5ee8d6;font-weight:700">your Dens</a>.';
+        a.innerHTML='It\u2019s in this chat\u2019s <b>Den</b> — and you can also find it in <a href="#" id="densLink" style="color:#fbbf24;font-weight:700">your Dens</a>.';
         t.appendChild(a); t.scrollTop=1e6;
         document.getElementById('densLink').onclick=e=>{ e.preventDefault(); show('page-fxv'); };
         $('barPill').style.display='inline-flex';
       }, 1100);
     } },
 
-  { cap:"<strong>3 · Firefox View → Dens: every chat\u2019s den, with all its children.</strong> The den from this conversation appears as a group — its <em>monitor</em> (the watch card, with per-check dots and actions), and as the chat produces more, its <em>reports</em> and <em>gen tabs</em> file in as siblings. Other chats\u2019 dens stack below. One page, every den, children grouped by where they came from.",
+  { cap:"<strong>3 · The same den, in the panel.</strong> Up top the panel carries a <em>Chat | Den</em> toggle — exactly C\u2019s pattern. Flip it and this conversation\u2019s den is right there: the monitor with its viz, stats, and Edit · Pause · Delete, and room for the reports and gen tabs this chat makes later. Only what this chat created — other chats keep their own dens. Before anything starts, a suggestion fills it, so it\u2019s never empty.",
+    run(){ setSbView('den'); } },
+
+  { cap:"<strong>4 · Firefox View → Dens: every chat\u2019s den, with all its children.</strong> The den from this conversation appears as a group — its <em>monitor</em> (the watch card, with per-check dots and actions), and as the chat produces more, its <em>reports</em> and <em>gen tabs</em> file in as siblings. Other chats\u2019 dens stack below. One page, every den, children grouped by where they came from.",
     run(){ show('page-fxv'); setChecks(1,false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites';
       $('repEmpty').style.display='none'; $('repCard').classList.add('open'); } },
 
-  { cap:"<strong>4 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
+  { cap:"<strong>5 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
     run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open'); $('barPill').style.display='inline-flex'; $('pillLabel').textContent='Hit $607'; document.querySelector('#barPill span').style.background='var(--violet-40)';
-      const viz=$('pcViz'); if(viz){ viz.innerHTML=eSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; } $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
+      const viz=$('pcViz'); if(viz){ viz.innerHTML=eSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; } denState.hit=true; $('denDot').classList.add('shown'); if($('sbDen').style.display==='flex') renderDen(); $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
 
-  { cap:"<strong>5 · The den grows children.</strong> The Reports section starts honest — <em>'As this chat makes more — reports, gen tabs — they file in here beside the monitor.'</em> Ask in the chat, and the finished report cards in beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
-    run(){ show('page-fxv'); $('osToast').classList.remove('open'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); } },
+  { cap:"<strong>6 · The den grows children.</strong> The Reports section starts honest — <em>'As this chat makes more — reports, gen tabs — they file in here beside the monitor.'</em> Ask in the chat, and the finished report cards in beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
+    run(){ show('page-fxv'); $('osToast').classList.remove('open'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); denState.report=true; if($('sbDen').style.display==='flex') renderDen(); } },
 
-  { cap:"<strong>6 · Why F: one object, three projections.</strong> The den is the only thing the user has to understand. It lives with its chat (C\u2019s strength), gathers everything in Firefox View → Dens (E\u2019s strength), and announces itself on the page through the labeled pill. The cost is honesty itself: three surfaces that must never disagree — the biggest build on the table. <a href='index.html' style='color:#5ee8d6'>Compare all concepts →</a>",
+  { cap:"<strong>7 · Why F: one object, three projections.</strong> The den is the only thing the user has to understand. It lives with its chat (C\u2019s strength), gathers everything in Firefox View → Dens (E\u2019s strength), and announces itself on the page through the labeled pill. The cost is honesty itself: three surfaces that must never disagree — the biggest build on the table. <a href='index.html' style='color:#fbbf24'>Compare all concepts →</a>",
     run(){ show('page-fxv'); } },
 ];
 
@@ -496,7 +574,7 @@ function reset(){
   show('page-sky'); $('sbThread').innerHTML=''; $('offerChip').classList.remove('shown'); $('barInput').value=''; $('barSuggest').classList.remove('open'); $('barPlan').classList.remove('open');
    $('alertStrip').classList.remove('open');
   $('osToast').classList.remove('open'); $('agentsBub').classList.remove('on'); $('skyDot').style.display='none';
-  $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false); $('barPill').style.display='none'; $('pillLabel').textContent='Watching · $684';
+  $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false); $('barPill').style.display='none'; denState.started=denState.paused=denState.hit=denState.report=false; $('denDot').classList.remove('shown'); setSbView('chat'); $('pillLabel').textContent='Watching · $684';
 }
 function goto(n){
   if(n<cur){ reset(); cur=-1; }

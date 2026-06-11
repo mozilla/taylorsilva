@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Concept A — Threadline · Smart Window Agent Surfaces</title>
+<title>Concept A — All in the chat · Smart Window Agent Surfaces</title>
 <style>
 /* ================================================================
    CONCEPT A — "THREADLINE" (Minimum Footprint)
-   Q3 Agent Surfaces · Monitor / Scout / Research
+   Agent Surfaces · Monitor / Scout / Research
    Taylor Silva · Staff Product Designer, AI UX
 
    Thesis: zero new surfaces. The chat thread IS the agent surface.
@@ -195,7 +195,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .hist-live::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
 
 /* OS notification toast */
-.os-toast { position:absolute; top:18px; right:18px; width:330px; background:rgba(28,27,34,0.97); backdrop-filter:blur(10px); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.4); display:flex; gap:11px; z-index:30; opacity:0; transform:translateY(-14px); transition:all var(--d-considered) var(--ease-arrive); }
+.os-toast { position:fixed; top:60px; right:24px; z-index:99; width:330px; background:rgba(28,27,34,0.97); backdrop-filter:blur(10px); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.4); display:flex; gap:11px; z-index:30; opacity:0; transform:translateY(-14px); transition:all var(--d-considered) var(--ease-arrive); }
 .os-toast.show { opacity:1; transform:translateY(0); }
 .os-toast-icon { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,var(--violet-50),var(--violet-40)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .os-toast-title { font-size:12px; font-weight:700; color:#fff; }
@@ -530,14 +530,17 @@ const steps = [
       }, 600);
     } },
 
-  { cap:'<strong>5 · Delivery — the notification IS the product.</strong> Two days later, an OS notification. Not "page changed": a sentence of judgment — price, target delta, working code, which retailer won. This is the LLM-layer value a classic watcher can\'t produce. Clicking deep-links back into the original thread.',
+  { cap:'<strong>5 · Delivery — the notification IS the product.</strong> Two days later a notification lands up top, where system notifications live — and the pinned card updates with the same information: the hit price, the delta, condition met. Not "page changed": a sentence of judgment — price, target delta, working code, which retailer won. This is the LLM-layer value a classic watcher can\'t produce. Clicking deep-links back into the original thread.',
     run(){ osToast.classList.add('show'); document.getElementById('pinMeta').textContent='condition met ✓';
-      const viz=document.querySelector('.wc-viz'); if(viz){ viz.innerHTML=aSpark([89,86,84,82,79,75,72],75)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="wc-stats"')); const n=document.getElementById('aNow'); if(n){ n.textContent='$72'; document.getElementById('aLow').textContent='$72'; document.getElementById('aChecks').textContent='18'; } } } },
+      const pt=document.querySelector('.pin-text'); const pe=document.getElementById('pinExtra');
+      if(pt) pt.innerHTML='<strong>Hit:</strong> Aurora ANC dropped to <b>$72</b> — $3 below your $75 target '+(pe&&pe.textContent?'<span id="pinExtra">'+pe.textContent+'</span>':'<span id="pinExtra"></span>');
+      const viz=document.querySelector('.wc-viz'); if(viz){ viz.innerHTML=aSpark([89,86,84,82,79,75,72],75)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="wc-stats"')); const n=document.getElementById('aNow'); if(n){ n.textContent='$72'; document.getElementById('aLow').textContent='$72'; document.getElementById('aChecks').textContent='18'; } }
+      const pd=document.getElementById('pinDetail'); if(pd&&pd.classList.contains('open')){ pd.classList.remove('open'); document.querySelector('.pin-card').click(); } } },
 
   { cap:'<strong>6 · Retrieval — where chat history actually lives.</strong> A week later: "where\'s that watch?" Chats don\'t live in the panel — they live in <strong>Firefox View → Chats</strong>. Concept A adds nothing new here except one thing…',
     run(){ osToast.classList.remove('show'); document.getElementById('fxview').classList.add('open'); } },
 
-  { cap:'<strong>7 · The watch is a child of the chat that started it.</strong> Under "Watch the Aurora ANC price" sits its watch — live dot, the rule, started-when — and under last week\'s research chat sits its report. Click either and you\'re back in that conversation with the pinned line on top. <strong>Concept A complete: 1 slash menu + 1 pinned line + child rows in the history you already have.</strong> <a href="index.html">Compare all five →</a>',
+  { cap:'<strong>7 · The watch is a child of the chat that started it.</strong> Under "Watch the Aurora ANC price" sits its watch — live dot, the rule, started-when — and under last week\'s research chat sits its report. Click either and you\'re back in that conversation with the pinned line on top. <strong>Concept A complete: 1 slash menu + 1 pinned line + child rows in the history you already have.</strong> <a href="index.html">Compare all six →</a>',
     run(){ document.getElementById('fxview').classList.add('open'); document.getElementById('fxvChild').classList.add('fxv-hl'); } },
 ];
 
@@ -550,6 +553,7 @@ function reset(){
   histOverlay.classList.remove('open'); osToast.classList.remove('show');
   document.getElementById('fxview').classList.remove('open');
   document.getElementById('fxvChild').classList.remove('fxv-hl');
+  const pt0=document.querySelector('.pin-text'); if(pt0) pt0.innerHTML='<strong>Watching:</strong> Aurora ANC · alert at $75 <span id="pinExtra"></span>';
   document.getElementById('pinExtra').textContent=''; document.getElementById('pinMeta').textContent='checked 2m ago';
   document.getElementById('histBtn').classList.remove('active');
   document.querySelectorAll('.hist-item').forEach(h=>h.classList.remove('dim'));
