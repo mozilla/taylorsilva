@@ -872,7 +872,7 @@ function submit(text) {
   if (/open in (agents|dens)|firefox view|your dens/i.test(text)) { S.fxvMode='agents'; go('fxv'); return; }
   if (/keep hunting/i.test(text)) {
     if (!S.watches.find(w => w.kind === "price")) { S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] }; startWatch(); }
-    else aiMsg(`Already on it — Scout reports through the headphones watch in your Den.`);
+    else aiMsg(`Already on it — Scout reports through the headphones watch, ${watchHome()}.`);
     return;
   }
   if (/is that code legit|code legit/i.test(text))
@@ -1055,7 +1055,7 @@ function runScout() {
           S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] };
           startWatch();
         }
-        card.querySelector(".ac-foot").innerHTML = `<span style="font-size:11.5px;color:var(--green);font-weight:700">✓ Scout keeps hunting — added to your Den as a watch</span>`;
+        card.querySelector(".ac-foot").innerHTML = `<span style="font-size:11.5px;color:var(--green);font-weight:700">✓ Scout keeps hunting — added as a watch, ${watchHome()}</span>`;
       };
       card.querySelector("[data-act=done]").onclick = () => { card.querySelector(".ac-foot").remove(); renderFollowups(); };
       setTimeout(() => renderFollowups(["Keep hunting — watch at $75", "Is that code legit?"]), 250);
@@ -1099,6 +1099,29 @@ function postStartLine(w) {
   const a = d.querySelector("[data-go]");
   if (a) a.onclick = e => { e.preventDefault(); if (a.dataset.go === "hub") { S.hubVisited = true; go("hub"); } else { S.fxvMode = "agents"; go("fxv"); } };
 }
+function reportHome(short) {
+  return (short ? {
+    A: "saved in this chat", B: "in the Agent Hub", C: "in this chat's Den",
+    D: "opens as its own tab", E: "in your Dens", F: "Den + your Dens",
+  } : {
+    A: "right here in this chat — and as a child row under it in Firefox View → Chats",
+    B: "in your Agent Hub, with the full activity log",
+    C: "in this chat's Den",
+    D: "right here in the chat — and it opens as its own tab you can keep, bookmark, or print",
+    E: "in your Dens in Firefox View",
+    F: "in this chat's Den — and in your Dens in Firefox View",
+  })[S.concept];
+}
+function watchHome() {
+  return {
+    A: "pinned at the top of this chat",
+    B: "pinned up top and in your Agent Hub",
+    C: "in this chat's Den",
+    D: "live in this chat — the bar eye carries it on the page",
+    E: "in your Dens in Firefox View",
+    F: "in the Den — the panel, your Dens, and the bar pill",
+  }[S.concept];
+}
 function startResearch(query) {
   const isHeadphones = /headphone|anc/i.test(query);
   if (!isHeadphones)
@@ -1107,7 +1130,7 @@ function startResearch(query) {
   const ex = S.reports.find(r => r.title === title);
   if (ex) {
     if (ex.status === "working") return aiMsg(`Still working on that one — about a minute.`);
-    return aiMsg(`I already wrote that one — it's in this chat's Den.`, ["Open the report"]);
+    return aiMsg(`I already wrote that one — it's ${reportHome(true)}.`, ["Open the report"]);
   }
   const r = { id: S.id++, chat: currentHost(), type: "report", title, status: "working", createdDay: S.day, linkedChat: [{ who: "u", text: query }, { who: "a", text: "On it — I'll compare current options and write this up." }] };
   S.reports.push(r);
@@ -1117,9 +1140,9 @@ function startResearch(query) {
     if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
     else {
       clearInterval(t); ld.remove(); r.status = "done"; log(`Report finished: ${r.title}.`);
-      aiMsg(`Done — <b>${r.title}</b>. Six options compared; the Aurora ANC is the strongest buy. It's in your <b>Den</b> so you can find it any time.`, false);
+      aiMsg(`Done — <b>${r.title}</b>. Six options compared; the Aurora ANC is the strongest buy. It's <b>${reportHome()}</b>.`, false);
       const rc = addNode(el(`<div class="report-card"><div class="rc-glyph">${repGlyph}</div>
-        <div><div class="rc-title">${r.title}</div><div class="rc-sub">6 options · 14 pages read · in your Den</div></div>
+        <div><div class="rc-title">${r.title}</div><div class="rc-sub">6 options · 14 pages read · ${reportHome(true)}</div></div>
         <span class="rc-open">Open →</span></div>`));
       rc.onclick = () => openReport(r.id);
       setTimeout(() => renderFollowups(), 200);
@@ -1514,6 +1537,16 @@ function targetQuestion(cb){
 function renderConceptChrome(){
   // Den segment in C and F
   $("segShelf").style.display = ['C','F'].includes(S.concept) ? '' : 'none';
+  // newtab footer: a cross-chat destination only where the concept has one
+  const fitems=document.querySelectorAll('.sw-foot-item');
+  if(fitems[2]){
+    const show=['B','E','F'].includes(S.concept);
+    fitems[2].style.display = show ? '' : 'none';
+    fitems[2].lastChild.textContent = S.concept==='B' ? 'Agents' : 'Dens';
+  }
+  // Firefox View: the Dens rail item exists only in E and F
+  const fa=$("fxvAgentsItem");
+  if(fa){ const dens=['E','F'].includes(S.concept); fa.style.display=dens?'':'none'; if(!dens && S.fxvMode==='agents') S.fxvMode='chats'; }
   // old mini-pin off; our pin bar handles A & B
   $("sbPin").style.display='none';
   // urlbar eye only in D
@@ -1647,12 +1680,11 @@ function showFloatCard(w, judgment){
   f.querySelector('[data-f="stop"]').onclick=()=>{ f.classList.remove('open'); S.watches=S.watches.filter(x=>x!==w); renderAll(); };
 }
 
-/* footer routing per concept */
+/* footer routing per concept (labels/visibility live in renderConceptChrome) */
 (function(){
   const items=document.querySelectorAll('.sw-foot-item');
   if(items[1]) items[1].onclick=()=>{ S.fxvMode='chats'; go('fxv'); };
   if(items[2]) items[2].onclick=()=>{ if(S.concept==='B'){ S.hubVisited=true; go('hub'); } else { S.fxvMode='agents'; go('fxv'); } };
-  if(items[2]) items[2].lastChild.textContent = 'Dens';
 })();
 
 /* hook concept chrome into renderAll */

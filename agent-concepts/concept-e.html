@@ -467,17 +467,41 @@ const steps = [
       setTimeout(finishStart, 600);
     } },
 
-  { cap:"<strong>3 · The end location: Firefox View → Dens, beside Chats.</strong> The full management surface Concept B wanted — every watch as a card with its rule in plain words, a dot per check (green = something happened), last-check time, cadence, site count, and direct actions: <em>Check now · Pause · Open page · Delete</em>. Search on top. And it cost zero new top-level surfaces — Firefox View already ships.",
+  { cap:"<strong>3 · Scout — the right-now sweep, second agent.</strong> Ask <em>scout the other fare sites right now</em> and Scout checks them in one pass — effective fares, your dates, read-only, nothing booked. Its answer is ephemeral; the handoff is not: the Monitor now alerts on the best of all four sites, and the den card in Firefox View carries the wider coverage.",
+    run(){ const t=$('sbThread');
+      t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'scout the other fare sites right now'}));
+      setTimeout(()=>{
+        const sc=document.createElement('div'); sc.className='plan-card';
+        sc.innerHTML=`<div class="pc-t">Scout — fares right now <span style="font-size:9.5px;font-weight:800;letter-spacing:1px;color:#5ee8d6;background:rgba(94,232,214,0.14);border-radius:99px;padding:2px 9px">ONE-TIME SWEEP</span></div>
+          <p class="pc-sent">🏆 <b>$668 — Google Flights</b> · nonstop · matches Oct 12 – 26</p>
+          <p class="pc-sent" style="color:rgba(255,255,255,0.6)">$684 — SkyFares (this page) · $702 — Expedia · $719 — Kayak</p>
+          <div class="pc-meta" style="color:#7fe07a">→ Handed to the Monitor — it now alerts on the best of all 4 sites. Above your $620 target, so no alert yet.</div>`;
+        t.appendChild(sc); t.scrollTop=1e6;
+      }, 450);
+    } },
+
+  { cap:"<strong>4 · The end location: Firefox View → Dens, beside Chats.</strong> The full management surface Concept B wanted — every watch as a card with its rule in plain words, a dot per check (green = something happened), last-check time, cadence, site count, and direct actions: <em>Check now · Pause · Open page · Delete</em>. Search on top. And it cost zero new top-level surfaces — Firefox View already ships.",
     run(){ show('page-fxv'); setChecks(1, false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites'; } },
 
-  { cap:"<strong>4 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
+  { cap:"<strong>5 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
     run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open');
       const viz=$('pcViz'); if(viz){ viz.innerHTML=eSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; } $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
 
-  { cap:"<strong>5 · Research files in the same place.</strong> The Reports section starts honest — <em>'Nothing here yet — ask Smart Window to research something.'</em> Ask in the chat, and the finished report cards in beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
-    run(){ show('page-fxv'); $('osToast').classList.remove('open'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); } },
+  { cap:"<strong>6 · Research — created in the chat, filed in your Dens.</strong> The third agent: <em>when should I actually book? keep a report</em>. It runs once, writes it up, the card stays in the thread — and the report files into the Dens section beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
+    run(){ $('osToast').classList.remove('open');
+      const t=$('sbThread');
+      t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'when should I actually book? keep a report'}));
+      setTimeout(()=>{
+        const rc=document.createElement('div'); rc.className='plan-card';
+        rc.innerHTML=`<div class="pc-t">Tokyo trip — fare strategy <span style="font-size:9.5px;font-weight:800;letter-spacing:1px;color:#8ec2ff;background:rgba(74,157,248,0.18);border-radius:99px;padding:2px 9px">REPORT</span></div>
+          <p class="pc-sent">Book 3–6 weeks out for this route; fares dip Tue–Wed. Your $620 target cleared twice last quarter — realistic.</p>
+          <div class="pc-meta">12 pages read · saved to your Dens in Firefox View</div>`;
+        t.appendChild(rc); t.scrollTop=1e6;
+        setTimeout(()=>{ show('page-fxv'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); }, 1000);
+      }, 450);
+    } },
 
-  { cap:"<strong>6 · Why E earns a seat.</strong> It's Concept B's power — full management, search, transparency — without B's biggest costs: no new page to build a habit around (Firefox View ships today, next to the Chats history users already visit), and no day-one empty dashboard (the section is one rail item until you have agents). The open question vs. D: Firefox View is a destination you go to; D's presence comes to you. <a href='index.html' style='color:#5ee8d6'>Compare all concepts →</a>",
+  { cap:"<strong>7 · Why E earns a seat.</strong> It's Concept B's power — full management, search, transparency — without B's biggest costs: no new page to build a habit around (Firefox View ships today, next to the Chats history users already visit), and no day-one empty dashboard (the section is one rail item until you have agents). The open question vs. D: Firefox View is a destination you go to; D's presence comes to you. <a href='index.html' style='color:#5ee8d6'>Compare all concepts →</a>",
     run(){ show('page-fxv'); } },
 ];
 

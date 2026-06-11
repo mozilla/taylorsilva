@@ -548,21 +548,46 @@ const steps = [
       }, 1100);
     } },
 
-  { cap:"<strong>3 · The same den, in the panel.</strong> Up top the panel carries a <em>Chat | Den</em> toggle — exactly C\u2019s pattern. Flip it and this conversation\u2019s den is right there: the monitor with its viz, stats, and Edit · Pause · Delete, and room for the reports and gen tabs this chat makes later. Only what this chat created — other chats keep their own dens. Before anything starts, a suggestion fills it, so it\u2019s never empty.",
+  { cap:"<strong>3 · Scout — the right-now sweep, second agent.</strong> Ask <em>scout the other fare sites right now</em> and Scout checks them in one pass — effective fares, your dates, read-only. Its answer is ephemeral by design; what lasts is the handoff: the Monitor in the den now alerts on the best of all four sites. (Codes and fares are verified, never booked or applied.)",
+    run(){ const t=$('sbThread');
+      t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'scout the other fare sites right now'}));
+      setTimeout(()=>{
+        const sc=document.createElement('div'); sc.className='plan-card';
+        sc.innerHTML=`<div class="pc-t">Scout — fares right now <span style="font-size:9.5px;font-weight:800;letter-spacing:1px;color:var(--teal);background:rgba(245,158,11,0.16);border-radius:99px;padding:2px 9px">ONE-TIME SWEEP</span></div>
+          <p class="pc-sent">🏆 <b>$668 — Google Flights</b> · nonstop · matches Oct 12 – 26</p>
+          <p class="pc-sent" style="color:rgba(255,255,255,0.6)">$684 — SkyFares (this page) · $702 — Expedia · $719 — Kayak</p>
+          <div class="pc-meta" style="color:#7fe07a">→ Handed to the Monitor — it now alerts on the best of all 4 sites. Above your $620 target, so no alert yet.</div>`;
+        t.appendChild(sc); t.scrollTop=1e6;
+      }, 450);
+    } },
+
+  { cap:"<strong>4 · The same den, in the panel.</strong> Up top the panel carries a <em>Chat | Den</em> toggle — exactly C\u2019s pattern. Flip it and this conversation\u2019s den is right there: the monitor with its viz, stats, and Edit · Pause · Delete, and room for the reports and gen tabs this chat makes later. Only what this chat created — other chats keep their own dens. Before anything starts, a suggestion fills it, so it\u2019s never empty.",
     run(){ setSbView('den'); } },
 
-  { cap:"<strong>4 · Firefox View → Dens: every chat\u2019s den, with all its children.</strong> The den from this conversation appears as a group — its <em>monitor</em> (the watch card, with per-check dots and actions), and as the chat produces more, its <em>reports</em> and <em>gen tabs</em> file in as siblings. Other chats\u2019 dens stack below. One page, every den, children grouped by where they came from.",
+  { cap:"<strong>5 · Firefox View → Dens: every chat\u2019s den, with all its children.</strong> The den from this conversation appears as a group — its <em>monitor</em> (the watch card, with per-check dots and actions), and as the chat produces more, its <em>reports</em> and <em>gen tabs</em> file in as siblings. Other chats\u2019 dens stack below. One page, every den, children grouped by where they came from.",
     run(){ show('page-fxv'); setChecks(1,false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites';
       $('repEmpty').style.display='none'; $('repCard').classList.add('open'); } },
 
-  { cap:"<strong>5 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
+  { cap:"<strong>6 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
     run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open'); $('barPill').style.display='inline-flex'; $('pillLabel').textContent='Hit $607'; document.querySelector('#barPill span').style.background='var(--violet-40)';
       const viz=$('pcViz'); if(viz){ viz.innerHTML=eSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; } denState.hit=true; $('denDot').classList.add('shown'); if($('sbDen').style.display==='flex') renderDen(); $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
 
-  { cap:"<strong>6 · The den grows children.</strong> The Reports section starts honest — <em>'As this chat makes more — reports, gen tabs — they file in here beside the monitor.'</em> Ask in the chat, and the finished report cards in beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
-    run(){ show('page-fxv'); $('osToast').classList.remove('open'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); denState.report=true; if($('sbDen').style.display==='flex') renderDen(); } },
+  { cap:"<strong>7 · Research — the den grows a child.</strong> Ask in the chat — <em>when should I actually book? keep a report</em> — and the third agent runs once and writes it up. The report card lands in the thread, files into this chat\u2019s <em>Den</em> in the panel, and cards into <em>Dens</em> in Firefox View beneath the monitor — opening with its chat attached. One object model answers create → see → return for all three agents.",
+    run(){ $('osToast').classList.remove('open');
+      const t=$('sbThread');
+      t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'when should I actually book? keep a report'}));
+      setTimeout(()=>{
+        const rc=document.createElement('div'); rc.className='plan-card';
+        rc.innerHTML=`<div class="pc-t">Tokyo trip — fare strategy <span style="font-size:9.5px;font-weight:800;letter-spacing:1px;color:#8ec2ff;background:rgba(74,157,248,0.18);border-radius:99px;padding:2px 9px">REPORT</span></div>
+          <p class="pc-sent">Book 3–6 weeks out for this route; fares dip Tue–Wed. Your $620 target is realistic — it cleared it twice last quarter.</p>
+          <div class="pc-meta">12 pages read · saved to this chat\u2019s Den — and your Dens in Firefox View</div>`;
+        t.appendChild(rc); t.scrollTop=1e6;
+        denState.report=true; if($('sbDen').style.display==='flex') renderDen();
+        setTimeout(()=>{ show('page-fxv'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); }, 900);
+      }, 450);
+    } },
 
-  { cap:"<strong>7 · Why F: one object, three projections.</strong> The den is the only thing the user has to understand. It lives with its chat (C\u2019s strength), gathers everything in Firefox View → Dens (E\u2019s strength), and announces itself on the page through the labeled pill. The cost is honesty itself: three surfaces that must never disagree — the biggest build on the table. <a href='index.html' style='color:#fbbf24'>Compare all concepts →</a>",
+  { cap:"<strong>8 · Why F: one object, three projections.</strong> The den is the only thing the user has to understand. It lives with its chat (C\u2019s strength), gathers everything in Firefox View → Dens (E\u2019s strength), and announces itself on the page through the labeled pill. The cost is honesty itself: three surfaces that must never disagree — the biggest build on the table. <a href='index.html' style='color:#fbbf24'>Compare all concepts →</a>",
     run(){ show('page-fxv'); } },
 ];
 

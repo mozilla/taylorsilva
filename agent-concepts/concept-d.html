@@ -187,6 +187,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
     <div class="traffic"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div>
     <div class="tab" id="tabSky"><span class="fav" style="background:#2f6fd0"></span>SkyFares — LAX to TYO</div>
     <div class="tab" id="tabShop" style="background:transparent;border-color:transparent;color:var(--grey-50);cursor:pointer"><span class="fav" style="background:#7a4dd8"></span>AudioHaus — Sony WH-10…</div>
+    <div class="tab" id="tabRep" style="display:none;background:transparent;border-color:transparent;color:var(--grey-50);cursor:pointer"><span class="fav" style="background:#e66000"></span>Report — Tokyo neighborhoods</div>
   </div>
   <div class="toolbar">
     <div class="nav-arrows">‹ ›</div>
@@ -216,6 +217,18 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
         <div class="fl-row"><div class="fl-air" style="background:#e8f1fd">🛫</div><div><div class="fl-t">9:40 — 14:55<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n" id="fare1">$684</div><div class="fl-ty">economy</div></div></div>
         <div class="fl-row"><div class="fl-air" style="background:#fdeee8">🛫</div><div><div class="fl-t">11:05 — 16:30<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n">$702</div><div class="fl-ty">economy</div></div></div>
         <div class="fl-row" style="opacity:0.6"><div class="fl-air" style="background:#eefae8">🛫</div><div><div class="fl-t">7:15 — 15:40<sup>+1</sup></div><div class="fl-r">1 stop · SEA</div></div><div class="fl-price"><div class="fl-n">$641</div><div class="fl-ty">economy</div></div></div>
+      </div>
+      <div id="page-rep" style="display:none;padding:36px 48px;max-width:760px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--grey-50);text-transform:uppercase">Research report · Smart Window · read-only</div>
+        <h1 style="font-size:22px;margin:8px 0 4px">Tokyo neighborhoods — where to stay, Oct 12–26</h1>
+        <div style="font-size:11px;color:var(--grey-50);margin-bottom:18px">12 pages read · 5 neighborhoods compared · generated from your chat · printable · bookmarkable</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <tr style="text-align:left;color:var(--grey-50);font-size:10.5px;text-transform:uppercase;letter-spacing:0.6px"><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Area</th><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Vibe</th><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Nightly</th><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Call</th></tr>
+          <tr><td style="padding:7px 8px"><b>Shimokitazawa</b></td><td style="padding:7px 8px">Vintage shops, live music, quiet nights</td><td style="padding:7px 8px">$96</td><td style="padding:7px 8px;color:var(--green);font-weight:700">Best fit</td></tr>
+          <tr><td style="padding:7px 8px">Asakusa</td><td style="padding:7px 8px">Classic Tokyo, busy mornings</td><td style="padding:7px 8px">$88</td><td style="padding:7px 8px">Good value</td></tr>
+          <tr><td style="padding:7px 8px">Shinjuku</td><td style="padding:7px 8px">Everything, all night</td><td style="padding:7px 8px">$132</td><td style="padding:7px 8px">If you want loud</td></tr>
+        </table>
+        <p style="font-size:12.5px;color:var(--grey-70);margin-top:14px;max-width:560px">Verdict: <b>Shimokitazawa</b> — your chat said quiet nights and live music; it is the only area with both under $100. The record card stays in your chat; this page is yours to bookmark, print, or share.</p>
       </div>
       <div id="page-shop" style="display:none;padding:32px 44px;max-width:920px">
         <div style="font-size:11.5px;color:var(--grey-40);margin-bottom:16px">AudioHaus › Headphones › Noise-cancelling</div>
@@ -258,14 +271,17 @@ const $ = id => document.getElementById(id);
 function showPage(which){
   $('page-sky').style.display = which==='sky' ? '' : 'none';
   $('page-shop').style.display = which==='shop' ? '' : 'none';
-  const on='background:#fff;border:1px solid var(--grey-10);border-bottom:none;color:var(--grey-80)';
+  $('page-rep').style.display = which==='rep' ? '' : 'none';
   const off='background:transparent;border-color:transparent;color:var(--grey-50)';
   $('tabSky').style.cssText = which==='sky' ? '' : off;
   $('tabShop').style.cssText = (which==='shop' ? '' : off) + ';cursor:pointer';
+  const tr=$('tabRep');
+  if(tr && tr.style.display!=='none') tr.style.cssText = (which==='rep' ? '' : off) + ';cursor:pointer';
   // the eye lives on the WATCHED page only
   $('urlEye').style.display = (which==='sky' && $('urlEye').classList.contains('shown')) ? 'inline-flex' : 'none';
-  document.querySelector('.urlbar').childNodes[1].textContent = which==='sky' ? ' skyfares.com/search?lax-tyo-oct\n      ' : ' audiohaus.com/sony-wh-1000xm6\n      ';
+  document.querySelector('.urlbar').childNodes[1].textContent = which==='sky' ? ' skyfares.com/search?lax-tyo-oct\n      ' : which==='rep' ? ' smartwindow/report/tokyo-neighborhoods\n      ' : ' audiohaus.com/sony-wh-1000xm6\n      ';
 }
+document.addEventListener('DOMContentLoaded',()=>{ const tr=$('tabRep'); if(tr) tr.onclick=()=>showPage('rep'); });
 $('tabSky') && ($('tabSky').onclick=()=>showPage('sky'));
 $('tabShop') && ($('tabShop').onclick=()=>showPage('shop'));
 const thread = $('thread');
@@ -363,7 +379,32 @@ const steps = [
       const viz=$('pcViz'); if(viz){ viz.innerHTML=dSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; }
       $('hcDot').style.background='var(--violet-40)'; $('hcSub').innerHTML='<b style="color:var(--violet-60)">$607 — condition met</b> · was: nonstop below $620'; $('hcMeta').innerHTML='<span>hit 9:02 AM</span><span>best: Kayak</span><span>SkyFares $631</span>'; } },
 
-  { cap:"<strong>7 · The shape of Concept D.</strong> Chat holds the record (scroll to find it), the bar holds the presence (eye + hover card — Pause, or jump straight to the card in the open chat), notifications close the loop anywhere (the floating card found you on another site). Zero list surfaces to build or maintain — and the honest limit: with five watches running, there's no roster to manage. That's what C's Den and F's Firefox View page are for. <a href='index.html'>Compare all concepts →</a>",
+  { cap:"<strong>7 · Scout — the right-now sweep, same chat.</strong> Ask <em>scout the other fare sites now</em> — Scout checks all four in one pass: effective fares, your dates, read-only, nothing booked. Its sweep is ephemeral by design; the handoff is not — the Monitor now alerts on the best of the group, and the eye and hover card carry that on the page.",
+    run(){ showPage('sky'); $('floatCard').classList.remove('open'); $('hoverCard').classList.remove('open');
+      add(el('<div class="msg-u">scout the other fare sites now</div>'));
+      setTimeout(()=>{ add(el(`<div class="plan-card">
+        <div class="pc-t">Scout — fares right now <span style="font-size:10px;font-weight:700;background:#fff3e6;color:#b45309;border-radius:99px;padding:3px 9px">ONE-TIME SWEEP</span></div>
+        <p class="pc-sent">🏆 <b>$598 — Google Flights</b> · nonstop · matches Oct 12 – 26</p>
+        <p class="pc-sent" style="color:var(--grey-50)">$607 — Kayak · $619 — SkyFares (this page) · $641 — Expedia</p>
+        <div class="pc-meta" style="color:var(--green)">→ Handed to the Monitor — it now alerts on the best of all 4 sites</div></div>`));
+        const vs=$('vSites'); if(vs) vs.textContent='4';
+      },450);
+    } },
+
+  { cap:"<strong>8 · Research — the report is a real page.</strong> <em>compare tokyo neighborhoods — keep a report.</em> The third agent runs once. The record card stays in the chat — and the report opens as <em>its own tab</em>: a page with a URL, so it can be bookmarked, printed, or shared. That is D\u2019s pattern for outputs: chat records + real pages, no library surface.",
+    run(){ showPage('sky');
+      add(el('<div class="msg-u">compare tokyo neighborhoods for our dates — keep a report</div>'));
+      setTimeout(()=>{ add(el(`<div class="plan-card">
+        <div class="pc-t">Report — Tokyo neighborhoods <span style="font-size:10px;font-weight:700;background:#e8f0fe;color:#1a56db;border-radius:99px;padding:3px 9px">REPORT</span></div>
+        <p class="pc-sent"><b>Shimokitazawa</b> is the call — quiet nights, live music, under $100. Full comparison in the report.</p>
+        <div class="pc-meta">12 pages read · opens as its own tab — bookmark it, print it, share it</div>
+        <button class="pc-start" id="repOpen">Open the report tab →</button></div>`));
+        const ro=$('repOpen'); if(ro) ro.onclick=()=>{ $('tabRep').style.display=''; showPage('rep'); };
+        setTimeout(()=>{ $('tabRep').style.display=''; showPage('rep'); }, 1600);
+      },450);
+    } },
+
+  { cap:"<strong>9 · The shape of Concept D.</strong> Chat holds the record (scroll to find it), the bar holds the presence (eye + hover card — Pause, or jump straight to the card in the open chat), notifications close the loop anywhere (the floating card found you on another site), and reports live as real pages in real tabs. Zero list surfaces to build or maintain — and the honest limit: with five watches running, there's no roster to manage. That's what C's Den and F's Firefox View page are for. <a href='index.html'>Compare all concepts →</a>",
     run(){ showPage('sky'); $('floatCard').classList.remove('open'); $('hoverCard').classList.add('open'); } },
 ];
 
@@ -372,6 +413,7 @@ const dots=$('dots');
 steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-dot'; d.onclick=()=>goto(i); dots.appendChild(d); });
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
 function reset(){
+  const tr=$('tabRep'); if(tr) tr.style.cssText='display:none;background:transparent;border-color:transparent;color:var(--grey-50);cursor:pointer';
   showPage('sky'); thread.innerHTML=''; $('slashPop').classList.remove('open'); $('suggStack').classList.remove('open'); $('urlEye').classList.remove('shown','met'); $('eyeLabel').textContent='Watching';
   $('hoverCard').classList.remove('open'); $('floatCard').classList.remove('open');
   $('hcDot').style.background='var(--green)'; $('fare1').textContent='$684';

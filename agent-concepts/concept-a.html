@@ -313,6 +313,10 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
               <span class="wg"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></span>
               <span><span class="t">Watch: Aurora ANC Headphones</span><div class="st"><span class="live">LIVE</span> · alert at $75 · 3 retailers · started today</div></span>
             </div>
+            <div class="fxv-child" id="fxvChildRep">
+              <span class="wg" style="background:rgba(255,151,40,0.18);color:#ffb95e"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></span>
+              <span><span class="t">Report: backup ANC picks under $80</span><div class="st">finished · 5 options compared</div></span>
+            </div>
             <div class="fxv-row"><span class="gl">Ø</span>Summarize this return policy<span class="when">9:14 AM</span></div>
           </div>
           <div class="fxv-group">
@@ -537,11 +541,36 @@ const steps = [
       const viz=document.querySelector('.wc-viz'); if(viz){ viz.innerHTML=aSpark([89,86,84,82,79,75,72],75)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="wc-stats"')); const n=document.getElementById('aNow'); if(n){ n.textContent='$72'; document.getElementById('aLow').textContent='$72'; document.getElementById('aChecks').textContent='18'; } }
       const pd=document.getElementById('pinDetail'); if(pd&&pd.classList.contains('open')){ pd.classList.remove('open'); document.querySelector('.pin-card').click(); } } },
 
-  { cap:'<strong>6 · Retrieval — where chat history actually lives.</strong> A week later: "where\'s that watch?" Chats don\'t live in the panel — they live in <strong>Firefox View → Chats</strong>. Concept A adds nothing new here except one thing…',
+  { cap:'<strong>6 · Scout — the second agent, same thread.</strong> "Any better deal out there right now?" Scout is the right-now sweep: retailers checked in one pass, effective prices (shipping counts), promo codes <em>verified against the listed price, never applied</em>. It reports into the thread and hands its finding to the Monitor already running.',
+    run(){ osToast.classList.remove('show');
+      addMsg('<div class="msg user">any better deal out there right now?</div>');
+      setTimeout(()=>{ addMsg(`<div class="agent-card">
+        <div class="agent-card-head"><div class="agent-glyph watch" style="background:rgba(255,151,40,0.18);color:#ffb95e"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></div>
+          <div><div class="agent-card-title">Scout — best deal right now</div><div class="agent-card-sub">6 retailers swept · codes verified, never applied</div></div></div>
+        <div class="agent-card-body">
+          <div class="cond-row">🏆 <b>$84.00 — AudioOutlet</b> · code <code>SAVE10</code> ✓ verified · free shipping</div>
+          <div class="cond-row">$89.00 — SoundHub (this page) · no working codes today</div>
+          <div class="cond-row">$92.50 — BestBuy · $5 shipping pushes it last</div>
+          <div class="cond-row" style="color:#7fe07a">→ Handed to the Monitor: your watch now alerts on the best of the group</div>
+        </div></div>`); }, 500);
+    } },
+
+  { cap:'<strong>7 · Research — runs once, keeps a report.</strong> The third agent. "Help me pick a backup under $80 — keep a report." It reads the field once and writes it up. In Concept A the thread is the record: the report card lives here, and — like the watch — it files as a <em>child row under this conversation</em> in Firefox View → Chats.',
+    run(){
+      addMsg('<div class="msg user">help me pick a backup pair under $80 — keep a report</div>');
+      setTimeout(()=>{ addMsg(`<div class="agent-card">
+        <div class="agent-card-head"><div class="agent-glyph watch" style="background:rgba(255,151,40,0.18);color:#ffb95e"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></div>
+          <div><div class="agent-card-title">Report — backup ANC picks under $80</div><div class="agent-card-sub">5 options · 11 pages read · saved in this chat</div></div></div>
+        <div class="agent-card-body">The Drift Q3 at $79 is the call: 60-hour battery, and the only multipoint at this price. Full comparison inside. <span style="color:var(--violet-30);font-weight:700;cursor:pointer">Open the report →</span></div>
+      </div>`);
+      addMsg('<div class="msg ai"><div class="ai-bubble">Saved in this chat — it also files under this conversation in <b>Firefox View → Chats</b>, beside the watch.</div></div>'); }, 500);
+    } },
+
+  { cap:'<strong>8 · Retrieval — where chat history actually lives.</strong> A week later: "where\'s that watch?" Chats don\'t live in the panel — they live in <strong>Firefox View → Chats</strong>. Concept A adds nothing new here except one thing…',
     run(){ osToast.classList.remove('show'); document.getElementById('fxview').classList.add('open'); } },
 
-  { cap:'<strong>7 · The watch is a child of the chat that started it.</strong> Under "Watch the Aurora ANC price" sits its watch — live dot, the rule, started-when — and under last week\'s research chat sits its report. Click either and you\'re back in that conversation with the pinned line on top. <strong>Concept A complete: 1 slash menu + 1 pinned line + child rows in the history you already have.</strong> <a href="index.html">Compare all six →</a>',
-    run(){ document.getElementById('fxview').classList.add('open'); document.getElementById('fxvChild').classList.add('fxv-hl'); } },
+  { cap:'<strong>9 · Every output is a child of the chat that made it.</strong> Under "Watch the Aurora ANC price" sit <em>both</em> children — the live watch and the backup-picks report — and under last week\'s research chat sits its report. All three agents, one retrieval rule: find the conversation, find its children. <strong>Concept A complete: 1 slash menu + 1 pinned line + child rows in the history you already have.</strong> <a href="index.html">Compare all six →</a>',
+    run(){ document.getElementById('fxview').classList.add('open'); document.getElementById('fxvChild').classList.add('fxv-hl'); document.getElementById('fxvChildRep').classList.add('fxv-hl'); } },
 ];
 
 let cur=-1;
@@ -553,6 +582,7 @@ function reset(){
   histOverlay.classList.remove('open'); osToast.classList.remove('show');
   document.getElementById('fxview').classList.remove('open');
   document.getElementById('fxvChild').classList.remove('fxv-hl');
+  document.getElementById('fxvChildRep').classList.remove('fxv-hl');
   const pt0=document.querySelector('.pin-text'); if(pt0) pt0.innerHTML='<strong>Watching:</strong> Aurora ANC · alert at $75 <span id="pinExtra"></span>';
   document.getElementById('pinExtra').textContent=''; document.getElementById('pinMeta').textContent='checked 2m ago';
   document.getElementById('histBtn').classList.remove('active');

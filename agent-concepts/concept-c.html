@@ -467,12 +467,44 @@ const steps=[
         document.getElementById('suggCard').style.display=''; document.getElementById('suggLabel').style.display=''; };
       document.getElementById('denLive').innerHTML=''; document.getElementById('denLive').appendChild(w); document.getElementById('suggCard').style.display='none'; document.getElementById('suggLabel').style.display='none'; showView('shelf'); } },
 
-  { cap:'<strong>5 · Delivery is judgment, not a diff.</strong> Five days later: one notification. Price, rule match, <em>and context a scanner can\'t give</em> — "fares at this level lasted ~2 days last month." Teaser → full object: clicking opens the Den item with the full reasoning. Notification fatigue is the kill-risk for Monitor, so the bar is: every alert must be worth a sentence of judgment.',
+  { cap:'<strong>5 · Scout — the right-now sweep, second agent.</strong> Back in the chat: <em>scout the other fare sites right now</em>. Scout checks them in one pass — effective fares, your dates, refundability — read-only, nothing booked. Its answer is ephemeral; the handoff is not: the Monitor in the Den now covers all four sites.',
+    run(){ showView('chat');
+      addMsg('<div class="msg user">scout the other fare sites right now</div>');
+      setTimeout(()=>{ addMsg(`<div class="plan-card">
+        <div class="plan-head"><div class="plan-glyph" style="background:rgba(230,96,0,0.2);color:#ffb95e"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></div>
+        <div><div class="plan-title">Scout — fares right now</div><div class="plan-sub">4 sites swept · one-time · read-only</div></div></div>
+        <div class="plan-body">
+          <div class="plan-row"><span class="pr-ic">🏆</span><span><b>$899 — Google Flights</b> · refundable · matches your dates</span></div>
+          <div class="plan-row"><span class="pr-ic">·</span><span>$912 — FlightFinder (this page) · $934 — Expedia · $951 — Kayak</span></div>
+          <div class="plan-row" style="color:#7fe07a"><span class="pr-ic">→</span><span>Handed to the Monitor — it now checks <b>all 4 sites</b>. Still above your $850 cap, so no alert.</span></div>
+        </div></div>`);
+        const so=document.getElementById('denLive').querySelector('.so-sub'); if(so && !so.textContent.includes('4 sites')) so.innerHTML='Refundable · ≤ $850 · weekday · 4 sites · best seen: $899';
+      }, 480);
+    } },
+
+  { cap:'<strong>6 · Research — a Report object in the same Den.</strong> The third agent: <em>when should I actually book? keep a report</em>. It runs once and writes it up — the card stays in the thread, and the report files into this chat\'s Den as its second object type, opening as a full canvas with this conversation attached.',
+    run(){ showView('chat');
+      addMsg('<div class="msg user">when should I actually book? keep a report</div>');
+      setTimeout(()=>{ addMsg(`<div class="plan-card">
+        <div class="plan-head"><div class="plan-glyph" style="background:rgba(74,157,248,0.2);color:#8ec2ff"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></div>
+        <div><div class="plan-title">When to book — YVR → NRT</div><div class="plan-sub">12 pages read · saved to this chat\'s Den</div></div></div>
+        <div class="plan-body"><div class="plan-row"><span class="pr-ic">📈</span><span>Book <b>3–6 weeks out</b>; fares dip Tue–Wed. Your $850 cap cleared twice last quarter — realistic.</span></div></div></div>`);
+        if(!document.getElementById('cRepObj')){
+          const rp=el(`<div class="shelf-obj" id="cRepObj">
+            <div class="so-head"><div class="so-glyph" style="background:rgba(74,157,248,0.2);color:#8ec2ff"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></div>
+            <div><div class="so-title">When to book — YVR → NRT</div><div class="so-sub">Report · finished · opens as canvas with this chat attached</div></div></div></div>`);
+          document.getElementById('denLive').appendChild(rp);
+        }
+        setTimeout(()=>showView('shelf'), 1100);
+      }, 480);
+    } },
+
+  { cap:'<strong>7 · Delivery is judgment, not a diff.</strong> Five days later: one notification. Price, rule match, <em>and context a scanner can\'t give</em> — "fares at this level lasted ~2 days last month." Teaser → full object: clicking opens the Den item with the full reasoning. Notification fatigue is the kill-risk for Monitor, so the bar is: every alert must be worth a sentence of judgment.',
     run(){ showView('shelf'); osToast.classList.add('show'); shelfBadge.classList.add('shown'); shelfBadge.textContent='1';
       const first=document.getElementById('denLive').querySelector('.shelf-obj'); if(first){ first.classList.add('unread');
         first.querySelector('.so-sub').innerHTML='<b style="color:var(--violet-60)">$834 refundable found</b> · Tuesday · $16 under your cap'; } } },
 
-  { cap:'<strong>6 · Why this scales.</strong> The Den is a typed-object list, not a layout: future agents add <em>object types</em> (Routine digests, someday Errands), not surfaces. Each chat keeps its own Den; "View all" can grow into the Agent Hub later. Footprint today: <em>1 chip + 1 segment.</em> (Research reports opening as a full canvas with their chat attached is a kept idea — it lives in Concept B and the live experience, in the chat that actually made the report.) <a href="index.html">Compare all concepts →</a>',
+  { cap:'<strong>8 · Why this scales.</strong> The Den is a typed-object list, not a layout: you just watched it absorb all three agents — the Monitor as a Live object, Scout as a sweep that hands off, Research as a Report object — and future agents add <em>object types</em> (Routine digests, someday Errands), not surfaces. Each chat keeps its own Den; "View all" can grow into the Agent Hub later. Footprint today: <em>1 chip + 1 segment.</em> <a href="index.html">Compare all concepts →</a>',
     run(){ showContent('flights'); showView('shelf'); } },
 ];
 
