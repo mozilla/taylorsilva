@@ -188,6 +188,19 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .pc-sent { font-size:12.5px; line-height:1.65; margin:7px 0 2px; }
 .pc-meta { font-size:10.5px; color:rgba(255,255,255,0.5); margin:5px 0 9px; }
 .pc-start { font-family:var(--font); font-size:12px; font-weight:700; background:#2f6fd0; color:#fff; border:none; border-radius:99px; padding:8px 18px; cursor:pointer; margin-top:7px; }
+.qcard { background:rgba(255,255,255,0.06); border:1px solid rgba(151,110,255,0.25); border-radius:14px; padding:14px 16px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.qc-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.qc-title { font-size:13.5px; font-weight:700; flex:1; }
+.qc-page { font-size:11px; color:rgba(255,255,255,0.4); white-space:nowrap; }
+.qc-x { color:rgba(255,255,255,0.4); cursor:pointer; font-size:13px; padding:2px 4px; }
+.qc-opt { display:flex; align-items:center; gap:11px; padding:10px 4px; border-bottom:1px solid rgba(255,255,255,0.07); cursor:pointer; font-size:12.5px; color:rgba(255,255,255,0.85); }
+.qc-opt:hover { background:rgba(151,110,255,0.12); border-radius:8px; }
+.qc-opt .n { width:22px; height:22px; border-radius:6px; background:rgba(151,110,255,0.2); color:#d4bfff; font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.qc-else { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); border-radius:10px; padding:9px 12px; margin-top:9px; font-size:12px; color:rgba(255,255,255,0.4); }
+.qc-else .pen { width:22px; height:22px; border-radius:6px; background:var(--violet-50); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+.qc-skip { margin-left:auto; font-family:var(--font); font-size:11.5px; font-weight:600; background:transparent; border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:5px 14px; cursor:pointer; color:rgba(255,255,255,0.7); }
+.pc-view { display:inline-flex; align-items:center; gap:6px; margin-top:9px; font-size:12px; font-weight:700; color:#5ee8d6; cursor:pointer; background:none; border:none; font-family:var(--font); padding:0; }
+.pc-view:hover { text-decoration:underline; }
 .sb-input { margin:0 12px 12px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:11px 14px; font-size:12.5px; color:rgba(255,255,255,0.4); flex-shrink:0; }
 /* OS toast */
 .os-toast { position:fixed; top:60px; right:28px; width:340px; background:rgba(28,27,34,0.97); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.5); display:none; gap:11px; z-index:90; cursor:pointer; animation:arrive var(--d-considered) var(--ease-arrive); }
@@ -348,34 +361,64 @@ function setChecks(n, hit) {
   [...$('chkDots').children].forEach((d, i) => { if (i < n) d.style.background = (hit && i === n - 1) ? '#7fe07a' : 'rgba(255,255,255,0.45)'; else d.style.background = 'rgba(255,255,255,0.18)'; });
 }
 
+function buildPlanCard(){
+  const t = $('sbThread');
+  if (t.querySelector('.plan-card')) return;
+  const c=document.createElement('div'); c.className='plan-card'; c.id='planCard';
+  c.innerHTML=`<div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching · 4 sites</span></div>
+    <p class="pc-sent">Alert me when a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$620</span> for <span class="tok">Oct 12 – 26</span></p>
+    <div class="pc-meta">Checking 4 times daily · Push notification · read-only</div>
+    <div><button class="site-pill">SkyFares</button><button class="site-pill">Kayak</button><button class="site-pill">Google Flights</button><button class="site-pill">Expedia</button></div>
+    <button class="pc-start" id="pcStart">Start watching</button>`;
+  t.appendChild(c); t.scrollTop=1e6;
+  c.querySelectorAll('.site-pill').forEach(pl=>pl.onclick=()=>pl.style.opacity=pl.style.opacity==='0.4'?'':'0.4');
+  $('pcStart').onclick=finishStart;
+}
+function finishStart(){
+  const b=$('pcBadge'); if(!b || b.classList.contains('on')) return;
+  b.classList.add('on');
+  const st=$('pcStart'); if(st) st.remove();
+  $('planCard').insertAdjacentHTML('beforeend','<button class="pc-view" id="pcView">Open in Agents — Firefox View →</button>');
+  document.getElementById('pcView').onclick=()=>show('page-fxv');
+  const t=$('sbThread'); const a=document.createElement('div'); a.className='msg-a';
+  a.innerHTML='Watching now — saved under <b>Agents</b> in Firefox View. I\u2019ll stay quiet until your rule is met.'; t.appendChild(a); t.scrollTop=1e6;
+}
+function askEQ(){
+  const t=$('sbThread');
+  if(t.querySelector('.qcard')||t.querySelector('.plan-card')) return;
+  const c=document.createElement('div'); c.className='qcard';
+  c.innerHTML=`<div class="qc-head"><div class="qc-title">What matters most for this trip?</div><span class="qc-page">‹ 1 of 1 ›</span><span class="qc-x">✕</span></div>
+    <div class="qc-opt"><span class="n">1</span>Lowest nonstop, any day in my window</div>
+    <div class="qc-opt"><span class="n">2</span>Specific dates — Oct 12 – 26 only</div>
+    <div class="qc-opt"><span class="n">3</span>Refundable fares only</div>
+    <div class="qc-opt"><span class="n">4</span>Anything under $620</div>
+    <div class="qc-else"><span class="pen">✎</span>Something else<button class="qc-skip">Skip</button></div>`;
+  const done=()=>{ c.remove(); buildPlanCard(); };
+  c.querySelectorAll('.qc-opt').forEach(o=>o.onclick=done);
+  c.querySelector('.qc-skip').onclick=done;
+  c.querySelector('.qc-x').onclick=done;
+  t.appendChild(c); t.scrollTop=1e6;
+}
 function buildCreation(){
   $('offerChip').classList.remove('shown');
   const t = $('sbThread'); if (t.children.length) return;
   t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'watch these fares for me'}));
   setTimeout(()=>{
-    const a=document.createElement('div'); a.className='msg-a'; a.textContent='Here\u2019s the watch I\u2019ll set up from this page — adjust anything by clicking the underlined parts:'; t.appendChild(a);
-    const c=document.createElement('div'); c.className='plan-card'; c.id='planCard';
-    c.innerHTML=`<div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching · 4 sites</span></div>
-      <p class="pc-sent">Alert me when a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$620</span> for <span class="tok">Oct 12 – 26</span></p>
-      <div class="pc-meta">Checking 4 times daily · Push notification · read-only</div>
-      <div><button class="site-pill">SkyFares</button><button class="site-pill">Kayak</button><button class="site-pill">Google Flights</button><button class="site-pill">Expedia</button></div>
-      <button class="pc-start" id="pcStart">Start watching</button>`;
-    t.appendChild(c); t.scrollTop=1e6;
-    c.querySelectorAll('.site-pill').forEach(pl=>pl.onclick=()=>pl.style.opacity=pl.style.opacity==='0.4'?'':'0.4');
-    $('pcStart').onclick=()=>goto(1);
-  },450);
+    const a=document.createElement('div'); a.className='msg-a'; a.textContent='One quick question, then I\u2019ll set it up:'; t.appendChild(a);
+    askEQ();
+  },420);
 }
 const steps = [
-  { cap:"<strong>1 · The trigger: a quiet offer chip in the bar.</strong> Browsing SkyFares, Smart Window offers — <em>I can watch this price</em>, dismissible. Click it and the sidebar opens with the creation card <em>inline in the conversation</em>, prefilled from the page: underlined parts editable, site pills toggleable. (Other ways in — slash command, suggestion chips, just asking — live in the experience prototype.)",
+  { cap:"<strong>1 · The trigger, then one question.</strong> The offer chip opens the sidebar; because the chip carries page context, Smart Window needs just one clarifying question — Claude\u2019s pattern in Smart Window\u2019s skin: numbered options, <em>Something else</em>, <em>Skip</em>. Answer it and the prefilled card appears. (Slash, suggestion chips, and plain asking live in the experience prototype.)",
     run(){ show('page-sky'); $('offerChip').classList.add('shown');
       $('offerChip').onclick = buildCreation;
-      setTimeout(buildCreation, 1200);
+      setTimeout(buildCreation, 1100);
     } },
 
-  { cap:"<strong>2 · Started — the confirmation is inline, in the conversation.</strong> No floating alert: the card gets its Watching badge and the next line of the chat says exactly where it lives from now on — <em>saved under Agents in Firefox View</em>. The Firefox View tab badge starts counting what\u2019s live.",
-    run(){ const b=$('pcBadge'); if(b) b.classList.add('on'); const st=$('pcStart'); if(st) st.remove();
-      const t=$('sbThread'); const a=document.createElement('div'); a.className='msg-a';
-      a.innerHTML='Watching now — saved under <b>Agents</b> in Firefox View. I\u2019ll stay quiet until your rule is met.'; t.appendChild(a); t.scrollTop=1e6;
+  { cap:"<strong>2 · Started — the card stays in the chat, with a door to Agents.</strong> The confirmation is inline (no floating alert), the card keeps its Watching badge, and it carries a permanent link: <em>Open in Agents — Firefox View →</em>. The chat record and the management home stay one click apart.",
+    run(){ const t=$('sbThread');
+      if(!t.querySelector('.plan-card')){ if(!t.children.length){ t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'watch these fares for me'})); } t.querySelectorAll('.qcard').forEach(n=>n.remove()); buildPlanCard(); }
+      setTimeout(finishStart, 600);
     } },
 
   { cap:"<strong>3 · The end location: Firefox View → Agents, beside Chats.</strong> The full management surface Concept B wanted — every watch as a card with its rule in plain words, a dot per check (green = something happened), last-check time, cadence, site count, and direct actions: <em>Check now · Pause · Open page · Delete</em>. Search on top. And it cost zero new top-level surfaces — Firefox View already ships.",
