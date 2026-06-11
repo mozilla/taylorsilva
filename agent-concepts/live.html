@@ -676,7 +676,7 @@ const PATHS = {
 const S = {
   day: 0, watches: [], reports: [], id: 1,
   usedChips: new Set(), offerDismissed: {}, pending: null, lastPlanCard: null,
-  activeTab: "soundhub", sidebarOpen: false, sbView: "chat", swShelfOpen: false,
+  activeTab: "soundhub", sidebarOpen: true, sbView: "chat", swShelfOpen: false,
   openReportId: null, chatActive: false, sbGreeted: {}, activity: [], suggDismissed: {}, suggSeen: {}, calloutShown: {}, pendingSites: 0, concept: 'C', fxvMode: 'agents', pendingAsk: null,
 };
 function log(text) { S.activity.unshift({ day: S.day, text }); }
@@ -1701,6 +1701,7 @@ const CONCEPT_COLOR={A:'#9959FF',B:'#e66000',C:'#058b00',D:'#ED49AE',E:'#14b8a6'
 const _onBtn=document.querySelector('.cbtn-on');
 if(_onBtn) _onBtn.style.background=CONCEPT_COLOR[S.concept]||'#9959FF';
 renderAll();
+if(S.sidebarOpen && S.activeTab!=='sw') greetSidebar();
 </script>
 </body>
 </html>
