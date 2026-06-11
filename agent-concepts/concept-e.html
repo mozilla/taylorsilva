@@ -249,8 +249,6 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
       <div class="bp-count">One watch, 4 sites</div>
       <button class="bp-start" id="bpStart">Start watching</button>
     </div>
-
-    <div class="saved-callout" id="savedCallout"><span class="chk">✓</span>Saved — find it under <b>&nbsp;Agents&nbsp;</b> in Firefox View</div>
   </div>
 
   <div class="window-body">
@@ -368,18 +366,17 @@ function buildCreation(){
   },450);
 }
 const steps = [
-  { cap:"<strong>1 · Two ways in — both land in the chat.</strong> A quiet offer chip in the bar (<em>I can watch this price</em> — dismissible), or just opening the sidebar and asking. Either way, the creation card appears <em>inline in the conversation</em>, prefilled from the page — underlined parts editable, site pills toggleable. The bar never hosts the setup; it only offers.",
+  { cap:"<strong>1 · The trigger: a quiet offer chip in the bar.</strong> Browsing SkyFares, Smart Window offers — <em>I can watch this price</em>, dismissible. Click it and the sidebar opens with the creation card <em>inline in the conversation</em>, prefilled from the page: underlined parts editable, site pills toggleable. (Other ways in — slash command, suggestion chips, just asking — live in the experience prototype.)",
     run(){ show('page-sky'); $('offerChip').classList.add('shown');
       $('offerChip').onclick = buildCreation;
       setTimeout(buildCreation, 1200);
     } },
 
-  { cap:"<strong>2 · Started — the card confirms in place, and the home is named.</strong> The card stays in the chat with its Watching badge; the callout says exactly where it lives from now on: <em>Agents, in Firefox View</em>.",
+  { cap:"<strong>2 · Started — the confirmation is inline, in the conversation.</strong> No floating alert: the card gets its Watching badge and the next line of the chat says exactly where it lives from now on — <em>saved under Agents in Firefox View</em>. The Firefox View tab badge starts counting what\u2019s live.",
     run(){ const b=$('pcBadge'); if(b) b.classList.add('on'); const st=$('pcStart'); if(st) st.remove();
       const t=$('sbThread'); const a=document.createElement('div'); a.className='msg-a';
       a.innerHTML='Watching now — saved under <b>Agents</b> in Firefox View. I\u2019ll stay quiet until your rule is met.'; t.appendChild(a); t.scrollTop=1e6;
-      $('savedCallout').classList.add('open');
-      setTimeout(()=>$('savedCallout').classList.remove('open'), 3200); } },
+    } },
 
   { cap:"<strong>3 · The end location: Firefox View → Agents, beside Chats.</strong> The full management surface Concept B wanted — every watch as a card with its rule in plain words, a dot per check (green = something happened), last-check time, cadence, site count, and direct actions: <em>Check now · Pause · Open page · Delete</em>. Search on top. And it cost zero new top-level surfaces — Firefox View already ships.",
     run(){ show('page-fxv'); setChecks(1, false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites'; } },
@@ -400,7 +397,7 @@ steps.forEach((s, i) => { const d = document.createElement('div'); d.className =
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
 function reset(){
   show('page-sky'); $('sbThread').innerHTML=''; $('offerChip').classList.remove('shown'); $('barInput').value=''; $('barSuggest').classList.remove('open'); $('barPlan').classList.remove('open');
-  $('savedCallout').classList.remove('open'); $('alertStrip').classList.remove('open');
+   $('alertStrip').classList.remove('open');
   $('osToast').classList.remove('open'); $('agentsBub').classList.remove('on'); $('skyDot').style.display='none';
   $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false);
 }

@@ -186,6 +186,12 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 /* docked smartbar + disclaimer */
 .sw-dock { width:100%; display:flex; flex-direction:column; align-items:center; padding:4px 20px 0; }
 .disclaimer { color:var(--gray-60); font-size:11px; padding:7px 0 10px; user-select:none; }
+.sw-footer { display:flex; gap:30px; justify-content:center; padding:14px 0 18px; }
+.sw-foot-item { display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11.5px; color:var(--gray-60); cursor:pointer; background:none; border:none; font-family:var(--font); }
+.sw-foot-item:hover { color:var(--violet-60); }
+.sw-foot-item .ic { width:34px; height:34px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(43,27,85,0.12); display:flex; align-items:center; justify-content:center; font-size:14px; position:relative; }
+.sw-foot-item .bub { position:absolute; top:-3px; right:-3px; min-width:14px; height:14px; border-radius:99px; background:var(--orange); color:#fff; font-size:8.5px; font-weight:800; display:none; align-items:center; justify-content:center; padding:0 4px; }
+#page-sw.chat-active .sw-footer { display:none; }
 
 /* ─── Sidebar mode (page tabs) ─── */
 .sidebar { width:380px; flex-shrink:0; background:linear-gradient(180deg,#f8f5fe 0%,#f3eefb 100%); border-left:1px solid rgba(43,27,85,0.07); display:none; flex-direction:column; min-height:0; }
@@ -442,6 +448,11 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
           </div>
           <div id="swStarters"></div>
           <div class="disclaimer">AI can make mistakes. Check important info.</div>
+          <div class="sw-footer">
+            <button class="sw-foot-item"><span class="ic">🕘</span>History</button>
+            <button class="sw-foot-item"><span class="ic">💬</span>Chats</button>
+            <button class="sw-foot-item" id="swFootAgents"><span class="ic">👁<span class="bub" id="footBub"></span></span>Agents</button>
+          </div>
         </div>
 
         <!-- fullpage shelf -->
@@ -1111,6 +1122,8 @@ function renderShelves() {
   $("shelfBub").style.display = swU ? "" : "none"; $("shelfBub").textContent = swU; $("shelfBub").classList.toggle("dot", !!swU && !S.watches.some(w => w.chat === "sw" && w.status === "met" && !w.seen));
   $("sbShelfBub").style.display = sbU ? "" : "none"; $("sbShelfBub").textContent = sbU; $("sbShelfBub").classList.toggle("dot", !!sbU && !S.watches.some(w => w.chat === "sb" && w.status === "met" && !w.seen));
   document.querySelectorAll("[data-viewall]").forEach(v => v.style.display = hubUnlocked() ? "" : "none");
+  const fb = $("footBub");
+  if (fb) { const n = S.watches.filter(w => w.status === "met" && !w.seen).length; fb.style.display = n ? "inline-flex" : "none"; fb.textContent = n; }
 }
 function bumpShelf() { renderShelves(); }
 
@@ -1203,6 +1216,7 @@ function renderAll() { renderTabs(); renderToolbar(); renderPages(); renderShelv
 
 $("daySkip").onclick = advanceDay;
 $("shelfBtn").onclick = () => S.swShelfOpen ? closeSwShelf() : openSwShelf();
+$("swFootAgents").onclick = () => { S.hubVisited = true; go("hub"); };
 $("shelfClose").onclick = closeSwShelf;
 $("newChatBtn").onclick = () => { S.chatActive = false; $("page-sw").classList.remove("chat-active"); $("swThread").innerHTML = ""; S.watches.forEach(w => { if (w.chat === "sw") w.chat = "archived"; }); S.reports.forEach(r => { if (r.chat === "sw") r.chat = "archived"; }); renderAll(); };
 $("sbNew").onclick = () => { $("sbThread").innerHTML = ""; S.sbGreeted = {}; S.watches.forEach(w => { if (w.chat === "sb") w.chat = "archived"; }); S.reports.forEach(r => { if (r.chat === "sb") r.chat = "archived"; }); renderAll(); greetSidebar(); };
