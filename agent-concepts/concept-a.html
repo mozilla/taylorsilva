@@ -182,6 +182,33 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .os-toast-body { font-size:11.5px; color:rgba(255,255,255,0.72); line-height:1.45; margin-top:2px; }
 .os-toast-app { font-size:9.5px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:3px; }
 
+/* ─── Firefox View → Chats (the real chat-history surface) ─── */
+.fxview { display:none; position:absolute; inset:0; background:linear-gradient(120deg,#1c1722 0%,#201a2d 55%,#2b1e3e 100%); color:rgba(255,255,255,0.88); overflow-y:auto; z-index:6; }
+.fxview.open { display:flex; }
+.fxv-rail { width:215px; flex-shrink:0; padding:26px 14px; }
+.fxv-brand { display:flex; align-items:center; gap:9px; font-size:16px; font-weight:700; margin-bottom:22px; padding-left:8px; }
+.fxv-brand .fx { width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#ff9500,#ff3b81); }
+.fxv-item { display:flex; align-items:center; gap:10px; font-size:12.5px; color:rgba(255,255,255,0.65); padding:8px 10px; border-radius:8px; cursor:pointer; }
+.fxv-item:hover { background:rgba(255,255,255,0.06); }
+.fxv-item.active { background:rgba(255,255,255,0.1); color:#5ee8d6; border-left:2.5px solid #5ee8d6; }
+.fxv-main { flex:1; padding:26px 34px; min-width:0; }
+.fxv-main h1 { font-size:20px; font-weight:700; margin-bottom:14px; }
+.fxv-search { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:8px 14px; font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:18px; max-width:760px; }
+.fxv-group { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:10px 14px; margin-bottom:14px; max-width:760px; }
+.fxv-gh { font-size:13px; font-weight:700; padding:6px 2px 8px; }
+.fxv-row { display:flex; align-items:center; gap:10px; font-size:12.5px; color:rgba(255,255,255,0.8); padding:8px 6px; border-radius:8px; cursor:pointer; }
+.fxv-row:hover { background:rgba(255,255,255,0.05); }
+.fxv-row .gl { width:16px; height:16px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.4); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; }
+.fxv-row .when { margin-left:auto; font-size:11px; color:rgba(255,255,255,0.4); white-space:nowrap; }
+/* the watch as a CHILD of its chat row */
+.fxv-child { display:flex; align-items:center; gap:9px; margin:2px 6px 6px 30px; background:rgba(151,110,255,0.1); border:1px solid rgba(151,110,255,0.3); border-left:2.5px solid var(--violet-40); border-radius:9px; padding:7px 12px; cursor:pointer; transition:background var(--d-quick); }
+.fxv-child:hover { background:rgba(151,110,255,0.18); }
+.fxv-child .wg { width:24px; height:24px; border-radius:7px; background:rgba(151,110,255,0.22); color:#d4bfff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.fxv-child .t { font-size:12px; font-weight:700; }
+.fxv-child .st { font-size:10.5px; color:rgba(255,255,255,0.55); margin-top:1px; }
+.fxv-child .live { color:#7fe07a; font-weight:800; font-size:9.5px; letter-spacing:0.5px; }
+.fxv-child .live::before { content:"● "; animation:breathe var(--d-breathe) ease-in-out infinite; }
+.fxv-hl { box-shadow:0 0 0 2.5px rgba(151,110,255,0.5); }
 .hidden { display:none !important; }
 </style>
 </head>
@@ -191,7 +218,7 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
   <a href="index.html">← All concepts</a>
   <span class="proto-chip">CONCEPT A</span>
   <span class="proto-title">All in the chat</span>
-  <span class="proto-sub">Minimum footprint · the thread is the surface</span>
+  <span class="proto-sub">Smallest build · the chat is the surface; history stays in Firefox View</span>
   <div class="proto-steps">
     <div class="step-dots" id="dots"></div>
     <button class="proto-btn ghost" id="backBtn">Back</button>
@@ -242,6 +269,41 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
           <div class="os-toast-app">Firefox · Smart Window</div>
           <div class="os-toast-title">Aurora ANC dropped to $72</div>
           <div class="os-toast-body">$3 below your $75 target at SoundHub — and code <b>SAVE10</b> still applies. Open the thread to see the check.</div>
+        </div>
+      </div>
+
+      <!-- Firefox View → Chats -->
+      <div class="fxview" id="fxview">
+        <div class="fxv-rail">
+          <div class="fxv-brand"><span class="fx"></span>Firefox View</div>
+          <div class="fxv-item">✨ Recent browsing</div>
+          <div class="fxv-item">▣ Open tabs</div>
+          <div class="fxv-item">↩ Recently closed tabs</div>
+          <div class="fxv-item">⇄ Tabs from other devices</div>
+          <div class="fxv-item">🕘 History</div>
+          <div class="fxv-item active">💬 Chats</div>
+        </div>
+        <div class="fxv-main">
+          <h1>Chats</h1>
+          <div class="fxv-search">🔍 Search chats</div>
+          <div class="fxv-group">
+            <div class="fxv-gh">Today</div>
+            <div class="fxv-row" id="fxvWatchChat"><span class="gl">Ø</span>Watch the Aurora ANC price<span class="when">11:58 AM</span></div>
+            <div class="fxv-child" id="fxvChild">
+              <span class="wg"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></span>
+              <span><span class="t">Watch: Aurora ANC Headphones</span><div class="st"><span class="live">LIVE</span> · alert at $75 · 3 retailers · started today</div></span>
+            </div>
+            <div class="fxv-row"><span class="gl">Ø</span>Summarize this return policy<span class="when">9:14 AM</span></div>
+          </div>
+          <div class="fxv-group">
+            <div class="fxv-gh">Last week</div>
+            <div class="fxv-row" id="fxvRepChat"><span class="gl">Ø</span>Help me pick ANC headphones<span class="when">6/3/26</span></div>
+            <div class="fxv-child">
+              <span class="wg" style="background:rgba(255,151,40,0.18);color:#ffb95e"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></span>
+              <span><span class="t">Report: ANC headphones under $100</span><div class="st">finished · 6 options compared</div></span>
+            </div>
+            <div class="fxv-row"><span class="gl">Ø</span>Compare checked bag fees<span class="when">6/2/26</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -386,12 +448,11 @@ const steps = [
   { cap:'<strong>5 · Delivery — the notification IS the product.</strong> Two days later, an OS notification. Not "page changed": a sentence of judgment — price, target delta, working code, which retailer won. This is the LLM-layer value a classic watcher can\'t produce. Clicking deep-links back into the original thread.',
     run(){ osToast.classList.add('show'); document.getElementById('pinMeta').textContent='condition met ✓'; } },
 
-  { cap:'<strong>6 · Retrieval — the weak point, made honest.</strong> Two weeks later: "where\'s that headphone report?" In Concept A the answer is the history panel with one new <strong>Agents</strong> filter. It works — but it relies on the user remembering to look in history. This is the Claude-artifacts anecdote risk, accepted deliberately in exchange for zero new surface.',
-    run(){ osToast.classList.remove('show'); histOverlay.classList.add('open'); document.getElementById('histBtn').classList.add('active'); } },
+  { cap:'<strong>6 · Retrieval — where chat history actually lives.</strong> A week later: "where\'s that watch?" Chats don\'t live in the panel — they live in <strong>Firefox View → Chats</strong>. Concept A adds nothing new here except one thing…',
+    run(){ osToast.classList.remove('show'); document.getElementById('fxview').classList.add('open'); } },
 
-  { cap:'<strong>7 · The filter.</strong> The Agents filter collapses history to live watches and finished reports. Live items show the breathing dot; reports show what they answered. This is Concept A complete: <strong>1 slash menu + 1 pinned strip + 1 history filter = the whole footprint.</strong> Scales poorly past ~5 concurrent agents, ships in one sprint. Back: <a href="index.html">compare all three concepts →</a>',
-    run(){ document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active')); document.getElementById('agentFilter').classList.add('active');
-      document.querySelectorAll('.hist-item').forEach(h=>{ h.classList.toggle('dim', h.dataset.kind!=='agents'); }); } },
+  { cap:'<strong>7 · The watch is a child of the chat that started it.</strong> Under "Watch the Aurora ANC price" sits its watch — live dot, the rule, started-when — and under last week\'s research chat sits its report. Click either and you\'re back in that conversation with the pinned line on top. <strong>Concept A complete: 1 slash menu + 1 pinned line + child rows in the history you already have.</strong> <a href="index.html">Compare all five →</a>',
+    run(){ document.getElementById('fxview').classList.add('open'); document.getElementById('fxvChild').classList.add('fxv-hl'); } },
 ];
 
 let cur=-1;
@@ -401,6 +462,8 @@ function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('a
 function reset(){
   thread.innerHTML=''; clearComposer(); pinStrip.classList.remove('visible');
   histOverlay.classList.remove('open'); osToast.classList.remove('show');
+  document.getElementById('fxview').classList.remove('open');
+  document.getElementById('fxvChild').classList.remove('fxv-hl');
   document.getElementById('pinExtra').textContent=''; document.getElementById('pinMeta').textContent='checked 2m ago';
   document.getElementById('histBtn').classList.remove('active');
   document.querySelectorAll('.hist-item').forEach(h=>h.classList.remove('dim'));
@@ -413,7 +476,8 @@ function goto(n){
 }
 document.getElementById('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; caption.innerHTML='<strong>Concept A · All in the chat.</strong> Zero new surfaces. Click <strong>Start walkthrough</strong>.'; renderDots(); document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
 document.getElementById('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
-document.getElementById('histBtn').onclick=()=>histOverlay.classList.add('open');
+document.getElementById('histBtn').onclick=()=>document.getElementById('fxview').classList.add('open');
+document.getElementById('fxview').onclick=e=>{ if(e.target.id==='fxvChild'||e.target.closest('#fxvChild')){ document.getElementById('fxview').classList.remove('open'); } };
 document.getElementById('histClose').onclick=()=>histOverlay.classList.remove('open');
 document.querySelectorAll('.filter-pill').forEach(p=>p.onclick=()=>{ document.querySelectorAll('.filter-pill').forEach(q=>q.classList.remove('active')); p.classList.add('active'); const f=p.dataset.f; document.querySelectorAll('.hist-item').forEach(h=>h.classList.toggle('dim', f!=='all' && h.dataset.kind!==f)); });
 renderDots();

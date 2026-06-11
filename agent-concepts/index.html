@@ -207,7 +207,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <div class="concept-card">
         <div class="cc-tag cc-a">CONCEPT A · SMALLEST BUILD</div>
         <div class="cc-name">All in the chat</div>
-        <div class="cc-thesis">Agents live inside the chat you already use. You start one by typing, a pinned line at the top of the panel shows what's running, and you find past results by filtering your chat history.</div>
+        <div class="cc-thesis">Agents live inside the chat you already use. You start one by typing, a pinned line at the top of the panel shows what's running when you reopen it, and each chat that started a watch shows it as a child row in Firefox View → Chats — where chat history already lives.</div>
         <div class="cc-mini"><b>Footprint:</b> 1 slash menu · 1 pinned strip · 1 history filter<br><b>Ships in:</b> ~1 sprint of UI work</div>
         <a class="cc-btn a" href="concept-a.html">Storyboard →</a>
       </div>
@@ -250,8 +250,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <tbody>
         <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The list + right on the page (badge under the price, sleeping tab)</td><td>All of it, appearing as you need it</td></tr>
         <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>The chip, asking, or the badge on a page you come back to</td><td>Any of these</td></tr>
-        <tr><td>Where results are kept</td><td>In the conversation; filter history to find them</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>The list, plus marked right on the page; reports get real shareable links</td><td>The list always; the full page once you have a few agents</td></tr>
-        <tr><td>How you get back to it</td><td>Click the notification; dig through history</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>Notification, the tab waking up, the mark on the page, or the list — something always reaches you</td><td>Whichever of these you have — they stay in sync</td></tr>
+        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>The list, plus marked right on the page; reports get real shareable links</td><td>The list always; the full page once you have a few agents</td></tr>
+        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>Notification, the tab waking up, the mark on the page, or the list — something always reaches you</td><td>Whichever of these you have — they stay in sync</td></tr>
         <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="mid">C plus two browser-native pieces · ~3 sprints</td><td class="bad">Everything, in stages · multi-quarter</td></tr>
         <tr><td>How it grows</td><td class="bad">It doesn't — falls apart past ~3 agents</td><td>Add more cards to the page</td><td>Add new kinds of saved things</td><td>Same watch just shows up in more places</td><td>New surfaces appear as people use more</td></tr>
         <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>Drawing on web pages is a line Firefox has never crossed; three places to keep in sync</td><td>Complicated to build and explain</td></tr>
@@ -260,7 +260,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     </table>
 
     <h3>Concept A — All in the chat</h3>
-    <p>The strongest version of "chat history is enough." Monitor and Scout collapse into <code>/watch</code>; confirmation is an in-thread card edited by replying; the one concession to persistence is a pinned strip of live agents atop the panel. Delivery deep-links into the originating thread.</p>
+    <p>The strongest version of "chat history is enough." Watches start by typing in the chat; confirmation is an in-thread card you edit by replying. Two small additions carry everything: a pinned line at the top of the panel showing what's running, and — since chat history actually lives in Firefox View → Chats — the watch appears there as a <b>child row under the chat that started it</b>, with its live dot and rule. Clicking either takes you back into the conversation.</p>
     <div class="pro-con">
       <div class="pc-col pro"><h4>Pros</h4><ul>
         <li>Near-zero maintenance cost; no new surface to localize, test, or sunset</li>
@@ -269,7 +269,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <li>Honest fit with "avoid new surfaces without clear justification"</li>
       </ul></div>
       <div class="pc-col con"><h4>Cons</h4><ul>
-        <li>Retrieval re-runs the Claude-artifacts failure: reports buried in history behind a filter users must remember exists</li>
+        <li>Retrieval still depends on visiting Firefox View → Chats; nothing reaches you on the page you're actually shopping on</li>
         <li>Live state invisible when the panel is closed</li>
         <li>Pinned strip stops scaling past ~3 concurrent watches</li>
         <li>No natural home for contextual offers or future habit-learned agents — the roadmap hits a wall</li>
