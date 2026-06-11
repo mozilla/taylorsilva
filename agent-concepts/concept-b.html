@@ -96,6 +96,13 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .slash-pop2 .r { display:flex; gap:9px; padding:9px 13px; align-items:center; }
 .slash-pop2 .r:hover { background:var(--violet-05); }
 .slash-pop2 code { font-size:10.5px; color:var(--violet-50); }
+.bpin-bar { position:sticky; top:0; z-index:10; padding:8px 12px 6px; background:linear-gradient(180deg,#f8f5fe 70%,transparent); display:none; }
+.bpin-bar.on { display:block; }
+.bpin { display:inline-flex; align-items:center; gap:8px; background:#fff; border:1.5px solid var(--violet-20); border-radius:99px; padding:6px 14px 6px 8px; font-size:12px; font-weight:700; color:var(--grey-100); cursor:pointer; box-shadow:0 2px 8px rgba(43,27,85,0.12); }
+.bpin .ic { width:22px; height:22px; border-radius:7px; background:var(--violet-10); color:var(--violet-60); display:inline-flex; align-items:center; justify-content:center; }
+.bpin .dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
+.bpin-pop { position:absolute; top:44px; left:12px; right:12px; background:#fff; border-radius:14px; box-shadow:0 16px 44px rgba(43,27,85,0.25); padding:13px 15px; display:none; animation:arrive 240ms var(--ease-arrive); }
+.bpin-pop.open { display:block; }
 .qcard { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(43,27,85,0.12); padding:14px 16px; animation:arrive 300ms var(--ease-arrive); }
 @keyframes arrive { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 .qc-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
@@ -448,6 +455,8 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
   </div>
     <div class="b-sidebar" id="bSidebar">
       <div class="bsb-head"><div class="bsb-logo"></div><b style="font-size:13px">Smart Window</b></div>
+      <div class="bpin-bar" id="bPinBar"><span class="bpin" id="bPin"><span class="ic">👁</span>Sony WH-1000XM6<span class="dot"></span></span>
+        <div class="bpin-pop" id="bPinPop"></div></div>
       <div class="bsb-thread" id="bThread"></div>
       <div class="slash-pop2" id="slashPop" style="display:none">
         <div class="r"><code>/watch</code><span>Keep an eye on this page until a condition is met</span></div>
@@ -522,33 +531,49 @@ function buildBPlan(){
     document.getElementById('bStart').onclick=()=>{
       document.getElementById('bBadge').style.display='inline-block';
       document.getElementById('bStart').remove();
-      const plan=t.querySelector('.bplan');
-      plan.insertAdjacentHTML('afterbegin','<div style="font-size:9.5px;font-weight:800;letter-spacing:0.6px;color:var(--violet-60);margin-bottom:6px">📌 PINNED TO THIS CHAT</div>');
-      t.insertBefore(plan, t.firstChild);
-      t.insertAdjacentHTML('beforeend','<div class="bmsg-a">Watching — this card stays <b>pinned to the top of this chat</b> at all times, and it lives in your <a href="#" id="hubLink" style="color:var(--violet-60);font-weight:700">Agent Hub</a>.</div>');
-      document.getElementById('hubLink').onclick=(e)=>{ e.preventDefault(); steps[4].run(); caption.innerHTML=steps[4].cap; cur=4; renderDots(); };
-      t.scrollTop=0;
+      document.getElementById('bPinBar').classList.add('on');
+      t.insertAdjacentHTML('beforeend','<div class="bmsg-a">Watching — this watch is now a <b>living pin at the top of this chat</b> (tap it any time, no scrolling), it stays right here where you made it, and it lives in your <a href="#" id="hubLink" style="color:var(--violet-60);font-weight:700">Agent Hub</a>.</div>');
+      document.getElementById('hubLink').onclick=(e)=>{ e.preventDefault(); goto(5); };
+      t.scrollTop=1e6;
     };
   },420);
 }
 const steps=[
-  { cap:'<strong>1 · It starts with the slash command.</strong> On the product page, the user types <em>/</em> in the chat sidebar — the menu offers the two verbs. Pick <em>/watch</em>.',
+  { cap:'<strong>1 · The slash menu.</strong> On the product page, the user types <em>/</em> in the chat input — the menu offers the two verbs. Pick <em>/watch</em>.',
     run(){ show('shop');
-      document.getElementById('featCallout').classList.remove('open');
-      document.getElementById('bThread').innerHTML='<div class="bmsg-u">/</div>';
+      document.getElementById('bPinBar').classList.remove('on');
+      document.getElementById('bThread').innerHTML='';
+      document.getElementById('bInput').textContent='/';
       document.getElementById('slashPop').style.display='';
-      document.querySelectorAll('#slashPop .r').forEach(r=>r.onclick=()=>buildQuestions(true));
+      document.querySelectorAll('#slashPop .r').forEach(r=>r.onclick=()=>goto(1));
     } },
 
-  { cap:'<strong>2 · No context? Smart Window asks — Claude\'s pattern, Smart Window\'s skin.</strong> The slash command carries no context, so setup questions appear inline in the chat: numbered options, <em>Something else</em> for free text, <em>Skip</em>, and ‹ 1 of 2 › pagination.',
+  { cap:'<strong>2 · Say what you want.</strong> The user types their ask into the input — whatever they know: a price, a feeling, nothing at all. Smart Window will fill the gaps.',
+    run(){ show('shop');
+      document.getElementById('slashPop').style.display='none';
+      const inp=document.getElementById('bInput');
+      const text='/watch — tell me if these drop below $330';
+      let i=0; inp.textContent='';
+      const tt=setInterval(()=>{ i++; inp.textContent=text.slice(0,i); if(i>=text.length){ clearInterval(tt);
+        setTimeout(()=>{ inp.textContent='Ask, or type / for agents…';
+          document.getElementById('bThread').innerHTML='<div class="bmsg-u">/watch — tell me if these drop below $330</div>';
+        },500); } },24);
+    } },
+
+  { cap:'<strong>3 · It asks what it still needs.</strong> The typed ask gave it the target; one question remains — Claude\'s pattern in Smart Window\'s skin: numbered options, <em>Something else</em>, <em>Skip</em>.',
     run(){ show('shop');
       const t=document.getElementById('bThread');
-      if(!t.querySelector('.bmsg-u')) buildQuestions(true); else askQ(0);
+      if(!t.querySelector('.bmsg-u')) t.innerHTML='<div class="bmsg-u">/watch — tell me if these drop below $330</div>';
+      if(!t.querySelector('.bmsg-a')) t.insertAdjacentHTML('beforeend','<div class="bmsg-a">Got the target. One more thing:</div>');
+      askQ(0);
     } },
 
-  { cap:'<strong>3 · Answers become the prefilled card — start it.</strong> The questions resolve into the editable setup card. On start, the card <em>pins to the top of this chat</em> so it never scrolls away — and the confirmation links straight to the <em>Agent Hub</em>, its other home. Click the link.',
-    run(){ show('shop'); buildBPlan(); setTimeout(()=>{ const b=document.getElementById('bStart'); if(b) b.click(); }, 1100); } },
-  { cap:'<strong>4 · The Agent Hub — the watch is already there.</strong> Click through to <em>about:agents</em> — a true destination. Left: live agents as tiles with real state (price sparkline vs. target line, grouped retailers, semantic fare conditions). Right: the reports library and an activity feed showing every check the agents made. <em>Transparency builds the trust that background agents spend.</em>',
+  { cap:'<strong>4 · The card — with other pages suggested alongside.</strong> The setup box appears in the chat: rule and alert editable, watching <em>this page</em> by default, and the other relevant retailers offered right on the card as tap-to-add suggestions.',
+    run(){ show('shop'); buildBPlan(); } },
+
+  { cap:'<strong>5 · Start → a living pin.</strong> The watch saves as a <em>pinned component at the top of the chat</em> — a little icon and a name, always visible, never scrolled away. Click it: the actual watch box pops open right there. And the full card still lives below, in the chat where you made it. Try clicking the pin.',
+    run(){ show('shop'); buildBPlan(); setTimeout(()=>{ const b=document.getElementById('bStart'); if(b) b.click(); }, 400); } },
+  { cap:'<strong>6 · The Agent Hub — the watch is already there.</strong> Click through to <em>about:agents</em> — a true destination. Left: live agents as tiles with real state (price sparkline vs. target line, grouped retailers, semantic fare conditions). Right: the reports library and an activity feed showing every check the agents made. <em>Transparency builds the trust that background agents spend.</em>',
     run(){ if(!document.getElementById('newTile')){
         const t=document.createElement('div'); t.className='agent-tile'; t.id='newTile'; t.style.animationDelay='0ms';
         t.innerHTML=`<div class="at-head"><div class="at-glyph watch"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
@@ -559,16 +584,16 @@ const steps=[
         live.insertBefore(t, live.children[1]);
       } show('hub'); } },
 
-  { cap:'<strong>5 · Getting back tomorrow: the front door.</strong> The new tab carries a "Your agents" card that summarizes the whole hub — every live watch with its rule and last check, the report count, what needs attention — and an explicit <em>Open Agent Hub →</em> button, so it reads as a doorway to a full surface, not a notification about one item. The new tab is the one surface every user already visits daily, so discoverability is structural.',
+  { cap:'<strong>7 · Getting back tomorrow: the front door.</strong> The new tab carries a "Your agents" card that summarizes the whole hub — every live watch with its rule and last check, the report count, what needs attention — and an explicit <em>Open Agent Hub →</em> button, so it reads as a doorway to a full surface, not a notification about one item. The new tab is the one surface every user already visits daily, so discoverability is structural.',
     run(){ show('newtab'); } },
-  { cap:'<strong>6 · Built for the proactive future.</strong> The "Suggested" row is where habit-learning lives: the browser noticed a Thursday pattern and offers a weekly weekend-events digest. In a hub model, proactive agents have an obvious place to be offered, accepted, and managed — this is the strongest argument for Concept B.',
+  { cap:'<strong>8 · Built for the proactive future.</strong> The "Suggested" row is where habit-learning lives: the browser noticed a Thursday pattern and offers a weekly weekend-events digest. In a hub model, proactive agents have an obvious place to be offered, accepted, and managed — this is the strongest argument for Concept B.',
     run(){ show('hub'); setTimeout(()=>{ document.querySelectorAll('.agent-tile')[3].style.boxShadow='0 0 0 3px rgba(0,96,223,0.25)'; },400); } },
-  { cap:'<strong>7 · The gallery — creating from the hub works too.</strong> "New agent" opens a gallery: Watch (Monitor + Scout unified), Research, and dashed future slots — Routine (habit reports) and Errand (end-to-end tasks, parked behind payment/auth blockers but visibly on the roadmap). The hub scales by adding cards, not surfaces.',
+  { cap:'<strong>9 · The gallery — creating from the hub works too.</strong> "New agent" opens a gallery: Watch (Monitor + Scout unified), Research, and dashed future slots — Routine (habit reports) and Errand (end-to-end tasks, parked behind payment/auth blockers but visibly on the roadmap). The hub scales by adding cards, not surfaces.',
     run(){ document.querySelectorAll('.agent-tile')[3].style.boxShadow=''; galleryScrim.classList.add('open'); } },
 
-  { cap:'<strong>8 · Reports open as canvas.</strong> A report is a kept document, not a chat message: full-width canvas with the comparison table and a verdict — and the <em>linked chat</em> rail preserving the conversation that produced it. You can continue the conversation, or hand the top pick straight to a Watch. Agents compose.',
+  { cap:'<strong>10 · Reports open as canvas.</strong> A report is a kept document, not a chat message: full-width canvas with the comparison table and a verdict — and the <em>linked chat</em> rail preserving the conversation that produced it. You can continue the conversation, or hand the top pick straight to a Watch. Agents compose.',
     run(){ galleryScrim.classList.remove('open'); show('canvas'); } },
-  { cap:'<strong>9 · The cost, stated honestly.</strong> This is the best possible home for agents — and the most expensive thing on this page. A new about: page, tile system, feed, gallery and canvas to design, build, localize and maintain; and it sits one click <em>away</em> from where intent actually happens (the page you\'re browsing). Mission Control is the destination Concept C\'s shelf can grow into — probably not the place to start. <a href="index.html">Compare all concepts →</a>',
+  { cap:'<strong>11 · The cost, stated honestly.</strong> This is the best possible home for agents — and the most expensive thing on this page. A new about: page, tile system, feed, gallery and canvas to design, build, localize and maintain; and it sits one click <em>away</em> from where intent actually happens (the page you\'re browsing). Mission Control is the destination Concept C\'s shelf can grow into — probably not the place to start. <a href="index.html">Compare all concepts →</a>',
     run(){ show('hub'); } },
 ];
 
@@ -585,6 +610,17 @@ document.getElementById('newAgentBtn').onclick=()=>galleryScrim.classList.add('o
 galleryScrim.onclick=e=>{ if(e.target===galleryScrim) galleryScrim.classList.remove('open'); };
 document.getElementById('reportRow').onclick=()=>show('canvas');
 backToHub.onclick=()=>show('hub');
+document.getElementById('bPin').onclick=()=>{
+  const pop=document.getElementById('bPinPop');
+  if(pop.classList.contains('open')){ pop.classList.remove('open'); return; }
+  pop.innerHTML=`<div class="t" style="font-size:13px;font-weight:700">Sony WH-1000XM6 <span style="font-size:10px;font-weight:700;background:#e7f5e7;color:var(--green);border-radius:99px;padding:3px 9px">● Watching</span></div>
+    <p class="sent" style="font-size:12.5px;line-height:1.6;margin:6px 0 2px">Alert me when the price drops <b>below $330</b> — or a verified promo appears</p>
+    <div class="meta" style="font-size:10.5px;color:var(--grey-50);margin:4px 0 8px">Checking 4 times daily · Push notification · checked just now</div>
+    <button class="bstart" style="background:#fff;color:var(--grey-70);border:1px solid var(--grey-20)">⏸ Pause</button>
+    <button class="bstart" id="popHub">Open in Agent Hub</button>`;
+  pop.classList.add('open');
+  document.getElementById('popHub').onclick=()=>{ pop.classList.remove('open'); goto(5); };
+};
 renderDots(); show('shop');
 </script>
 </body>
