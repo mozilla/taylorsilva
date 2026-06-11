@@ -157,6 +157,16 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .report-card .rs { font-size:11.5px; color:rgba(255,255,255,0.5); margin-top:2px; }
 .report-card .ro { margin-left:auto; color:#5b9bf3; font-size:13px; font-weight:600; }
 
+/* hover status card off the watching pill — opens Firefox View, no Den in F */
+.hover-card { position:absolute; top:46px; right:104px; width:330px; background:#fff; border-radius:16px; box-shadow:0 16px 48px rgba(0,0,0,0.45); z-index:60; padding:15px 17px; display:none; color:var(--grey-100); animation:arrive var(--d-moderate) var(--ease-arrive); }
+.hover-card.open { display:block; }
+.hc-t { font-size:14px; font-weight:800; display:flex; align-items:center; gap:8px; }
+.hc-dot { width:9px; height:9px; border-radius:50%; background:#1da53f; animation:breathe var(--d-breathe) ease-in-out infinite; }
+.hc-s { font-size:12px; color:var(--grey-50); margin:3px 0 6px; }
+.hc-meta { font-size:11px; color:var(--grey-40); display:flex; gap:13px; margin-bottom:11px; }
+.hc-actions { display:flex; gap:8px; }
+.hc-btn { font-family:var(--font); font-size:12.5px; font-weight:600; border-radius:99px; padding:8px 17px; cursor:pointer; border:1.5px solid var(--grey-20); background:#fff; color:var(--grey-70); }
+.hc-btn:hover { border-color:var(--violet-30); color:var(--violet-60); }
 /* offer chip in the bar — a trigger, opens the sidebar chat */
 .offer-chip { margin-left:auto; display:none; align-items:center; gap:7px; background:#f4f1fb; border:1.5px solid var(--violet-30); color:var(--violet-60); border-radius:99px; padding:4px 13px; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; animation:arrive var(--d-gracious) var(--ease-arrive); }
 .offer-chip.shown { display:inline-flex; }
@@ -241,6 +251,13 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
     </div>
 
     <div class="saved-callout" id="savedCallout"><span class="chk">✓</span>Saved — find it under <b>&nbsp;Agents&nbsp;</b> in Firefox View</div>
+
+    <div class="hover-card" id="hoverCard">
+      <div class="hc-t"><span class="hc-dot" id="hcDot"></span>Tokyo fares</div>
+      <div class="hc-s" id="hcSub">$684 now · alert when nonstop drops below $620</div>
+      <div class="hc-meta"><span>⏱ checked just now</span><span>low $684</span><span>4 sites</span></div>
+      <div class="hc-actions"><button class="hc-btn" id="hcPause">⏸ Pause</button><button class="hc-btn" id="hcOpen">Open in Firefox View</button></div>
+    </div>
   </div>
 
   <div class="window-body">
@@ -371,14 +388,14 @@ const steps = [
       $('savedCallout').classList.add('open'); $('barEye').style.display='inline-flex';
       setTimeout(()=>$('savedCallout').classList.remove('open'), 3200); } },
 
-  { cap:"<strong>3 · The pill is the everyday touchpoint.</strong> On any watched page the little pill breathes in the bar — added after creation, never before. It\u2019s a status, not a button you had to discover: glance for \u201cstill watching,\u201d and the Firefox View tab badge counts what\u2019s live across everything.",
-    run(){ $('barEye').style.display='inline-flex'; $('barEye').style.boxShadow='0 0 0 3px rgba(151,110,255,0.35)'; setTimeout(()=>$('barEye').style.boxShadow='',1600); } },
+  { cap:"<strong>3 · The pill is the everyday touchpoint — hover for the card.</strong> On any watched page the little pill breathes in the bar, added after creation, never before. Hover it: current price, the rule, last check — and because F has <em>no Den</em>, the action is <em>Open in Firefox View</em>, the one home everything lives in.",
+    run(){ $('barEye').style.display='inline-flex'; $('hoverCard').classList.add('open'); } },
 
   { cap:"<strong>4 · The end location: Firefox View → Agents, beside Chats.</strong> The full management surface Concept B wanted — every watch as a card with its rule in plain words, a dot per check (green = something happened), last-check time, cadence, site count, and direct actions: <em>Check now · Pause · Open page · Delete</em>. Search on top. And it cost zero new top-level surfaces — Firefox View already ships.",
     run(){ show('page-fxv'); setChecks(1, false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites'; } },
 
   { cap:"<strong>5 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Agents the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
-    run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open'); $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
+    run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open'); $('hoverCard').classList.remove('open'); $('hcDot').style.background='var(--violet-40)'; $('hcSub').innerHTML='<b style="color:var(--violet-60)">$607 — condition met</b> · was: nonstop below $620'; $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
 
   { cap:"<strong>6 · Research files in the same place.</strong> The Reports section starts honest — <em>'Nothing here yet — ask Smart Window to research something.'</em> Ask in the chat, and the finished report cards in beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
     run(){ show('page-fxv'); $('osToast').classList.remove('open'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); } },
@@ -395,7 +412,7 @@ function reset(){
   show('page-sky'); $('sbThread').innerHTML=''; $('offerChip').classList.remove('shown'); $('barInput').value=''; $('barSuggest').classList.remove('open'); $('barPlan').classList.remove('open');
   $('savedCallout').classList.remove('open'); $('barEye').style.display='none'; $('alertStrip').classList.remove('open');
   $('osToast').classList.remove('open'); $('agentsBub').classList.remove('on'); $('skyDot').style.display='none';
-  $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false);
+  $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false); $('hoverCard').classList.remove('open'); $('hcDot').style.background='#1da53f'; $('hcSub').textContent='$684 now · alert when nonstop drops below $620';
 }
 function goto(n){
   if(n<cur){ reset(); cur=-1; }
@@ -407,6 +424,11 @@ $('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; renderDots(
 $('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
 $('tabFx').onclick=()=>show('page-fxv');
 $('tabSky').onclick=()=>show('page-sky');
+$('barEye').onmouseenter=()=>$('hoverCard').classList.add('open');
+$('hoverCard').onmouseleave=()=>$('hoverCard').classList.remove('open');
+$('barEye').onclick=()=>$('hoverCard').classList.toggle('open');
+$('hcOpen').onclick=()=>{ $('hoverCard').classList.remove('open'); show('page-fxv'); };
+$('hcPause').onclick=()=>{ $('hcPause').textContent=$('hcPause').textContent.includes('Pause')?'▶ Resume':'⏸ Pause'; };
 $('bpStart').onclick=()=>goto(2);
 $('actPause').onclick=()=>{ const d=$('agDot'); d.classList.toggle('paused'); $('actPause').textContent=d.classList.contains('paused')?'Resume':'Pause'; };
 $('actCheck').onclick=()=>{ $('chkLine').textContent=$('chkLine').textContent.replace(/^\d+/, m=>+m+1); };
