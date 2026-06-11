@@ -127,7 +127,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <a class="sn-proto" href="concept-a.html"><span class="k">A</span> All in the chat</a>
   <a class="sn-proto" href="concept-b.html"><span class="k">B</span> A separate agents page</a>
   <a class="sn-proto" href="concept-c.html"><span class="k">C</span> A saved list in the panel</a>
-  <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">D</span> List + marks on the page</a>
+  <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">D</span> The list + the address bar</a>
   <div class="sn-label">Document</div>
   <a class="sn-link" href="#framing">The two layers</a>
   <a class="sn-link" href="#llm">Why an LLM at all</a>
@@ -227,8 +227,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </div>
       <div class="concept-card star">
         <div class="cc-tag cc-d">CONCEPT D · LEADING DIRECTION</div>
-        <div class="cc-name">List + marks on the page</div>
-        <div class="cc-thesis">Everything in C, plus the agent shows up where the thing actually is: a small badge under the watched price on the page itself, and a sleeping tab that wakes up when the flight deal hits. One watch, visible in three places, all in sync — and it works even outside the Smart Window. No competitor can copy this; only the browser itself can mark up the page.</div>
+        <div class="cc-name">The list + the address bar</div>
+        <div class="cc-thesis">Everything in C, plus the watch shows up in the browser chrome around the page — never in the page itself. An eye in the address bar, exactly like the bookmark star, when the page you're on is being watched (click it for status), and a sleeping tab that wakes when the flight deal hits. One quiet indicator, not popups — and it works even outside the Smart Window.</div>
         <div class="cc-mini"><b>Footprint over C:</b> +1 annotation affordance · +1 tab state — both native browser primitives<br><b>Built with:</b> Nova Smart Window Library components</div>
         <div class="cc-btn-row">
           <a class="cc-btn d" href="experience.html">Live experience →</a>
@@ -246,15 +246,15 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
     <h3>All five, side by side</h3>
     <table class="h2h">
-      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · Saved list</th><th>D · List + page marks</th><th>E · Everything, gradually</th></tr></thead>
+      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · Saved list</th><th>D · List + address bar</th><th>E · Everything, gradually</th></tr></thead>
       <tbody>
-        <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The list + right on the page (badge under the price, sleeping tab)</td><td>All of it, appearing as you need it</td></tr>
-        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>The chip, asking, or the badge on a page you come back to</td><td>Any of these</td></tr>
-        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>The list, plus marked right on the page; reports get real shareable links</td><td>The list always; the full page once you have a few agents</td></tr>
-        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>Notification, the tab waking up, the mark on the page, or the list — something always reaches you</td><td>Whichever of these you have — they stay in sync</td></tr>
+        <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The list + the chrome around the page (address-bar eye, sleeping tab)</td><td>All of it, appearing as you need it</td></tr>
+        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>The chip, asking, or the address-bar eye on a page you come back to</td><td>Any of these</td></tr>
+        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>The list, plus the address-bar indicator; reports get real shareable links</td><td>The list always; the full page once you have a few agents</td></tr>
+        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>Notification, the tab waking up, the address-bar eye, or the list — something always reaches you</td><td>Whichever of these you have — they stay in sync</td></tr>
         <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="mid">C plus two browser-native pieces · ~3 sprints</td><td class="bad">Everything, in stages · multi-quarter</td></tr>
         <tr><td>How it grows</td><td class="bad">It doesn't — falls apart past ~3 agents</td><td>Add more cards to the page</td><td>Add new kinds of saved things</td><td>Same watch just shows up in more places</td><td>New surfaces appear as people use more</td></tr>
-        <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>Drawing on web pages is a line Firefox has never crossed; three places to keep in sync</td><td>Complicated to build and explain</td></tr>
+        <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>A quiet indicator is easy to miss; three places to keep in sync</td><td>Complicated to build and explain</td></tr>
         <tr><td>Status this round</td><td>Explored</td><td>Explored — could come later</td><td>Part of D</td><td class="good">Leading direction</td><td class="good">Long-term goal</td></tr>
       </tbody>
     </table>
@@ -311,8 +311,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </ul></div>
     </div>
 
-    <h3>Concept D — The list + marks on the page (leading direction)</h3>
-    <p>What came out of trying to break C, and the strongest direction this round. One watch shows up in three places: a <b>badge on the page itself</b>, right under the watched price (click it for the price history and the rule); a <b>sleeping tab</b> 🌙 that wakes up with a dot when the condition hits; and the <b>saved list</b> in the panel, where you can change the rule, pause things, and open reports. Change the watch in any one place and the other two update. Built entirely from existing Nova Smart Window components.</p>
+    <h3>Concept D — The list + the address bar (leading direction)</h3>
+    <p>What came out of trying to break C, and the strongest direction this round — with one hard rule: <b>the agent never modifies page content.</b> Its presence lives in chrome Firefox already owns. One watch shows up in three places: an <b>eye in the address bar</b> when you're on a watched page — same pattern as the bookmark star — which opens a small status popover (price history, the rule, pause); a <b>sleeping tab</b> 🌙 that wakes with a dot when the condition hits; and the <b>Den</b> in the panel. Change the watch in any one place and the other two update.</p>
     <div class="pro-con">
       <div class="pc-col pro"><h4>Pros</h4><ul>
         <li>Works in <b>Classic windows</b> — dissolves the mode-scoping break (agents are user-level, Smart Window is opt-in)</li>
@@ -322,8 +322,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <li>Footprint over C is two native browser primitives, not new surfaces</li>
       </ul></div>
       <div class="pc-col con"><h4>Cons</h4><ul>
-        <li>In-content annotation walks near the line Firefox historically refused to cross (modifying pages) — needs an AnonymousContent overlay, not DOM injection</li>
-        <li>Page marks are only visible when you revisit the page; the saved list still carries the rest</li>
+        <li>Never touches page content — the indicator rides the address bar and tab strip, surfaces Firefox already owns (same pattern as the bookmark star)</li>
+        <li>An address-bar eye is quiet by design — easy to miss if you never revisit the page; the Den and notifications carry the rest</li>
         <li>Sleeping tabs are device-local; cross-device story still runs through the Den</li>
         <li>Three projections of one object = state-sync surface area to test</li>
       </ul></div>
@@ -336,7 +336,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <tbody>
         <tr><td>A · In the chat</td><td><code>/</code> invocation in every smartbar; the conversation as the record; a pinned live strip above the sidebar chat</td><td>retrieval buried in history</td><td>Always (invocation layer)</td></tr>
         <tr><td>C · Saved list</td><td>Typed objects (Live / Reports) indexed in the panel; the quiet offer chip at the moment of intent</td><td>mode-scoped reach</td><td>First object</td></tr>
-        <tr><td>D · List + page marks</td><td>The badge on the watched page, sleeping tab, notification fallback chain, reports as real pages</td><td>revisit-only visibility</td><td>First object</td></tr>
+        <tr><td>D · List + address bar</td><td>The address-bar eye on watched pages, sleeping tab, notification fallback chain, reports as real pages</td><td>revisit-only visibility</td><td>First object</td></tr>
         <tr><td>B · Agents page</td><td>The "Your agents" page with the full activity feed — every check logged</td><td>the day-one empty dashboard</td><td>Earned: "View all →" appears at ≥2 objects</td></tr>
       </tbody>
     </table>
@@ -358,7 +358,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
   <section id="matrix">
     <h2>Decision matrix</h2>
-    <div class="legend"><span class="la">A · In the chat</span><span class="lb">B · Agents page</span><span class="lc">C · Saved list</span><span class="ld">D · List + page marks</span><span class="le">E · Everything, gradually</span></div>
+    <div class="legend"><span class="la">A · In the chat</span><span class="lb">B · Agents page</span><span class="lc">C · Saved list</span><span class="ld">D · List + address bar</span><span class="le">E · Everything, gradually</span></div>
     <div id="scores"></div>
     <script>
     const crit=[
@@ -374,7 +374,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </div>`).join('');
     </script>
     <table>
-      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · Saved list</th><th>D · List + page marks</th><th>E · Everything, gradually</th></tr></thead>
+      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · Saved list</th><th>D · List + address bar</th><th>E · Everything, gradually</th></tr></thead>
       <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">35</td><td class="mid">33</td></tr></tbody>
     </table>
     <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">D trades two points of cost/speed against C for Classic-window reach, the notification fallback, and live-state visibility everywhere — the breaks the red team found. That trade is why D leads this round. E scores highest on every experience dimension and lowest on cost and Q3 speed — exactly what makes it the vision rather than the pick: you get to E by shipping D and letting usage unlock the rest.</p>
@@ -395,8 +395,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </tbody>
     </table>
     <h3>The idea behind D: the assumption A, B, and C all shared</h3>
-    <p>All three concepts assume agents live in <b>browser chrome</b>. The fourth answer: they live <b>on the web itself</b>. A watch is pinned to the thing being watched — the price element carries a Tab Context Badge with live state on revisit; the fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps only a thin index (the Den). It works in Classic windows — dissolving the mode-scoping break — and it's the one design no competitor can copy: ChatGPT, Comet, and Gemini bolt panels <em>beside</em> the web; only the rendering engine's owner can annotate <em>into</em> it.</p>
-    <p>The waypoint idea alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. <b>Concept D is C plus those on-page marks</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept D storyboard →</a></p>
+    <p>A, B, and C all keep the agent inside the panel. The fourth answer: put its presence in the <b>chrome that wraps every page</b> — without ever touching the page itself. When you're on a watched page, an <b>eye sits in the address bar</b>, exactly like the bookmark star sits there for saved pages; click it for live status. The fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps the index (the Den). It works in Classic windows — dissolving the mode-scoping break — and no extension or competitor sidebar can copy it: only the browser owns the address bar and the tab strip.</p>
+    <p>The indicator alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. <b>Concept D is C plus the address-bar and tab presence</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept D storyboard →</a></p>
   </section>
 
 </main>

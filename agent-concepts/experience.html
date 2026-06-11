@@ -295,6 +295,16 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 .lc-btn:hover { background:var(--violet-05); }
 .lc-btn[disabled] { opacity:0.55; cursor:default; }
 
+/* address-bar watch indicator (like the bookmark star) + status popover */
+.tb-eye { display:inline-flex; align-items:center; gap:5px; color:var(--violet-60); cursor:pointer; flex-shrink:0; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; transition:background var(--d-quick); }
+.tb-eye:hover { background:var(--violet-05); }
+.tb-eye .pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
+.tb-eye.met .pulse { background:var(--violet-40); animation:none; }
+.watch-popover { position:absolute; top:46px; right:120px; width:330px; background:#fff; border-radius:14px; box-shadow:0 14px 44px rgba(43,27,85,0.22); z-index:60; padding:14px 16px; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.watch-popover .wp-t { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.watch-popover .wp-s { font-size:11px; color:var(--gray-50); margin:2px 0 8px; }
+.watch-popover .wp-meta { font-size:10.5px; color:var(--gray-40); display:flex; gap:11px; margin-top:7px; flex-wrap:wrap; }
+.watch-popover .wp-actions { display:flex; gap:7px; margin-top:10px; }
 /* editable plan card pieces */
 .plan-sent { font-size:14px; line-height:1.6; color:var(--gray-100); padding:2px 0 4px; }
 .tok { border-bottom:2px dotted var(--violet-40); font-weight:700; cursor:pointer; padding-bottom:1px; }
@@ -384,6 +394,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
       <div class="smartbar">
         <span class="glyph"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/></svg></span>
         <input id="tbInput" placeholder="" autocomplete="off">
+        <span id="tbWatchSlot"></span>
         <span id="tbOfferSlot"></span>
       </div>
     </div>
@@ -982,31 +993,21 @@ function proposeWatchFromOffer(key) {
 }
 function renderPages() {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  setTimeout(watchOfferCallout, 600);
+
   $("page-" + S.activeTab).classList.add("active");
   $("sidebar").classList.toggle("open", S.sidebarOpen && S.activeTab !== "sw");
   const pw = S.watches.find(w => w.kind === "price");
   if (pw) {
     $("auroraPrice").textContent = fmt(pw.price);
-    $("auroraDrop").textContent = pw.price < 89 ? `▼ ${fmt(89 - pw.price)} since you started watching` : "";
+    $("auroraDrop").textContent = "";
   }
   const fw = S.watches.find(w => w.kind === "fare");
   if (fw) $("fare1").textContent = fmt(fw.price);
-  // waypoints (storage made visible on the page itself)
-  const aSlot = $("auroraWaypoint"); aSlot.innerHTML = "";
-  $("auroraPrice").classList.toggle("waypointed", !!pw);
-  if (pw) {
-    const low = Math.min(...pw.history);
-    const wp = el(`<div class="waypoint${pw.status === "met" ? " met" : ""}"><span class="pulse"></span>${pw.status === "met" ? `Hit: ${fmt(pw.price)} — under your $${pw.target} target` : `Watching · target $${pw.target}`} <span class="wp-dim">· low ${fmt(low)} · checked ${pw.checked}${pw.status === "paused" ? " · paused" : ""}</span></div>`);
-    wp.onclick = () => { S.sidebarOpen = true; setSbView("shelf"); pw.seen = true; renderAll(); };
-    aSlot.appendChild(wp);
-  }
-  const fSlot = $("faresWaypoint"); fSlot.innerHTML = "";
-  if (fw) {
-    const wp = el(`<div class="waypoint${fw.status === "met" ? " met" : ""}" style="margin-bottom:14px"><span class="pulse"></span>${fw.status === "met" ? `Found: ${fmt(fw.price)} refundable` : `Watching · ${fw.semantic.join(" · ")} · ≤ $${fw.target}`} <span class="wp-dim">· checked ${fw.checked}</span></div>`);
-    wp.onclick = () => { S.sidebarOpen = true; setSbView("shelf"); fw.seen = true; renderAll(); };
-    fSlot.appendChild(wp);
-  }
+  // the agent never touches page content — its presence lives in chrome:
+  // a watch indicator in the address bar (like the bookmark star) + tab states
+  $("auroraWaypoint").innerHTML = ""; $("faresWaypoint").innerHTML = "";
+  $("auroraPrice").classList.remove("waypointed");
+  renderUrlEye();
   if (S.activeTab === "report") renderReport();
   if (S.activeTab === "hub") renderHub();
   // pinned live strip (Concept A): one line per live watch, above the sidebar thread
@@ -1141,6 +1142,32 @@ function renderReport() {
 }
 function openReport(id) { S.openReportId = id; const r = S.reports.find(r => r.id === id); if (r) { r.opened = true; r.seen = true; } closeSwShelf(); S.activeTab = "report"; renderAll(); }
 
+/* address-bar watch indicator — chrome-owned, page untouched */
+function renderUrlEye() {
+  const slot = $("tbWatchSlot"); slot.innerHTML = "";
+  const w = pageWatch();
+  if (!w) return;
+  const eye = el(`<span class="tb-eye${w.status === "met" ? " met" : ""}"><span class="pulse"></span>${w.status === "met" ? "Hit " + fmt(w.price) : "Watching"}</span>`);
+  eye.onclick = e => { e.stopPropagation(); toggleWatchPopover(w); };
+  slot.appendChild(eye);
+}
+function toggleWatchPopover(w) {
+  const ex = document.querySelector(".watch-popover");
+  if (ex) { ex.remove(); return; }
+  const low = Math.min(...w.history);
+  const pop = el(`<div class="watch-popover">
+    <div class="wp-t"><span class="pulse" style="width:8px;height:8px;border-radius:50%;background:${w.status === "met" ? "var(--violet-40)" : "var(--green)"}"></span>${w.title}</div>
+    <div class="wp-s">${w.status === "met" ? `<b style="color:var(--violet-60)">${fmt(w.price)} — condition met</b>` : `${fmt(w.price)} now${w.target ? " · alert at $" + w.target : ""}${w.semantic.length ? " · " + w.semantic.join(", ") : ""}`}</div>
+    ${spark(w)}
+    <div class="wp-meta"><span>⏱ checked ${w.checked}</span><span>low ${fmt(low)}${w.price < w.history[0] ? " · down " + fmt(w.history[0] - w.price) + " since you started" : ""}</span>${w.promoDay ? "<span>🏷 Scout: SAVE10 verified</span>" : ""}</div>
+    <div class="wp-actions"><button class="ac-btn" data-a="pause">${w.status === "paused" ? "▶ Resume" : "⏸ Pause"}</button><button class="ac-btn" data-a="den">Open Den</button></div>
+  </div>`);
+  pop.querySelector('[data-a="pause"]').onclick = () => { w.status = w.status === "paused" ? "live" : "paused"; pop.remove(); renderAll(); };
+  pop.querySelector('[data-a="den"]').onclick = () => { pop.remove(); S.sidebarOpen = true; setSbView("shelf"); w.seen = true; renderAll(); };
+  document.querySelector(".toolbar").style.position = "relative";
+  document.querySelector(".toolbar").appendChild(pop);
+  document.addEventListener("click", function close(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", close); } }, { once: false });
+}
 /* anchored callouts */
 function denSavedCallout() {
   document.querySelectorAll(".anchor-callout").forEach(n => n.remove());
@@ -1152,19 +1179,6 @@ function denSavedCallout() {
   if (inSidebar) { c.style.top = "40px"; c.style.right = "auto"; c.style.left = "60px"; }
   host.appendChild(c);
   setTimeout(() => c.remove(), 3200);
-}
-function watchOfferCallout() {
-  const key = S.activeTab === "soundhub" ? "aurora" : S.activeTab === "flights" ? "fares" : null;
-  if (!key || S.sidebarOpen || S.calloutShown[key] || S.offerDismissed[key]) return;
-  const watched = S.watches.some(w => key === "aurora" ? w.kind === "price" : w.kind === "fare");
-  if (watched) return;
-  S.calloutShown[key] = true;
-  const host = document.querySelector(".toolbar"); host.style.position = "relative";
-  const c = el(`<div class="anchor-callout">✨ I can watch ${key === "fares" ? "these fares" : "this price"} for you<button>Watch</button><span class="x">✕</span></div>`);
-  c.querySelector("button").onclick = () => { c.remove(); S.sidebarOpen = true; setSbView("chat"); renderAll(); proposeWatchFromOffer(key); };
-  c.querySelector(".x").onclick = () => { c.remove(); S.offerDismissed[key] = true; renderAll(); };
-  host.appendChild(c);
-  setTimeout(() => c.remove(), 9000);
 }
 /* toasts */
 function toast(title, body, onClick) {

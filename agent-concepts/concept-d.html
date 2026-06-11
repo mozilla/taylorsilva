@@ -136,7 +136,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
 .waypoint .wp-dim { color:var(--grey-50); font-weight:400; transition:color var(--motion-duration-quick) var(--motion-ease-warmth); }
 
 /* Waypoint popover — Nova dark surface floating over the page */
-.wp-popover { position:absolute; left:44px; top:300px; width:336px; background:var(--sw-flat); border:1px solid rgba(178,149,255,0.25); border-radius:16px; box-shadow:0 14px 44px rgba(21,18,69,0.45); z-index:15; opacity:0; transform:translateY(8px); pointer-events:none; transition:all var(--motion-duration-moderate) var(--motion-ease-ai-arrive); color:var(--sw-text); }
+.wp-popover { position:absolute; right:120px; top:96px; width:336px; background:var(--sw-flat); border:1px solid rgba(178,149,255,0.25); border-radius:16px; box-shadow:0 14px 44px rgba(21,18,69,0.45); z-index:15; opacity:0; transform:translateY(8px); pointer-events:none; transition:all var(--motion-duration-moderate) var(--motion-ease-ai-arrive); color:var(--sw-text); }
 .wp-popover.open { opacity:1; transform:translateY(0); pointer-events:auto; }
 .wpp-head { display:flex; align-items:center; gap:9px; padding:13px 16px 10px; }
 .wpp-glyph { width:28px; height:28px; border-radius:8px; background:rgba(178,149,255,0.18); color:var(--violet-30); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -289,7 +289,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
   <a href="index.html">← All concepts</a>
   <span class="proto-chip">CONCEPT D · LEADING DIRECTION</span>
   <span class="proto-title">The list + marks on the page</span>
-  <span class="proto-sub">Nova Smart Window components · works in Classic windows</span>
+  <span class="proto-sub">The Den + the address bar · works in Classic windows · page never modified</span>
   <div class="proto-steps">
     <div class="step-dots" id="dots"></div>
     <button class="proto-btn ghost" id="backBtn">Back</button>
@@ -307,7 +307,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
   </div>
   <div class="toolbar">
     <div class="nav-arrows">‹ ›</div>
-    <div class="urlbar"><span class="lock">🔒</span> <span id="urlText">soundhub.com/aurora-anc-headphones</span></div>
+    <div class="urlbar"><span class="lock">🔒</span> <span id="urlText">soundhub.com/aurora-anc-headphones</span><span id="urlEye" style="margin-left:auto;display:none;align-items:center;gap:5px;color:var(--violet-50);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:#7fe07a;animation:breathe var(--motion-duration-breathe) ease-in-out infinite"></span>Watching</span></div>
     <div class="mode-chip" id="modeChip">Classic window</div>
     <div class="tb-icon" id="swToggle" title="Smart Window" tabindex="0">
       <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2" width="13" height="12" rx="2.5" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="2.5" x2="10" y2="13.5" stroke="currentColor" stroke-width="1.4"/></svg>
@@ -428,9 +428,9 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
           <div class="model-arrows"><span>↓</span><span>↓</span><span>↓</span></div>
           <div class="model-row">
             <div class="model-leaf">
-              <div class="ml-name">Waypoint</div>
-              <div class="ml-desc">Tab Context Badge pinned to the watched element, visible on revisit. Only the rendering engine's owner can do this.</div>
-              <div class="ml-where">On the page · any window</div>
+              <div class="ml-name">Address-bar eye</div>
+              <div class="ml-desc">Lives in the address bar like the bookmark star, visible whenever you're on the watched page. Page content is never touched.</div>
+              <div class="ml-where">Address bar · any window</div>
             </div>
             <div class="model-leaf">
               <div class="ml-name">Sleeping tab</div>
@@ -468,7 +468,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
                 <div><div class="so-title">Aurora ANC Headphones</div><div class="so-sub">$79 now · target $75 · 3 retailers</div></div>
                 <div class="so-live">Live</div>
               </div>
-              <div class="so-manif"><span class="manif-chip on">⌖ waypoint</span><span class="manif-chip">🌙 tab</span><span class="manif-chip on">▤ shelf</span></div>
+              <div class="so-manif"><span class="manif-chip on">⌖ address bar</span><span class="manif-chip">🌙 tab</span><span class="manif-chip on">▤ shelf</span></div>
             </div>
             <div class="shelf-obj" id="faresObj">
               <div class="so-head">
@@ -476,7 +476,7 @@ body { font-family:var(--font); background:#15141a; color:var(--grey-100); heigh
                 <div><div class="so-title">YVR → NRT fares, March</div><div class="so-sub" id="faresSub">Refundable · ≤ $850 · weekday · best seen $934</div></div>
                 <div class="so-live">Live</div>
               </div>
-              <div class="so-manif"><span class="manif-chip">⌖ waypoint</span><span class="manif-chip on">🌙 tab</span><span class="manif-chip on">▤ shelf</span></div>
+              <div class="so-manif"><span class="manif-chip">⌖ address bar</span><span class="manif-chip on">🌙 tab</span><span class="manif-chip on">▤ shelf</span></div>
             </div>
             <div class="shelf-label" style="margin-top:16px">Reports</div>
             <div class="shelf-obj" id="reportObj">
@@ -540,11 +540,11 @@ function inputFocusDemo(text){
 }
 
 const steps=[
-  { cap:'<strong>1 · The page is the surface.</strong> Nine days into the watch, the user revisits the product page — <em>in a Classic window</em> (see the toolbar). The watched price carries a dotted underline and a <em>Tab Context Badge</em> beneath it: violet-10 at rest, live state where the subject lives. Hover it — it goes deep violet (#3d2272) with white text, exactly per the Nova library. No panel needed, no mode required.',
-    run(){ showContent('shop'); priceNow.classList.add('waypointed'); waypoint.classList.add('shown'); } },
+  { cap:'<strong>1 · The chrome is the surface — never the page.</strong> Nine days into the watch, the user revisits the product page — <em>in a Classic window</em> (see the toolbar). The page content is untouched. Instead, an <em>eye sits in the address bar</em> with a breathing dot — the same pattern as the bookmark star: chrome Firefox already owns, telling you something about this page. No panel needed, no mode required.',
+    run(){ showContent('shop'); document.getElementById('urlEye').style.display='inline-flex'; } },
 
-  { cap:'<strong>2 · The waypoint is the whole object.</strong> Click the badge: a Nova dark-surface popover with price history against the target line, the rule, and the <em>trust-tier cascade</em> — local → mozilla → third-party badges arriving in trust order (100ms stagger, scale 0.9→1.0, the Fiery pattern). Suggestion Chips (violet outline → orange-gradient hover) carry the actions. Everything Concept C kept in the Den, reachable from the page itself.',
-    run(){ showContent('shop'); priceNow.classList.add('waypointed'); waypoint.classList.add('shown'); wpPopover.classList.add('open'); } },
+  { cap:'<strong>2 · The eye is the whole object.</strong> Click it: a Nova popover with price history against the target line, the rule, and the <em>trust-tier cascade</em> — local → mozilla → third-party badges arriving in trust order. Everything Concept C kept in the Den, reachable from the address bar — one quiet indicator, no popups, zero page modification. No extension or competitor sidebar can copy it: only the browser owns the address bar.',
+    run(){ showContent('shop'); document.getElementById('urlEye').style.display='inline-flex'; wpPopover.classList.add('open'); } },
 
   { cap:'<strong>3 · The sleeping tab.</strong> The fare watch lives as a hibernating tab — 🌙, dimmed, italic. Tabs are the browser\'s oldest object model for "things I\'m keeping alive," so the novelty tax is near zero. It costs no memory; it\'s a bookmark with a pulse.',
     run(){ wpPopover.classList.remove('open');
@@ -571,7 +571,7 @@ const dots=document.getElementById('dots');
 steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-dot'; d.onclick=()=>goto(i); dots.appendChild(d); });
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
 function resetAll(){
-  priceNow.classList.remove('waypointed'); waypoint.classList.remove('shown'); wpPopover.classList.remove('open');
+  priceNow.classList.remove('waypointed'); waypoint.classList.remove('shown'); document.getElementById('urlEye').style.display='none'; wpPopover.classList.remove('open');
   osToast.classList.remove('show'); smartWindow.classList.remove('open'); swToggle.classList.remove('active');
   modelScrim.classList.remove('open'); showContent('shop');
   tabFares.classList.add('sleeping'); tabFares.classList.remove('awake');

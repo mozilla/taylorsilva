@@ -319,7 +319,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
     <button class="cs-btn" data-c="A">A · In the chat</button>
     <button class="cs-btn" data-c="B">B · Agents page</button>
     <button class="cs-btn" data-c="C">C · Saved list</button>
-    <button class="cs-btn active" data-c="D">D · List + page marks</button>
+    <button class="cs-btn active" data-c="D">D · List + address bar</button>
   </div>
   <div class="lab-right">
     <span class="day-pill">Day <b id="dayNum">0</b></span>
@@ -919,32 +919,20 @@ function renderNewTab() {
     </div>`;
 }
 function renderWaypoints() {
-  // D only: Tab Context Badge pinned to the watched element
-  const aw = engine.watches.find(w => w.kind === "price");
-  const slot = $("auroraWaypoint"); slot.innerHTML = "";
-  $("auroraPrice").classList.toggle("waypointed", concept === "D" && !!aw);
-  if (concept === "D" && aw) {
-    const low = Math.min(...aw.history);
-    const wp = document.createElement("div");
-    wp.className = "waypoint" + (aw.status === "met" ? " met" : "");
-    wp.innerHTML = `<span class="wp-pulse"></span>${aw.status === "met" ? `Hit: ${fmt(aw.price)} — ${fmt(Math.abs(aw.target - aw.price))} under target` : `Watching · target $${aw.target}`} <span class="wp-dim">· low ${fmt(low)} · checked ${aw.lastChecked}${aw.status === "paused" ? " · paused" : ""}</span>`;
-    wp.onclick = () => { openPanel(); setView("shelf"); renderAll(); };
-    slot.appendChild(wp);
-  }
-  const fw = engine.watches.find(w => w.kind === "fare");
-  const fslot = $("faresWaypoint"); fslot.innerHTML = "";
-  if (concept === "D" && fw) {
-    const wp = document.createElement("div");
-    wp.className = "waypoint" + (fw.status === "met" ? " met" : "");
-    wp.style.marginBottom = "14px";
-    wp.innerHTML = `<span class="wp-pulse"></span>${fw.status === "met" ? `Found: ${fmt(fw.price)} ${fw.semantic[0] || ""}` : `Watching · ${fw.semantic.join(" · ")} · ≤ $${fw.target}`} <span class="wp-dim">· checked ${fw.lastChecked}</span>`;
-    wp.onclick = () => { openPanel(); setView("shelf"); renderAll(); };
-    fslot.appendChild(wp);
-  }
+  // D: the agent's presence lives in chrome, never in the page —
+  // an eye in the urlbar (like the bookmark star) when this page is watched
+  $("auroraWaypoint").innerHTML = ""; $("faresWaypoint").innerHTML = "";
+  $("auroraPrice").classList.remove("waypointed");
+  let slot = $("urlEyeSlot");
+  if (!slot) { slot = document.createElement("span"); slot.id = "urlEyeSlot"; document.querySelector(".urlbar").appendChild(slot); }
+  slot.innerHTML = "";
+  if (concept !== "D") return;
+  const w = activeTab === "soundhub" ? engine.watches.find(w => w.kind === "price") : activeTab === "flights" ? engine.watches.find(w => w.kind === "fare") : null;
+  if (!w) return;
+  const eye = el(`<span style="display:inline-flex;align-items:center;gap:5px;color:var(--violet-50);font-size:11px;font-weight:700;margin-left:auto;cursor:pointer;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:${w.status === "met" ? "var(--violet-40)" : "#7fe07a"};animation:breathe 3000ms ease-in-out infinite"></span>${w.status === "met" ? "Hit " + fmt(w.price) : "Watching"}</span>`);
+  eye.onclick = () => { openPanel(); setView("shelf"); w.seen = true; renderAll(); };
+  slot.appendChild(eye);
 }
-
-/* Chips are computed from state — every action you take changes what's
-   offered, and nothing already done is offered again. */
 function renderSuggs() {
   const s = $("swSuggs"); s.innerHTML = "";
   const aw = engine.watches.find(w => w.kind === "price");
@@ -1078,7 +1066,7 @@ document.querySelectorAll(".cs-btn").forEach(b => b.onclick = () => {
     A: `<b>Concept A · In the chat.</b> No Den — watches pin to the top of the chat, reports are artifact cards in the thread, retrieval is History (clock icon) → <b>Agents</b> filter. Same objects as the other concepts.`,
     B: `<b>Concept B · Agents page.</b> Open a <b>New Tab</b> → "Your agents" card → the Hub at about:agents with live tiles, library and activity feed. Launch still happens in chat.`,
     C: `<b>Concept C · Saved list.</b> Watch for the quiet <b>offer chip in the address bar</b> on shoppable pages; objects live in the panel's <b>Den</b> segment; reports open as canvas with linked chat.`,
-    D: `<b>Concept D · List + page marks.</b> Everything in C, plus: the watched price gets a <b>badge on the page itself</b>, and a fare watch becomes a <b>sleeping tab 🌙</b> that wakes when the condition hits — try it in a Classic window flow.`,
+    D: `<b>Concept D · The list + the address bar.</b> Everything in C, plus: when you're on a watched page an <b>eye appears in the address bar</b> — like the bookmark star — and a fare watch becomes a <b>sleeping tab 🌙</b> that wakes when the condition hits. The page itself is never touched.`,
   }[concept];
   renderAll();
 });
