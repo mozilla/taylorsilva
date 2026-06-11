@@ -527,6 +527,8 @@ function parse(text) {
   const t = text.toLowerCase();
   if (/research|compare|help me (pick|choose|decide|find)|which (one|should)|what should i|don't know/.test(t) && !/watch this/.test(t))
     return { kind: "research", query: text.trim() };
+  if (/find (me )?(the )?best|best (deal|price)|promo code|coupon code|any (deals|codes|coupons)|deal on (these|this)|cheaper (somewhere|anywhere)/.test(t) && !/watch|monitor|keep/.test(t))
+    return { kind: "scout" };
   if (/watch|monitor|alert|tell me|notify|track|let me know|deal|promo|coupon|price drop/.test(t)) {
     const m = [...t.matchAll(/\$\s?(\d+)/g)].pop() || [...t.matchAll(/\b(\d{2,4})\b/g)].pop();
     const semantic = [];
@@ -576,15 +578,15 @@ function advanceDay() {
     w.checked = "today";
     if (w.semantic.includes("verified promo found") && !w.promoDay && age >= 2) {
       w.promoDay = S.day;
-      log(`${w.title}: found code SAVE10 — verified against the listed price, reported, not applied.`);
-      toast("Promo found: SAVE10", `Verified working for ${w.title} — reported, not applied.`);
+      log(`Scout: found code SAVE10 for ${w.title} — verified against the listed price, reported, not applied.`);
+      toast("Scout found a code: SAVE10", `Verified working for ${w.title} — reported, not applied.`);
     }
     const hit = (w.target && w.price <= w.target && w.kind === "price") || (w.kind === "fare" && age >= 4);
     if (hit) {
       w.status = "met";
       const j = w.kind === "fare"
         ? `${fmt(w.price)} refundable, Tuesday departure — $${w.target - w.price} under your cap. Fares at this level lasted ~2 days last month.`
-        : `${fmt(w.price)} at ${w.source} — ${fmt(Math.abs(w.target - w.price))} below your $${w.target} target${w.promoDay ? ", and code SAVE10 still applies" : ""}.`;
+        : `${fmt(w.price)} at ${w.source} — ${fmt(Math.abs(w.target - w.price))} below your $${w.target} target${w.promoDay ? ", and Scout code SAVE10 still applies" : ""}.`;
       toast(w.kind === "fare" ? `Found it: ${fmt(w.price)} refundable` : `Aurora dropped to ${fmt(w.price)}`, j, () => {
         if (S.activeTab === "sw") { openSwShelf(); } else { S.sidebarOpen = true; setSbView("shelf"); }
         renderAll();
@@ -653,7 +655,8 @@ function computeFollowups() {
   else if (fw?.status === "live") out.push("Any progress on the fares?");
   if (rep && !S.usedChips.has("Open the report")) out.push("Open the report");
   if (rep && !pw) out.push("Watch the top pick for a price drop");
-  if (!pw && !rep && S.activeTab === "soundhub") out.push("Watch this price for me", "Help me pick ANC headphones under $100");
+  if (!pw && !rep && S.activeTab === "soundhub") out.push("Watch this price for me", "Find me the best deal on these", "Help me pick ANC headphones under $100");
+  if (S.activeTab === "soundhub" && !S.scoutRan && (pw || rep)) out.push("Find me the best deal on these");
   if (!fw && S.activeTab === "flights") out.push("Watch these fares — refundable, under $850");
   if (!out.length) out.push("What can you watch for me?");
   return [...new Set(out)];
@@ -690,6 +693,13 @@ function submit(text) {
   }
   if (/watch something new/i.test(text))
     return aiMsg(`Open the page you care about and tell me the condition there, so I can read it.`, ["Take me to the headphones page", "Take me to the flight search"]);
+  if (/keep hunting/i.test(text)) {
+    if (!S.watches.find(w => w.kind === "price")) { S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] }; startWatch(); }
+    else aiMsg(`Already on it — Scout reports through the headphones watch on your Shelf.`);
+    return;
+  }
+  if (/is that code legit|code legit/i.test(text))
+    return aiMsg(`Yes — Scout tested <b>SAVE10</b> against AudioOutlet listed price right before telling you. It reports codes; it never applies them to a cart. Read-only, always.`);
   if (/take me to|go to/i.test(text)) {
     const dest = /flight|fare/i.test(text) ? "flights" : "soundhub";
     aiMsg(`Opening it — I'll be in the sidebar when you get there.`, false);
@@ -709,6 +719,11 @@ function submit(text) {
   if (fu) return handleFollowUp(fu, ctx);
 
   const intent = parse(text);
+  if (intent.kind === "scout") {
+    if (S.activeTab !== "soundhub")
+      return aiMsg(`Scout needs a product to hunt for — point me at one.`, ["Take me to the headphones page"]);
+    return runScout();
+  }
   if (intent.kind === "watch") {
     const existing = pageWatch();
     if (existing) {
@@ -727,7 +742,7 @@ function statusLine(w) {
   if (w.status === "met") return `<b>${w.title}</b>: hit — ${fmt(w.price)}${w.target ? ` (target $${w.target})` : ""}.`;
   if (w.status === "paused") return `<b>${w.title}</b>: paused.`;
   const toGo = w.target ? w.price - w.target : null;
-  return `<b>${w.title}</b>: ${fmt(w.price)} now${toGo > 0 ? ` — ${fmt(toGo)} above your $${w.target} target` : ""}, checked ${w.checked}.${w.promoDay ? " Code SAVE10 found (verified, not applied)." : ""}`;
+  return `<b>${w.title}</b>: ${fmt(w.price)} now${toGo > 0 ? ` — ${fmt(toGo)} above your $${w.target} target` : ""}, checked ${w.checked}.${w.promoDay ? " Scout found code SAVE10 (verified, not applied)." : ""}`;
 }
 
 function handleFollowUp(fu, w) {
@@ -757,7 +772,7 @@ function proposeWatch(intent, forcePrice) {
     ? `<div class="ac-row"><span class="ic">👁</span><span>I'll re-run this search <b>a few times a day</b> and read all 47 results like you would</span></div>
        <div class="ac-row"><span class="ic">⚡</span><span data-rule>Alert when a fare is <b>${semantic.join(" · ")} · ≤ $${target}</b></span></div>`
     : `<div class="ac-row"><span class="ic">👁</span><span>I'll check this <b>a few times a day</b> — sale banners, bundles, member prices all count</span></div>
-       <div class="ac-row"><span class="ic">⚡</span><span data-rule>Alert when <b>price ≤ $${target}</b>${semantic.includes("verified promo found") ? " or a <b>verified promo</b> appears" : ""}</span></div>`;
+       <div class="ac-row"><span class="ic">⚡</span><span data-rule>Alert when <b>price ≤ $${target}</b>${semantic.includes("verified promo found") ? " or <b>Scout</b> verifies a promo" : ""}</span></div>`;
   setTimeout(() => {
     const card = S.lastPlanCard = addNode(el(`<div class="action-card">
       <div class="ac-head"><div class="ac-glyph">${eyeGlyph}</div>
@@ -787,6 +802,42 @@ function startWatch() {
     ds.classList.add("nudge"); setTimeout(() => ds.classList.remove("nudge"), 4000);
   }
   renderAll();
+}
+function runScout() {
+  if (S.scoutRan) {
+    const pw = S.watches.find(w => w.kind === "price");
+    return aiMsg(`Scout's latest sweep: best effective price is <b>$84 at AudioOutlet</b> with code <b>SAVE10</b> (verified, not applied). ${pw ? "Monitor has it from here." : "Want me to keep hunting in the background?"}`,
+      pw ? null : ["Keep hunting — watch it at $75"]);
+  }
+  S.scoutRan = true;
+  const steps = ["Scout is checking 6 retailers…", "Comparing effective prices — shipping and bundles count…", "Testing promo codes against listed prices…"];
+  const ld = loader(steps[0]); let i = 1;
+  const t = setInterval(() => {
+    if (i < steps.length) ld.querySelector("p").textContent = steps[i++];
+    else {
+      clearInterval(t); ld.remove();
+      log("Scout swept 6 retailers for Aurora ANC — best $84 at AudioOutlet, code SAVE10 verified.");
+      const card = addNode(el(`<div class="action-card">
+        <div class="ac-head"><div class="ac-glyph"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></div>
+          <div><div class="ac-title">Scout — best deal right now</div><div class="ac-sub">Aurora ANC · 6 retailers swept · codes verified against listed price, never applied</div></div></div>
+        <div class="ac-body">
+          <div class="ac-row"><span class="ic">🏆</span><span><b>$84.00 — AudioOutlet</b> with code <b>SAVE10</b> ✓ verified · free shipping</span></div>
+          <div class="ac-row"><span class="ic">·</span><span>$89.00 — SoundHub (this page) · no working codes today</span></div>
+          <div class="ac-row"><span class="ic">·</span><span>$92.50 — BestBuy · $5 shipping pushes it last</span></div>
+        </div>
+        <div class="ac-foot"><button class="ac-btn primary" data-act="hunt">Keep hunting — watch at $75</button><button class="ac-btn" data-act="done">That is all I needed</button></div></div>`));
+      card.querySelector("[data-act=hunt]").onclick = () => {
+        if (!S.watches.find(w => w.kind === "price")) {
+          S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] };
+          startWatch();
+        }
+        card.querySelector(".ac-foot").innerHTML = `<span style="font-size:11.5px;color:var(--green);font-weight:700">✓ Scout keeps hunting — saved to your Shelf as a watch</span>`;
+      };
+      card.querySelector("[data-act=done]").onclick = () => { card.querySelector(".ac-foot").remove(); renderFollowups(); };
+      setTimeout(() => renderFollowups(["Keep hunting — watch at $75", "Is that code legit?"]), 250);
+      renderAll();
+    }
+  }, 900);
 }
 function startResearch(query) {
   const isHeadphones = /headphone|anc/i.test(query);
@@ -939,7 +990,7 @@ function shelfObjNode(o) {
     <div class="so-sub">${o.status === "met" ? `<b style="color:var(--violet-60)">${fmt(o.price)} — condition met</b>` : `${fmt(o.price)} now${o.target ? " · alert at $" + o.target : ""}${o.semantic.length ? " · " + o.semantic.join(", ") : ""}`}${o.retailers > 1 ? " · " + o.retailers + " retailers" : ""}</div></div>
     <span class="so-badge ${o.status}">${o.status}</span></div>
     <div class="so-detail">${spark(o)}
-      <div class="so-meta"><span>⏱ checked ${o.checked}</span><span>low ${fmt(low)}</span>${o.promoDay ? "<span>🏷 SAVE10 verified</span>" : ""}<span>↩ from chat — tap to reopen</span></div>
+      <div class="so-meta"><span>⏱ checked ${o.checked}</span><span>low ${fmt(low)}</span>${o.promoDay ? "<span>🏷 Scout: SAVE10 verified</span>" : ""}<span>↩ from chat — tap to reopen</span></div>
       <div class="so-actions"><button class="ac-btn" data-a="pause">${o.status === "paused" ? "▶ Resume" : "⏸ Pause"}</button><button class="ac-btn" data-a="src">Open the page</button></div></div>`;
   d.onclick = e => { if (e.target.dataset?.a) return; d.classList.toggle("expanded"); o.seen = true; d.classList.remove("unread"); };
   d.querySelector('[data-a="pause"]').onclick = () => { o.status = o.status === "paused" ? "live" : "paused"; renderAll(); };
@@ -1033,7 +1084,7 @@ function greetSidebar() {
     const pw = S.watches.find(w => w.kind === "price");
     if (pw) aiMsg(`I'm already watching this page — ${statusLine(pw)}`);
     else aiMsg(`I'm reading this page — <b>Aurora ANC Headphones, $89</b> (down from $129). I can keep an eye on it for you, or compare it against everything else out there. I read pages; I never click, fill, or buy.`,
-      ["Watch this price for me", "Help me pick ANC headphones under $100"]);
+      ["Watch this price for me", "Find me the best deal on these", "Help me pick ANC headphones under $100"]);
   } else if (S.activeTab === "report") {
     const r = S.reports.find(r => r.id === S.openReportId);
     if (r) aiMsg(`This is your report — <b>${r.title}</b>. Its conversation is attached on the right, and it stays on your Shelf.`, ["Watch the top pick for a price drop"]);
