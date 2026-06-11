@@ -455,14 +455,7 @@ const steps=[
       const first=document.getElementById('denLive').querySelector('.shelf-obj'); if(first){ first.classList.add('unread');
         first.querySelector('.so-sub').innerHTML='<b style="color:var(--violet-60)">$834 refundable found</b> · Tuesday · $16 under your cap'; } } },
 
-  { cap:'<strong>6 · Each chat opens with its own Den.</strong> Two weeks later, the headphone research lives in <em>its</em> chat — open that conversation from history and it opens like any chat, with its Den holding the report. Nothing from other conversations bleeds in. Click the report…',
-    run(){ osToast.classList.remove('show'); showView('shelf');
-      } },
-
-  { cap:'<strong>7 · …and it opens as canvas, with its chat attached.</strong> The report takes the content area — a document, not a bubble (the pattern OpenAI retrofitted after reports-in-chat failed). The rail keeps the <em>linked chat</em> that produced it: continue the conversation, or hand the top pick to a new watch. <em>Research → Watch → notification: the three agents compose into one loop.</em>',
-    run(){ showContent('canvas'); } },
-
-  { cap:'<strong>8 · Why this scales.</strong> The Den is a typed-object list, not a layout: future agents add <em>object types</em> (Routine digests, someday Errands), not surfaces. If shelf objects outgrow the panel, "View all" becomes the Mission Control page — Concept B is the Den\'s expansion path, not its competitor. Footprint today: <em>1 chip + 1 segment + 1 canvas template.</em> <a href="index.html">Compare all three →</a>',
+  { cap:'<strong>6 · Why this scales.</strong> The Den is a typed-object list, not a layout: future agents add <em>object types</em> (Routine digests, someday Errands), not surfaces. Each chat keeps its own Den; "View all" can grow into the Agent Hub later. Footprint today: <em>1 chip + 1 segment.</em> (Research reports opening as a full canvas with their chat attached is a kept idea — it lives in Concept B and the live experience, in the chat that actually made the report.) <a href="index.html">Compare all concepts →</a>',
     run(){ showContent('flights'); showView('shelf'); } },
 ];
 
