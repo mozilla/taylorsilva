@@ -257,7 +257,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>F · Firefox View</th><th>E · Everything, gradually</th></tr></thead>
       <tbody>
         <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The chat thread + the chrome around the page (address-bar eye)</td><td>An Agents section in Firefox View, beside Chats</td><td>All of it, appearing as you need it</td></tr>
-        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>A prefilled, editable card in the chat</td><td>Type in the address bar, choose Watch or Research</td><td>Any of these</td></tr>
+        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>A prefilled, editable card in the chat</td><td>The offer chip or asking in the chat — the setup card appears inline in the conversation</td><td>Any of these</td></tr>
         <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>Only in the chat — scroll to find it; the eye carries live state instead</td><td>Cards in Firefox View → Agents; reports file beneath</td><td>The Den always; the full page once you have a few agents</td></tr>
         <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>The always-there eye (hover for the status card) and floating notification cards with actions — it comes to you</td><td>Notification → Firefox View; the rail badge counts what's new</td><td>Whichever of these you have — they stay in sync</td></tr>
         <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="good">Tiny — a chat card, an indicator, a notification · ~2 sprints</td><td class="mid">A section in an existing page · ~2–3 sprints</td><td class="bad">Everything, in stages · multi-quarter</td></tr>
@@ -338,13 +338,13 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     </div>
 
     <h3>Concept F — Agents in Firefox View (B, relocated)</h3>
-    <p>Concept B's management destination without B's biggest costs. An <b>Agents section in Firefox View, beside Chats</b> — the page where chat history already lives. Each watch is a card: the rule in plain words, a dot per check, last-check time, cadence, site count, and direct actions (<em>Check now · Pause · Open page · Delete</em>). When a condition hits, the alert lands as a <b>strip on the card</b> with the judgment and one action. Reports file beneath, opening with their chat attached. <b>Creation starts in the address bar</b>: type what you want, choose Watch or Research from the suggestions.</p>
+    <p>Concept B's management destination without B's biggest costs. An <b>Agents section in Firefox View, beside Chats</b> — the page where chat history already lives. Each watch is a card: the rule in plain words, a dot per check, last-check time, cadence, site count, and direct actions (<em>Check now · Pause · Open page · Delete</em>). When a condition hits, the alert lands as a <b>strip on the card</b> with the judgment and one action. Reports file beneath, opening with their chat attached. <b>Creation happens in the chat</b>: the offer chip (or just asking) opens the sidebar with the prefilled, editable card inline; the watching pill joins the address bar once the watch is live.</p>
     <div class="pro-con">
       <div class="pc-col pro"><h4>Pros</h4><ul>
         <li>Full management surface at a fraction of B's cost — Firefox View already ships</li>
         <li>No day-one empty dashboard: it's one rail item until you have agents</li>
         <li>Sits beside Chats — history and agents in one familiar place</li>
-        <li>Address-bar creation needs no new entry point at all</li>
+        <li>No new entry point: the chip and the chat are the doors; the bar pill is status that arrives after creation</li>
       </ul></div>
       <div class="pc-col con"><h4>Cons</h4><ul>
         <li>Firefox View is low-traffic for many users — discoverability depends on the rail badge and notifications</li>
