@@ -74,7 +74,18 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .nt-shortcuts { display:flex; gap:18px; margin-bottom:44px; }
 .nt-shortcut { width:72px; text-align:center; font-size:10.5px; color:var(--grey-60,--grey-70); }
 .nt-shortcut .sc-tile { width:56px; height:56px; border-radius:14px; background:#fff; border:1px solid var(--grey-10); margin:0 auto 7px; display:flex; align-items:center; justify-content:center; font-size:20px; }
-.nt-agents-entry { border:1.5px solid var(--violet-20); background:linear-gradient(135deg,#fff,var(--violet-05)); border-radius:16px; padding:18px 22px; display:flex; align-items:center; gap:16px; cursor:pointer; transition:all var(--d-quick) var(--ease-settle); }
+.nt-agents-entry { border:1.5px solid var(--violet-20); background:linear-gradient(135deg,#fff,var(--violet-05)); border-radius:16px; padding:16px 20px 12px; display:block; cursor:pointer; transition:all var(--d-quick) var(--ease-settle); }
+.nt-ae-head { display:flex; align-items:center; gap:13px; margin-bottom:11px; }
+.nt-ae-open { margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:#fff; background:var(--violet-50); border-radius:99px; padding:7px 16px; }
+.nt-agents-entry:hover .nt-ae-open { background:var(--violet-60); }
+.nt-ae-rows { border-top:1px solid rgba(117,66,229,0.12); padding-top:10px; }
+.nt-ae-row { display:flex; align-items:center; gap:9px; font-size:12px; color:var(--grey-70); padding:4.5px 0; }
+.nt-ae-row b { color:var(--grey-100); }
+.nt-ae-row .st { margin-left:auto; font-size:10.5px; color:var(--grey-40); white-space:nowrap; }
+.nt-ae-row .dot { width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0; animation:breathe var(--d-breathe) ease-in-out infinite; }
+.nt-ae-row .dot.rep { background:var(--orange); animation:none; }
+.nt-ae-foot { display:flex; gap:14px; font-size:10.5px; color:var(--grey-40); border-top:1px solid rgba(117,66,229,0.12); margin-top:8px; padding-top:9px; }
+.nt-ae-foot b { color:var(--violet-60); }
 .nt-agents-entry:hover { border-color:var(--violet-40); box-shadow:0 4px 18px rgba(117,66,229,0.13); transform:translateY(-1px); }
 .nt-ae-glyph { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--violet-50),var(--violet-40)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .nt-ae-title { font-size:14.5px; font-weight:700; color:var(--grey-100); }
@@ -211,16 +222,21 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
       </div>
       <div class="nt-section-label">Your agents</div>
       <div class="nt-agents-entry" id="hubEntry">
-        <div class="nt-ae-glyph"><svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
-        <div>
-          <div class="nt-ae-title">Agent Hub</div>
-          <div class="nt-ae-sub"><span class="nt-pulse"></span>Aurora ANC at $82 — closest it's been to your $75 target</div>
+        <div class="nt-ae-head">
+          <div class="nt-ae-glyph"><svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
+          <div>
+            <div class="nt-ae-title">Your agents</div>
+            <div class="nt-ae-sub">3 watching · 4 reports saved · 1 needs your attention</div>
+          </div>
+          <span class="nt-ae-open">Open Agent Hub →</span>
         </div>
-        <div class="nt-ae-stats">
-          <div class="nt-stat"><div class="nt-stat-num">3</div><div class="nt-stat-label">live</div></div>
-          <div class="nt-stat"><div class="nt-stat-num">4</div><div class="nt-stat-label">reports</div></div>
-          <div class="nt-stat"><div class="nt-stat-num">1</div><div class="nt-stat-label">new</div></div>
+        <div class="nt-ae-rows">
+          <div class="nt-ae-row"><span class="dot"></span><span><b>Aurora ANC Headphones</b> — $82 now, alert at $75</span><span class="st">checked 14m ago</span></div>
+          <div class="nt-ae-row"><span class="dot"></span><span><b>YVR → NRT fares</b> — refundable, under $850</span><span class="st">checked 1h ago</span></div>
+          <div class="nt-ae-row"><span class="dot"></span><span><b>Scout: standing desk codes</b> — 2 verified so far</span><span class="st">3h ago</span></div>
+          <div class="nt-ae-row"><span class="dot rep"></span><span><b>4 reports</b> — newest: "Tokyo in March — where to stay"</span><span class="st">2d ago</span></div>
         </div>
+        <div class="nt-ae-foot"><span><b>1 suggestion</b> waiting</span><span>last activity 14m ago</span><span>everything is read-only · checks logged</span></div>
       </div>
     </div>
 
@@ -390,7 +406,7 @@ function show(view){
 }
 
 const steps=[
-  { cap:'<strong>1 · The front door.</strong> The new tab carries a single "Your agents" entry card — live count, report count, and the most newsworthy line ("Aurora at $82 — closest yet"). The new tab is the one surface every user already visits daily, so discoverability is structural, not hoped-for.',
+  { cap:'<strong>1 · The front door.</strong> The new tab carries a "Your agents" card that summarizes the whole hub — every live watch with its rule and last check, the report count, what needs attention — and an explicit <em>Open Agent Hub →</em> button, so it reads as a doorway to a full surface, not a notification about one item. The new tab is the one surface every user already visits daily, so discoverability is structural.',
     run(){ show('newtab'); } },
   { cap:'<strong>2 · The hub.</strong> Click through to <em>about:agents</em> — a true destination. Left: live agents as tiles with real state (price sparkline vs. target line, grouped retailers, semantic fare conditions). Right: the reports library and an activity feed showing every check the agents made. <em>Transparency builds the trust that background agents spend.</em>',
     run(){ show('hub'); } },

@@ -901,16 +901,23 @@ function renderNewTab() {
   if (concept !== "B") return;
   const liveN = engine.watches.filter(w => w.status === "live").length;
   const metN = engine.watches.filter(w => w.status === "met").length;
-  const newsiest = engine.watches.find(w => w.status === "met") || engine.watches[0];
+  const repN = engine.reports.length;
+  const rows = engine.watches.slice(0, 3).map(w =>
+    `<div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--grey-70);padding:4px 0">
+       <span style="width:7px;height:7px;border-radius:50%;background:${w.status === "met" ? "var(--violet-50)" : "var(--green)"};flex-shrink:0"></span>
+       <span><b style="color:var(--grey-100)">${w.title}</b> — ${w.status === "met" ? fmt(w.price) + " · condition met" : fmt(w.price) + (w.target ? ", alert at $" + w.target : "")}</span>
+       <span style="margin-left:auto;font-size:10.5px;color:var(--grey-40)">checked ${w.checked || w.lastChecked || "today"}</span></div>`).join("") || `<div style="font-size:12px;color:var(--grey-40);padding:4px 0">No agents yet — create one from the hub or just ask in chat.</div>`;
   slot.innerHTML = `<div class="nt-label">Your agents</div>
-    <div class="nt-agents" onclick="go('hub')">
-      <div class="nt-ag-glyph"><svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
-      <div><div class="nt-ag-title">Agent Hub</div>
-      <div class="nt-ag-sub">${newsiest ? (newsiest.status === "met" ? `${newsiest.title} hit its condition — ${fmt(newsiest.price)}` : `${newsiest.title} at ${fmt(newsiest.price)}`) : "No agents running — create one"}</div></div>
-      <div class="nt-stats"><div class="nt-stat"><b>${liveN}</b><span>live</span></div><div class="nt-stat"><b>${engine.reports.length}</b><span>reports</span></div><div class="nt-stat"><b>${metN}</b><span>hits</span></div></div>
+    <div class="nt-agents" onclick="go('hub')" style="display:block;padding:16px 20px 12px">
+      <div style="display:flex;align-items:center;gap:13px;margin-bottom:10px">
+        <div class="nt-ag-glyph"><svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6" fill="#fff" stroke="none"/></svg></div>
+        <div><div class="nt-ag-title">Your agents</div>
+        <div class="nt-ag-sub">${liveN} watching · ${repN} report${repN === 1 ? "" : "s"} saved${metN ? " · " + metN + " need" + (metN === 1 ? "s" : "") + " your attention" : ""}</div></div>
+        <span style="margin-left:auto;font-size:12px;font-weight:700;color:#fff;background:var(--violet-50);border-radius:99px;padding:7px 15px;white-space:nowrap">Open Agent Hub →</span>
+      </div>
+      <div style="border-top:1px solid rgba(117,66,229,0.12);padding-top:8px">${rows}</div>
     </div>`;
 }
-
 function renderWaypoints() {
   // D only: Tab Context Badge pinned to the watched element
   const aw = engine.watches.find(w => w.kind === "price");
