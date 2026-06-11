@@ -127,7 +127,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <a class="sn-proto" href="concept-a.html"><span class="k">A</span> Threadline</a>
   <a class="sn-proto" href="concept-b.html"><span class="k">B</span> Mission Control</a>
   <a class="sn-proto" href="concept-c.html"><span class="k">C</span> The Shelf</a>
-  <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">C+D</span> Waypoints</a>
+  <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">D</span> Waypoints</a>
   <div class="sn-label">Document</div>
   <a class="sn-link" href="#framing">The two layers</a>
   <a class="sn-link" href="#llm">Why an LLM at all</a>
@@ -144,7 +144,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <p class="intro">Five concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
   <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
 
-  <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Shelf and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/C+D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
+  <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Shelf and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
 
   <section id="framing">
     <h2>The problem is two-layered</h2>
@@ -203,7 +203,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
   <section id="concepts">
     <h2>Five concepts, compared</h2>
-    <p>All five share the resolved taxonomy (Monitor + Scout surfacing as Watch, plus Research), the same scenario set, and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C came first; the red-team pass produced C+D; E is the synthesis they all build toward. No final pick this round — C+D leads, E is the vision.</p>
+    <p>All five share the resolved taxonomy (Monitor + Scout surfacing as Watch, plus Research), the same scenario set, and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C came first; the red-team pass produced D; E is the synthesis they all build toward. No final pick this round — D leads, E is the vision.</p>
 
     <div class="concept-grid">
       <div class="concept-card">
@@ -228,7 +228,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <a class="cc-btn c" href="concept-c.html">Storyboard →</a>
       </div>
       <div class="concept-card star">
-        <div class="cc-tag cc-d">CONCEPT C+D · LEADING DIRECTION</div>
+        <div class="cc-tag cc-d">CONCEPT D · LEADING DIRECTION</div>
         <div class="cc-name">Waypoints</div>
         <div class="cc-thesis">The Shelf, manifested on the web itself. One user-level object, three projections: a Tab Context Badge pinned to the watched element, a sleeping tab that wakes when the condition hits, and the Shelf as index. Works in Classic windows — and it's the one design no competitor can copy.</div>
         <div class="cc-mini"><b>Footprint over C:</b> +1 annotation affordance · +1 tab state — both native browser primitives<br><b>Built with:</b> Nova Smart Window Library components</div>
@@ -240,7 +240,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <div class="concept-card vision">
         <div class="cc-tag cc-e">CONCEPT E · THE VISION</div>
         <div class="cc-name">The Synthesis</div>
-        <div class="cc-thesis">Not a fifth surface — a sequencing rule: one user-level object whose projections switch on as your agent population grows. A's slash invocation always; C/C+D's shelf and waypoints at the first object; B's hub with the activity feed earned at two. Surfaces appear in order of justification.</div>
+        <div class="cc-thesis">Not a fifth surface — a sequencing rule: one user-level object whose projections switch on as your agent population grows. A's slash invocation always; C/D's shelf and waypoints at the first object; B's hub with the activity feed earned at two. Surfaces appear in order of justification.</div>
         <div class="cc-mini"><b>Footprint:</b> everything above, sequenced — nothing before it's earned<br><b>Status:</b> stretch surface goal; the experience prototypes it</div>
         <a class="cc-btn e" href="experience.html">Live experience →</a>
       </div>
@@ -248,7 +248,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
     <h3>All five, side by side</h3>
     <table class="h2h">
-      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · Shelf</th><th>C+D · Waypoints</th><th>E · Synthesis</th></tr></thead>
+      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · Shelf</th><th>D · Waypoints</th><th>E · Synthesis</th></tr></thead>
       <tbody>
         <tr><td>Where agents live</td><td>The chat thread</td><td>A dedicated hub off the new tab</td><td>A Shelf segment in the panel</td><td>Shelf + the web itself (waypoint on the page, sleeping tab)</td><td>All of it, unlocked progressively</td></tr>
         <tr><td>Entry point</td><td>Slash menu in the composer</td><td>Hub "new agent" + chat</td><td>Offer chip at the moment of intent + chat</td><td>Offer chip + chat + the watched page itself on revisit</td><td>Slash everywhere + chips + offer chip</td></tr>
@@ -257,7 +257,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <tr><td>Footprint / ships in</td><td class="good">Smallest · ~1 sprint</td><td class="bad">Largest single surface · multi-sprint</td><td class="mid">Small · ~2 sprints</td><td class="mid">+2 native primitives · ~3 sprints</td><td class="bad">Everything, sequenced · multi-quarter</td></tr>
         <tr><td>Scales by</td><td class="bad">Doesn't — strip caps at ~3</td><td>Adding cards to the hub</td><td>Adding object types</td><td>Projections of one object</td><td>Surfaces appearing with usage</td></tr>
         <tr><td>Biggest risk</td><td>Buried retrieval (the Claude-artifacts failure)</td><td>Empty dashboard on day one</td><td>Mode-scoped reach</td><td>The in-content annotation line; 3-way state sync</td><td>Orchestration complexity</td></tr>
-        <tr><td>Status this round</td><td>Explored</td><td>Explored — growth path</td><td>Base of C+D</td><td class="good">Leading direction</td><td class="good">Vision / stretch goal</td></tr>
+        <tr><td>Status this round</td><td>Explored</td><td>Explored — growth path</td><td>Base of D</td><td class="good">Leading direction</td><td class="good">Vision / stretch goal</td></tr>
       </tbody>
     </table>
 
@@ -313,7 +313,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </ul></div>
     </div>
 
-    <h3>Concept C+D — Waypoints (leading direction)</h3>
+    <h3>Concept D — Waypoints (leading direction)</h3>
     <p>The red-team amendment to C, and the strongest direction on the table this round. A watch is <b>one user-level object with three projections</b>: a <b>waypoint</b> (Tab Context Badge pinned to the watched price, with sparkline popover, rule, and trust-tier badges), a <b>sleeping tab</b> (🌙 hibernating in the strip, waking with a badge when the condition hits), and the <b>Shelf card</b> (the index — full state, rule editing, pause-all; reports live here and open as real pages with linked chat). Edit the object anywhere and every projection updates. Built entirely from Nova Smart Window Library components — Tab Context Badge, Suggestion Chips, Smart Input, trust-tier cascade.</p>
     <div class="pro-con">
       <div class="pc-col pro"><h4>Pros</h4><ul>
@@ -338,7 +338,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <tbody>
         <tr><td>A · Threadline</td><td><code>/</code> invocation in every smartbar; the conversation as the record; a pinned live strip above the sidebar chat</td><td>retrieval buried in history</td><td>Always (invocation layer)</td></tr>
         <tr><td>C · Shelf</td><td>Typed objects (Live / Reports) indexed in the panel; the quiet offer chip at the moment of intent</td><td>mode-scoped reach</td><td>First object</td></tr>
-        <tr><td>C+D · Waypoints</td><td>Waypoint on the watched page, sleeping tab, notification fallback chain, reports as real pages</td><td>revisit-only visibility</td><td>First object</td></tr>
+        <tr><td>D · Waypoints</td><td>Waypoint on the watched page, sleeping tab, notification fallback chain, reports as real pages</td><td>revisit-only visibility</td><td>First object</td></tr>
         <tr><td>B · Mission Control</td><td>The "Your agents" page with the full activity feed — every check logged</td><td>the day-one empty dashboard</td><td>Earned: "View all →" appears at ≥2 objects</td></tr>
       </tbody>
     </table>
@@ -353,14 +353,14 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <li>Most total surface to design, build, and localize — multi-quarter, not Q3</li>
         <li>Orchestration complexity: progressive unlock logic is its own feature to test and explain</li>
         <li>Risks feeling inconsistent between users at different stages ("why don't I have that page?")</li>
-        <li>Needs C+D shipped and proven first — E without usage data is just B with extra steps</li>
+        <li>Needs D shipped and proven first — E without usage data is just B with extra steps</li>
       </ul></div>
     </div>
   </section>
 
   <section id="matrix">
     <h2>Decision matrix</h2>
-    <div class="legend"><span class="la">A · Threadline</span><span class="lb">B · Mission Control</span><span class="lc">C · The Shelf</span><span class="ld">C+D · Waypoints</span><span class="le">E · Synthesis</span></div>
+    <div class="legend"><span class="la">A · Threadline</span><span class="lb">B · Mission Control</span><span class="lc">C · The Shelf</span><span class="ld">D · Waypoints</span><span class="le">E · Synthesis</span></div>
     <div id="scores"></div>
     <script>
     const crit=[
@@ -376,10 +376,10 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </div>`).join('');
     </script>
     <table>
-      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · The Shelf</th><th>C+D · Waypoints</th><th>E · Synthesis</th></tr></thead>
+      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · The Shelf</th><th>D · Waypoints</th><th>E · Synthesis</th></tr></thead>
       <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">35</td><td class="mid">33</td></tr></tbody>
     </table>
-    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C+D trades two points of cost/speed against C for Classic-window reach, the notification fallback, and live-state visibility everywhere — the breaks the red team found. That trade is why C+D leads this round. E scores highest on every experience dimension and lowest on cost and Q3 speed — exactly what makes it the vision rather than the pick: you get to E by shipping C+D and letting usage unlock the rest.</p>
+    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">D trades two points of cost/speed against C for Classic-window reach, the notification fallback, and live-state visibility everywhere — the breaks the red team found. That trade is why D leads this round. E scores highest on every experience dimension and lowest on cost and Q3 speed — exactly what makes it the vision rather than the pick: you get to E by shipping D and letting usage unlock the rest.</p>
   </section>
 
   <section id="redteam">
@@ -398,13 +398,13 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
     </table>
     <h3>Concept D — Waypoints: the assumption A, B, and C all shared</h3>
     <p>All three concepts assume agents live in <b>browser chrome</b>. The fourth answer: they live <b>on the web itself</b>. A watch is pinned to the thing being watched — the price element carries a Tab Context Badge with live state on revisit; the fare search hibernates as a <b>sleeping tab</b> that wakes when its condition hits; reports are real pages with URLs. Chrome keeps only a thin index (the Shelf). It works in Classic windows — dissolving the mode-scoping break — and it's the one design no competitor can copy: ChatGPT, Comet, and Gemini bolt panels <em>beside</em> the web; only the rendering engine's owner can annotate <em>into</em> it.</p>
-    <p>D alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. The strongest combined design is <b>C amended with D's manifestation layer</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept C+D — Waypoints →</a></p>
+    <p>The waypoint idea alone fails Research retrieval and ambient state, so it's not a replacement — it's the missing limb. <b>Concept D is C amended with that manifestation layer</b>, prototyped in full with Nova Smart Window Library components: <a href="concept-d.html" style="color:var(--violet-30)">Concept D — Waypoints →</a></p>
   </section>
 
   <section id="recommendation">
     <h2>Where this lands (this round)</h2>
     <div class="verdict">
-      <h3>This round: no final pick. C+D — Waypoints — is the leading direction; Concept E is the vision it sequences toward.</h3>
+      <h3>This round: no final pick. D — Waypoints — is the leading direction; Concept E is the vision it sequences toward.</h3>
       <p style="max-width:none">The amendment came from trying to break C: the waking tab bridges the notification-permission cliff, the waypoint works in Classic windows (dissolving the mode-scoping ceiling), and reports-as-real-pages fixes canvas shareability. The object model is the architecture: <b>one user-level object, three projections</b> (waypoint · sleeping tab · Shelf card) — new agent types add object types, never surfaces. Everything below about C's rationale stands, strengthened.</p>
       <p style="max-width:none">The Shelf is the only option that satisfies all three of the meeting's governing constraints at once: <b>reports get a dedicated retrievable home</b> (typed Reports section → canvas → linked chat, exactly the model proposed in the 1:1), <b>no new window-level surface is created</b> (it's a segment inside the panel Smart Window already owns — the justification bar for new surfaces stays unbreached), and <b>the architecture points where the product is heading</b> (object types absorb Routine digests and eventually Errands; "View all" graduates into Mission Control when — and only when — usage proves the need).</p>
       <p style="max-width:none">It is also the only concept that puts invocation <em>at the moment of intent</em>. The competitive record is unambiguous: sidebars won, floating widgets lost, push-proactivity burned Microsoft, and both Anthropic and OpenAI had to bolt on dedicated artifact homes after burying outputs in chat. C is the design those ten products' scar tissue points to.</p>

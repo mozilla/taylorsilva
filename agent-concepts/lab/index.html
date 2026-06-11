@@ -319,7 +319,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
     <button class="cs-btn" data-c="A">A · Threadline</button>
     <button class="cs-btn" data-c="B">B · Mission Control</button>
     <button class="cs-btn" data-c="C">C · Shelf</button>
-    <button class="cs-btn active" data-c="D">C+D · Waypoints</button>
+    <button class="cs-btn active" data-c="D">D · Waypoints</button>
   </div>
   <div class="lab-right">
     <span class="day-pill">Day <b id="dayNum">0</b></span>
@@ -746,7 +746,7 @@ function renderTabs() {
     const t = document.createElement("div");
     t.className = "tab" + (p === activeTab ? " active" : "");
     let label = PAGES[p].title, extra = "";
-    // C+D: fares watch manifests as sleeping/awake tab
+    // D: fares watch manifests as sleeping/awake tab
     const fw = engine.watches.find(w => w.kind === "fare");
     if (concept === "D" && p === "flights" && fw) {
       if (fw.status === "live") { t.classList.add("sleeping"); label = "🌙 YVR → NRT · watching"; }
@@ -763,7 +763,7 @@ function renderUrlbar() {
   $("urlText").textContent = activeTab === "report"
     ? `firefox.com/smart-window/r/${openReportId || ""}`
     : PAGES[activeTab].url;
-  // contextual offer chip (C / C+D), quiet + dismissible, gone once watched
+  // contextual offer chip (C / D), quiet + dismissible, gone once watched
   const slot = $("offerSlot"); slot.innerHTML = "";
   const key = PAGES[activeTab].watchKey;
   const watched = key && engine.watches.some(w => (key === "aurora" ? w.kind === "price" : w.kind === "fare"));
@@ -795,7 +795,7 @@ function renderPanelChrome() {
   $("smartWindow").classList.toggle("open", panelOpen);
   $("swToggle").classList.toggle("active", panelOpen);
   if (panelOpen) $("swBub").style.display = "none";
-  // segments: Shelf only exists in C / C+D; History button only in A
+  // segments: Shelf only exists in C / D; History button only in A
   $("segShelf").style.display = (concept === "C" || concept === "D") ? "" : "none";
   $("histBtn").style.display = concept === "A" ? "" : "none";
   if ((concept !== "C" && concept !== "D") && activeView === "shelf") setView("chat");
@@ -912,7 +912,7 @@ function renderNewTab() {
 }
 
 function renderWaypoints() {
-  // C+D only: Tab Context Badge pinned to the watched element
+  // D only: Tab Context Badge pinned to the watched element
   const aw = engine.watches.find(w => w.kind === "price");
   const slot = $("auroraWaypoint"); slot.innerHTML = "";
   $("auroraPrice").classList.toggle("waypointed", concept === "D" && !!aw);
@@ -1071,7 +1071,7 @@ document.querySelectorAll(".cs-btn").forEach(b => b.onclick = () => {
     A: `<b>Concept A · Threadline.</b> No Shelf — watches pin to the top of the chat, reports are artifact cards in the thread, retrieval is History (clock icon) → <b>Agents</b> filter. Same objects as the other concepts.`,
     B: `<b>Concept B · Mission Control.</b> Open a <b>New Tab</b> → "Your agents" card → the Hub at about:agents with live tiles, library and activity feed. Launch still happens in chat.`,
     C: `<b>Concept C · Shelf.</b> Watch for the quiet <b>offer chip in the address bar</b> on shoppable pages; objects live in the panel's <b>Shelf</b> segment; reports open as canvas with linked chat.`,
-    D: `<b>Concept C+D · Waypoints.</b> Everything in C, plus: the watched price gets a <b>badge on the page itself</b>, and a fare watch becomes a <b>sleeping tab 🌙</b> that wakes when the condition hits — try it in a Classic window flow.`,
+    D: `<b>Concept D · Waypoints.</b> Everything in C, plus: the watched price gets a <b>badge on the page itself</b>, and a fare watch becomes a <b>sleeping tab 🌙</b> that wakes when the condition hits — try it in a Classic window flow.`,
   }[concept];
   renderAll();
 });
