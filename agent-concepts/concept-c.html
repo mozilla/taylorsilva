@@ -328,32 +328,14 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
         <!-- SHELF VIEW -->
         <div class="sw-view" id="shelfView">
           <div class="shelf-scroll">
-            <div class="shelf-label">Live</div>
-            <div id="liveObjs">
-              <div class="shelf-obj" id="auroraObj">
-                <div class="so-head">
-                  <div class="so-glyph watch"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
-                  <div><div class="so-title">Aurora ANC Headphones</div><div class="so-sub">$82 now · alert at $75 or working promo · 3 retailers</div></div>
-                  <div class="so-live">Live</div>
-                </div>
-                <div class="so-detail"><span>⏱ checked 14m ago</span><span>↳ from report: "ANC headphones under $100"</span></div>
-              </div>
+            <div id="denLive"></div>
+          <div class="shelf-label" style="margin-top:4px" id="suggLabel">Suggested</div>
+          <div class="shelf-obj" id="suggCard" style="cursor:default">
+            <div class="so-head">
+              <div class="so-glyph watch"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
+              <div><div class="so-title">Watch these fares</div><div class="so-sub">Refundable · under $850 · I can alert you when one appears</div></div>
             </div>
-            <div class="shelf-label" style="margin-top:16px">Reports</div>
-            <div class="shelf-obj" id="reportObj">
-              <div class="so-head">
-                <div class="so-glyph report"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></div>
-                <div><div class="so-title">ANC headphones under $100</div><div class="so-sub">6 options compared · 2w ago</div></div>
-                <div class="so-done">Kept</div>
-              </div>
-            </div>
-            <div class="shelf-obj">
-              <div class="so-head">
-                <div class="so-glyph report"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></div>
-                <div><div class="so-title">Tokyo in March — where to stay</div><div class="so-sub">3 neighborhoods ranked · 1w ago</div></div>
-                <div class="so-done">Kept</div>
-              </div>
-            </div>
+            <div class="so-detail" style="display:flex"><span style="color:var(--violet-60);font-weight:600;cursor:pointer">Set it up</span><span style="cursor:pointer">No thanks</span><span style="margin-left:auto;color:var(--grey-40)">Suggestions expire unless you save them</span></div>
           </div>
           <div class="shelf-foot">
             <span>Every check is logged · nothing runs you didn't start</span>
@@ -372,7 +354,7 @@ segChat=document.getElementById('segChat'), segShelf=document.getElementById('se
 shelfBadge=document.getElementById('shelfBadge'), osToast=document.getElementById('osToast'),
 flightsPage=document.getElementById('flightsPage'), canvasWrap=document.getElementById('canvasWrap'),
 composerInput=document.getElementById('composerInput'), composer=document.getElementById('composer'),
-liveObjs=document.getElementById('liveObjs'), caption=document.getElementById('caption');
+caption=document.getElementById('caption');
 
 function el(h){ const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
 function addMsg(h){ const n=el(h); thread.appendChild(n); thread.scrollTop=thread.scrollHeight; return n; }
@@ -416,25 +398,25 @@ const steps=[
       addMsg('<div class="msg user">only refundable fares, under $850, weekday departures</div>'); clearComposer();
       setTimeout(()=>addMsg('<div class="msg ai"><div class="ai-bubble">Got it — <b>refundable · ≤ $850 · Mon–Fri departures</b>. Today\'s best refundable is $934, so I\'ll stay quiet until that changes. Watching now.</div></div>'),500); }); } },
 
-  { cap:'<strong>4 · It lands on the Den.</strong> The watch settles into the panel\'s second segment — the Den. Two object types only: <em>Live</em> (things still working: Monitor + Scout, unified as "watches") and <em>Reports</em> (things finished: Research). The thread keeps its copy too — redundancy is deliberate, the Claude-artifacts lesson. One look answers "what\'s mine, what\'s it doing."',
+  { cap:'<strong>4 · It lands in this chat\'s Den.</strong> Every conversation has its own Den — only what <em>this chat</em> created lives here, nothing from other conversations. And before you make anything the Den isn\'t empty: it carries <em>suggestions</em> drawn from the page ("Watch these fares"), so there\'s no dead tab. The thread keeps its copy too — redundancy is deliberate.',
     run(){ const w=el(`<div class="shelf-obj">
       <div class="so-head"><div class="so-glyph watch"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
       <div><div class="so-title">YVR → NRT fares, March</div><div class="so-sub">Refundable · ≤ $850 · weekday · best seen: $934</div></div>
       <div class="so-live">Live</div></div>
       <div class="so-detail"><span>⏱ just started</span><span>🔔 push + watch</span></div></div>`);
-      liveObjs.prepend(w); showView('shelf'); } },
+      document.getElementById('denLive').innerHTML=''; document.getElementById('denLive').appendChild(w); document.getElementById('suggCard').style.display='none'; document.getElementById('suggLabel').style.display='none'; showView('shelf'); } },
 
   { cap:'<strong>5 · Delivery is judgment, not a diff.</strong> Five days later: one notification. Price, rule match, <em>and context a scanner can\'t give</em> — "fares at this level lasted ~2 days last month." Teaser → full object: clicking opens the Den item with the full reasoning. Notification fatigue is the kill-risk for Monitor, so the bar is: every alert must be worth a sentence of judgment.',
     run(){ showView('shelf'); osToast.classList.add('show'); shelfBadge.classList.add('shown'); shelfBadge.textContent='1';
-      const first=liveObjs.querySelector('.shelf-obj'); if(first){ first.classList.add('unread');
+      const first=document.getElementById('denLive').querySelector('.shelf-obj'); if(first){ first.classList.add('unread');
         first.querySelector('.so-sub').innerHTML='<b style="color:var(--violet-60)">$834 refundable found</b> · Tuesday · $16 under your cap'; } } },
 
-  { cap:'<strong>6 · Reports are kept objects.</strong> Two weeks after asking for headphone research, retrieval is one glance: Den → Reports. No scrolling chat history, no remembering which conversation. Click the report…',
+  { cap:'<strong>6 · Each chat opens with its own Den.</strong> Two weeks later, the headphone research lives in <em>its</em> chat — open that conversation from history and it opens like any chat, with its Den holding the report. Nothing from other conversations bleeds in. Click the report…',
     run(){ osToast.classList.remove('show'); showView('shelf');
-      document.getElementById('reportObj').style.boxShadow='0 0 0 3px rgba(117,66,229,0.25)'; } },
+      } },
 
   { cap:'<strong>7 · …and it opens as canvas, with its chat attached.</strong> The report takes the content area — a document, not a bubble (the pattern OpenAI retrofitted after reports-in-chat failed). The rail keeps the <em>linked chat</em> that produced it: continue the conversation, or hand the top pick to a new watch. <em>Research → Watch → notification: the three agents compose into one loop.</em>',
-    run(){ document.getElementById('reportObj').style.boxShadow=''; showContent('canvas'); } },
+    run(){ showContent('canvas'); } },
 
   { cap:'<strong>8 · Why this scales.</strong> The Den is a typed-object list, not a layout: future agents add <em>object types</em> (Routine digests, someday Errands), not surfaces. If shelf objects outgrow the panel, "View all" becomes the Mission Control page — Concept B is the Den\'s expansion path, not its competitor. Footprint today: <em>1 chip + 1 segment + 1 canvas template.</em> <a href="index.html">Compare all three →</a>',
     run(){ showContent('flights'); showView('shelf'); } },
@@ -446,8 +428,8 @@ steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
 function resetAll(){ thread.innerHTML=''; clearComposer(); offerChip.classList.remove('shown'); osToast.classList.remove('show');
   shelfBadge.classList.remove('shown'); showContent('flights'); showView('chat');
-  liveObjs.querySelectorAll('.shelf-obj').forEach((o,i)=>{ if(o.id!=='auroraObj') o.remove(); });
-  document.getElementById('reportObj').style.boxShadow=''; }
+  document.getElementById('denLive').innerHTML=''; document.getElementById('suggCard').style.display=''; document.getElementById('suggLabel').style.display='';
+   }
 function goto(n){ if(n<cur){ resetAll(); cur=-1; }
   while(cur<n){ cur++; steps[cur].run(); }
   caption.innerHTML=steps[cur].cap; renderDots();
@@ -456,7 +438,6 @@ document.getElementById('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ resetA
   caption.innerHTML='<strong>Concept C · A saved list in the panel.</strong> Click <strong>Start walkthrough</strong>.'; document.getElementById('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
 document.getElementById('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
 segChat.onclick=()=>showView('chat'); segShelf.onclick=()=>showView('shelf');
-document.getElementById('reportObj').onclick=()=>showContent('canvas');
 offerChip.onclick=()=>goto(1);
 renderDots();
 </script>

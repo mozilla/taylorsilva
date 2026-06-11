@@ -128,19 +128,19 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <a class="sn-proto" href="concept-b.html"><span class="k">B</span> A separate agents page</a>
   <a class="sn-proto" href="concept-c.html"><span class="k">C</span> A saved list in the panel</a>
   <a class="sn-proto" href="concept-d.html" style="border-color:rgba(237,73,174,0.4);background:linear-gradient(90deg,rgba(153,89,255,0.1),rgba(255,151,40,0.08));"><span class="k" style="background:rgba(237,73,174,0.25)">D</span> In the chat + the address bar</a>
-  <a class="sn-proto" href="concept-f.html" style="border-color:rgba(94,232,214,0.4);background:rgba(94,232,214,0.07);"><span class="k" style="background:rgba(94,232,214,0.25)">F</span> Agents in Firefox View</a>
+  <a class="sn-proto" href="concept-e.html" style="border-color:rgba(94,232,214,0.4);background:rgba(94,232,214,0.07);"><span class="k" style="background:rgba(94,232,214,0.25)">E</span> Agents in Firefox View</a>
   <div class="sn-label">Document</div>
   <a class="sn-link" href="#framing">The two layers</a>
   <a class="sn-link" href="#llm">Why an LLM at all</a>
   <a class="sn-link" href="#landscape">Competitive landscape</a>
-  <a class="sn-link" href="#concepts">The six concepts</a>
+  <a class="sn-link" href="#concepts">The five concepts</a>
   <a class="sn-link" href="#matrix">Decision matrix</a>
   <a class="sn-link" href="#redteam">Red team</a>
 </nav>
 
 <main>
   <h1>Where should the agents live —<br>and why should they exist?</h1>
-  <p class="intro">Six concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
+  <p class="intro">Five concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
   <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
 
   <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Den and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
@@ -201,8 +201,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   </section>
 
   <section id="concepts">
-    <h2>Six concepts, compared</h2>
-    <p>All six share the resolved taxonomy (Monitor + Scout surfacing as Watch, plus Research), the same scenario set, and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C came first; the red-team pass produced D; F moves B's destination into Firefox View; E is the synthesis. No final pick this round.</p>
+    <h2>Five concepts, compared</h2>
+    <p>All five share the resolved taxonomy (Monitor + Scout surfacing as Watch, plus Research), the same scenario set, and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C came first; the red-team pass produced D; E moves B's destination into Firefox View. The long-term synthesis is parked for a later round. No final pick this round.</p>
 
     <div class="concept-grid">
       <div class="concept-card">
@@ -215,14 +215,14 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       <div class="concept-card">
         <div class="cc-tag cc-b">CONCEPT B · BIGGEST BUILD</div>
         <div class="cc-name">A separate agents page</div>
-        <div class="cc-thesis">A full page just for agents, opened from the new tab: every running agent as a card with its price history, every report in a library, and a feed of everything the agents have done.</div>
+        <div class="cc-thesis">A full page just for agents, opened from the new tab. You create from the chat — slash command, Smart Window recommending it, or a feature callout — and the watch lands in the hub: every agent a card with its price history, every report in a library, and a feed of everything they've done.</div>
         <div class="cc-mini"><b>Footprint:</b> new about: page · tile system · feed · gallery · canvas<br><b>Ships in:</b> multi-sprint, cross-squad</div>
         <a class="cc-btn b" href="concept-b.html">Storyboard →</a>
       </div>
       <div class="concept-card">
         <div class="cc-tag cc-c">CONCEPT C</div>
         <div class="cc-name">A saved list in the panel</div>
-        <div class="cc-thesis">A second tab inside the Smart Window panel — the Den — with two lists: what's still running, and finished reports. A small chip in the address bar offers to start a watch when you're on a page worth watching. Reports open as full documents with their chat attached.</div>
+        <div class="cc-thesis">Every chat has its own Den — a second tab in the panel holding only what this conversation created: running watches and finished reports. Never empty: when there's nothing yet, it offers suggestions from the page. Something fires while you're chatting and the Den tab gets a marker. Open an old chat from history and it opens like any chat, with its Den intact.</div>
         <div class="cc-mini"><b>Footprint:</b> 1 offer chip · 1 panel segment · 1 canvas template<br><b>Ships in:</b> ~2 sprints; grows into B later</div>
         <a class="cc-btn c" href="concept-c.html">Storyboard →</a>
       </div>
@@ -237,33 +237,26 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         </div>
       </div>
       <div class="concept-card">
-        <div class="cc-tag" style="background:rgba(94,232,214,0.15);color:#3fd6c0">CONCEPT F · B, RELOCATED</div>
+        <div class="cc-tag" style="background:rgba(94,232,214,0.15);color:#3fd6c0">CONCEPT E · B, RELOCATED</div>
         <div class="cc-name">Agents in Firefox View</div>
-        <div class="cc-thesis">Concept B's full management page — but the end location is Firefox View, right beside Chats, where history already lives. Every watch is a card with its rule, a dot per check, and direct actions; alerts land as a strip on the card; reports file beneath. Creation starts in the address bar. No new top-level surface — Firefox View already ships.</div>
+        <div class="cc-thesis">Concept B's full management page — but the end location is Firefox View, right beside Chats. Every watch is a card with its rule, a dot per check, and direct actions; alerts land as a strip on the card; reports file beneath. Creation is inline in the chat (offer chip or just asking). No address-bar indicator, no new top-level surface — Firefox View already ships.</div>
         <div class="cc-mini"><b>Footprint:</b> one new section in an existing page · address-bar entry<br><b>Ships in:</b> ~2–3 sprints</div>
-        <a class="cc-btn" style="background:#0d9488;color:#fff" href="concept-f.html">Storyboard →</a>
-      </div>
-      <div class="concept-card vision">
-        <div class="cc-tag cc-e">CONCEPT E · LONG-TERM GOAL</div>
-        <div class="cc-name">Everything, added gradually</div>
-        <div class="cc-thesis">Start with just chat. Each new surface appears only when you actually need it: your first watch adds the saved list and the on-page badge; once you have a few going, the full agents page shows up. You never see an empty dashboard, and the team never builds a surface nobody uses.</div>
-        <div class="cc-mini"><b>Footprint:</b> everything above, sequenced — nothing before it's earned<br><b>Status:</b> long-term goal; the live experience already works this way</div>
-        <a class="cc-btn e" href="experience.html">Live experience →</a>
+        <a class="cc-btn" style="background:#0d9488;color:#fff" href="concept-e.html">Storyboard →</a>
       </div>
     </div>
 
-    <h3>All six, side by side</h3>
+    <h3>All five, side by side</h3>
     <table class="h2h">
-      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>F · Firefox View</th><th>E · Everything, gradually</th></tr></thead>
+      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>E · Firefox View</th></tr></thead>
       <tbody>
-        <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The chat thread + the chrome around the page (address-bar eye)</td><td>An Agents section in Firefox View, beside Chats</td><td>All of it, appearing as you need it</td></tr>
-        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>A prefilled, editable card in the chat</td><td>The offer chip or asking in the chat — the setup card appears inline in the conversation</td><td>Any of these</td></tr>
-        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>Only in the chat — scroll to find it; the eye carries live state instead</td><td>Cards in Firefox View → Agents; reports file beneath</td><td>The Den always; the full page once you have a few agents</td></tr>
-        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>The always-there eye (hover for the status card) and floating notification cards with actions — it comes to you</td><td>Notification → Firefox View; the rail badge counts what's new</td><td>Whichever of these you have — they stay in sync</td></tr>
-        <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="good">Tiny — a chat card, an indicator, a notification · ~2 sprints</td><td class="mid">A section in an existing page · ~2–3 sprints</td><td class="bad">Everything, in stages · multi-quarter</td></tr>
-        <tr><td>How it grows</td><td class="bad">It doesn't — falls apart past ~3 agents</td><td>Add more cards to the page</td><td>Add new kinds of saved things</td><td class="bad">It doesn't — five watches means five eyes and no roster</td><td>More cards and sections in Firefox View</td><td>New surfaces appear as people use more</td></tr>
-        <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>No way to manage many watches; the chat record gets buried</td><td>Firefox View is low-traffic for many users; still a destination you have to visit</td><td>Complicated to build and explain</td></tr>
-        <tr><td>Status this round</td><td>Explored</td><td>Explored — could come later</td><td>Explored — the Den</td><td class="good">Leading direction</td><td class="good">New this round</td><td class="good">Long-term goal</td></tr>
+        <tr><td>Where agents live</td><td>The chat thread</td><td>Their own page, off the new tab</td><td>A saved list in the panel</td><td>The chat thread + the chrome around the page (address-bar eye)</td><td>An Agents section in Firefox View, beside Chats</td></tr>
+        <tr><td>How you start one</td><td>Type "/" in the chat box</td><td>"New agent" button on the page, or chat</td><td>A chip in the address bar offers it, or just ask</td><td>A prefilled, editable card in the chat</td><td>The offer chip or asking in the chat — the setup card appears inline in the conversation</td></tr>
+        <tr><td>Where results are kept</td><td>In the conversation; the watch appears as a child of its chat in Firefox View → Chats</td><td>The page's library + a log of every check</td><td>The saved list: running things and finished reports</td><td>Only in the chat — scroll to find it; the eye carries live state instead</td><td>Cards in Firefox View → Agents; reports file beneath</td></tr>
+        <tr><td>How you get back to it</td><td>The notification, the pinned line on reopen, or the child row in Firefox View</td><td>Open a new tab, click through</td><td>Notification or the badge on the panel</td><td>The always-there eye (hover for the status card) and floating notification cards with actions — it comes to you</td><td>Notification → Firefox View; the rail badge counts what's new</td></tr>
+        <tr><td>How much to build</td><td class="good">Least · ~1 sprint</td><td class="bad">Most for one piece · several sprints</td><td class="mid">Small · ~2 sprints</td><td class="good">Tiny — a chat card, an indicator, a notification · ~2 sprints</td><td class="mid">A section in an existing page · ~2–3 sprints</td></tr>
+        <tr><td>How it grows</td><td class="bad">It doesn't — falls apart past ~3 agents</td><td>Add more cards to the page</td><td>Add new kinds of saved things</td><td class="bad">It doesn't — five watches means five eyes and no roster</td><td>More cards and sections in Firefox View</td></tr>
+        <tr><td>Biggest risk</td><td>Results get buried — people can't find them again</td><td>An empty page on day one that nobody visits</td><td>Only works inside the Smart Window</td><td>No way to manage many watches; the chat record gets buried</td><td>Firefox View is low-traffic for many users; still a destination you have to visit</td></tr>
+        <tr><td>Status this round</td><td>Explored</td><td>Explored — could come later</td><td>Explored — the Den</td><td class="good">Leading direction</td><td class="good">New this round</td></tr>
       </tbody>
     </table>
 
@@ -337,24 +330,24 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
       </ul></div>
     </div>
 
-    <h3>Concept F — Agents in Firefox View (B, relocated)</h3>
-    <p>Concept B's management destination without B's biggest costs. An <b>Agents section in Firefox View, beside Chats</b> — the page where chat history already lives. Each watch is a card: the rule in plain words, a dot per check, last-check time, cadence, site count, and direct actions (<em>Check now · Pause · Open page · Delete</em>). When a condition hits, the alert lands as a <b>strip on the card</b> with the judgment and one action. Reports file beneath, opening with their chat attached. <b>Creation happens in the chat</b>: the offer chip (or just asking) opens the sidebar with the prefilled, editable card inline; the watching pill joins the address bar once the watch is live.</p>
+    <h3>Concept E — Agents in Firefox View (B, relocated)</h3>
+    <p>Concept B's management destination without B's biggest costs. An <b>Agents section in Firefox View, beside Chats</b> — the page where chat history already lives. Each watch is a card: the rule in plain words, a dot per check, last-check time, cadence, site count, and direct actions (<em>Check now · Pause · Open page · Delete</em>). When a condition hits, the alert lands as a <b>strip on the card</b> with the judgment and one action. Reports file beneath, opening with their chat attached. <b>Creation happens in the chat</b>: the offer chip (or just asking) opens the sidebar with the prefilled, editable card inline. No address-bar indicator — Firefox View is the one home.</p>
     <div class="pro-con">
       <div class="pc-col pro"><h4>Pros</h4><ul>
         <li>Full management surface at a fraction of B's cost — Firefox View already ships</li>
         <li>No day-one empty dashboard: it's one rail item until you have agents</li>
         <li>Sits beside Chats — history and agents in one familiar place</li>
-        <li>No new entry point: the chip and the chat are the doors; the bar pill is status that arrives after creation</li>
+        <li>No new entry point: the chip and the chat are the doors</li>
       </ul></div>
       <div class="pc-col con"><h4>Cons</h4><ul>
         <li>Firefox View is low-traffic for many users — discoverability depends on the rail badge and notifications</li>
-        <li>Still a destination you go to; nothing reaches you on the page itself (D's eye covers that)</li>
+        <li>Still a destination you go to; nothing reaches you on the page itself — that trade is deliberate (D covers the opposite)</li>
         <li>Firefox View real estate is owned by another team — coordination cost</li>
       </ul></div>
     </div>
 
-    <h3>Concept E — Everything, added gradually (long-term goal)</h3>
-    <p>Not a new place for agents to live — a rule for when each place appears: <b>each surface shows up only once you have something to put on it.</b> Brand new users just see chat. Your first watch adds the saved list and the badge on the page. Once you have a couple of agents going, a "View all" link appears and opens the full agents page with the log of everything they've done. The <a href="experience.html" style="color:var(--violet-30)">live experience</a> already works this way: start from nothing and watch the surfaces show up as you go.</p>
+    <h3>Parked for a later round — the long-term synthesis ("everything, added gradually")</h3>
+    <p>Set aside while A–E settle, by request — kept here for the record. The idea: each surface shows up only once you have something to put on it; the <a href="experience.html" style="color:var(--violet-30)">live experience</a> still demonstrates it. Revisit after the five concepts above are resolved.</p>
     <table>
       <thead><tr><th>From</th><th>E keeps</th><th>E drops</th><th>When it appears</th></tr></thead>
       <tbody>
@@ -382,26 +375,26 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
   <section id="matrix">
     <h2>Decision matrix</h2>
-    <div class="legend"><span class="la">A · In the chat</span><span class="lb">B · Agents page</span><span class="lc">C · Saved list</span><span class="ld">D · Chat + address bar</span><span class="lf">F · Firefox View</span><span class="le">E · Everything, gradually</span></div>
+    <div class="legend"><span class="la">A · In the chat</span><span class="lb">B · Agents page</span><span class="lc">C · Saved list</span><span class="ld">D · Chat + address bar</span><span class="lf">E · Firefox View</span></div>
     <div id="scores"></div>
     <script>
     const crit=[
-      ['Discoverability of outputs',2,5,4,4,4,5],['Retrieval two weeks later',2,5,4,3,5,5],
-      ['Maintenance / surface cost (5 = cheapest)',5,1,4,5,4,2],['Scales to future agents',1,5,4,2,5,5],
-      ['Proximity to browsing intent',3,2,5,5,2,5],['Trust & restraint fit (Firefox brand)',4,3,5,5,5,5],
-      ['Time to ship Q3',5,1,4,5,4,1],['Live-state visibility',2,5,4,5,4,5]];
-    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d,f,e])=>`
+      ['Discoverability of outputs',2,5,4,4,4],['Retrieval two weeks later',2,5,4,3,5],
+      ['Maintenance / surface cost (5 = cheapest)',5,1,4,5,4],['Scales to future agents',1,5,4,2,5],
+      ['Proximity to browsing intent',3,2,5,5,2],['Trust & restraint fit (Firefox brand)',4,3,5,5,5],
+      ['Time to ship Q3',5,1,4,5,4],['Live-state visibility',2,5,4,5,4]];
+    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d,f])=>`
       <div style="margin-bottom:14px">
         <div class="score-name" style="width:auto;margin-bottom:4px">${n}</div>
-        ${[['fa',a],['fb',b],['fc',c],['fd',d],['ff',f],['fe',e]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
+        ${[['fa',a],['fb',b],['fc',c],['fd',d],['ff',f]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
           [1,2,3,4,5].map(i=>`<div class="score-seg ${i<=v?cls:''}"></div>`).join('')}</div></div>`).join('')}
       </div>`).join('');
     </script>
     <table>
-      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>F · Firefox View</th><th>E · Everything, gradually</th></tr></thead>
-      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">34</td><td class="mid">33</td><td class="mid">33</td></tr></tbody>
+      <thead><tr><th></th><th>A · In the chat</th><th>B · Agents page</th><th>C · The Den</th><th>D · Chat + address bar</th><th>E · Firefox View</th></tr></thead>
+      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">34</td><td class="mid">33</td></tr></tbody>
     </table>
-    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C and D tie from opposite philosophies — C is a place you visit (the Den), D is presence that comes to you (the eye, hover cards, notification cards). F trades proximity for the cheapest real management surface. E scores highest on every experience dimension and lowest on cost and speed — the vision, not the pick. No final call this round.</p>
+    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C and D tie from opposite philosophies — C is a place you visit (each chat's Den), D is presence that comes to you (the eye, hover cards, notification cards). E trades proximity for the cheapest real management surface. No final call this round.</p>
   </section>
 
   <section id="redteam">

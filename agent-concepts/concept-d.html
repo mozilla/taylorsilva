@@ -134,6 +134,14 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .site-pill::before { content:"✓ "; }
 .pc-start { font-family:var(--font); font-size:12px; font-weight:700; background:var(--blue); color:#fff; border:none; border-radius:99px; padding:8px 18px; cursor:pointer; margin-top:6px; }
 .scroll-note { align-self:center; font-size:10.5px; color:var(--grey-40); padding:2px 0; }
+.slash-pop { background:#fff; border-radius:11px; box-shadow:0 8px 26px rgba(43,27,85,0.18); overflow:hidden; margin:0 0 4px; font-size:12px; display:none; }
+.slash-pop.open { display:block; }
+.slash-pop .r { display:flex; gap:9px; padding:9px 13px; align-items:center; cursor:pointer; }
+.slash-pop .r:hover { background:var(--violet-05); }
+.slash-pop code { font-size:10.5px; color:var(--violet-50); }
+.sugg-chip { align-self:flex-start; font-family:var(--font); font-size:12px; font-weight:600; border:1.5px solid var(--violet-30); color:var(--violet-60); background:#fff; border-radius:99px; padding:7px 15px; cursor:pointer; display:none; }
+.sugg-chip.open { display:inline-block; }
+.sugg-chip:hover { background:var(--violet-05); }
 .sb-input { margin:0 12px 12px; background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(43,27,85,0.1); padding:11px 14px; font-size:12.5px; color:var(--grey-40); flex-shrink:0; }
 </style>
 </head>
@@ -192,7 +200,11 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
     <div class="sidebar">
       <div class="sb-head"><div class="sb-logo"></div><div class="sb-title">Smart Window</div></div>
       <div class="sb-thread" id="thread"></div>
-      <div class="sb-input">Ask about this page…</div>
+      <div style="padding:0 12px"><div class="slash-pop" id="slashPop">
+        <div class="r"><code>/watch</code><span>Keep an eye on this page until a condition is met</span></div>
+        <div class="r"><code>/research</code><span>Compare options and keep a report</span></div>
+      </div></div>
+      <div class="sb-input" id="sbInput">Ask about this page…</div>
     </div>
   </div>
 
@@ -212,8 +224,18 @@ function el(h){ const d=document.createElement('div'); d.innerHTML=h.trim(); ret
 function add(n){ thread.appendChild(n); thread.scrollTop=1e6; return n; }
 
 const steps = [
-  { cap:"<strong>1 · Creation is a card in the chat — prefilled, editable.</strong> The user asks; Smart Window reads the page and answers with the watch already filled in: route, dates, the rule, four sites. The <em>underlined parts are editable</em> — click $620 to change it, toggle a site off. No form, no new surface. Then <em>Start watching</em>.",
+  { cap:"<strong>1 · Three ways to ask — pick your door.</strong> Type <em>/</em> for the slash menu, tap the <em>suggestion chip</em> Smart Window offers from the page, or just type what you want into the ask box. All three lead to the same place: the prefilled card, inline in the chat.",
     run(){
+      const sg = el('<button class="sugg-chip open">👁 Watch these fares for me</button>');
+      add(sg); sg.onclick = () => goto(1);
+      $('slashPop').classList.add('open');
+      document.querySelectorAll('#slashPop .r').forEach(r => r.onclick = () => goto(1));
+    } },
+
+  { cap:"<strong>2 · Creation is a card in the chat — prefilled, editable.</strong> The user asks; Smart Window reads the page and answers with the watch already filled in: route, dates, the rule, four sites. The <em>underlined parts are editable</em> — click $620 to change it, toggle a site off. No form, no new surface. Then <em>Start watching</em>.",
+    run(){
+      $('slashPop').classList.remove('open');
+      document.querySelectorAll('.sugg-chip').forEach(n=>n.remove());
       add(el('<div class="msg-u">watch these fares for me</div>'));
       setTimeout(()=>{
         add(el(`<div class="msg-a">Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:</div>`));
@@ -230,7 +252,7 @@ const steps = [
       },450);
     } },
 
-  { cap:"<strong>2 · Started — and the card just stays in the thread.</strong> That's the deal in Concept D: the chat is the only record. Keep talking and the card scrolls away; finding it later means scrolling up. That weakness is deliberate — because the next two things mean you almost never need to.",
+  { cap:"<strong>3 · Started — and the card just stays in the thread.</strong> That's the deal in Concept D: the chat is the only record. Keep talking and the card scrolls away; finding it later means scrolling up. That weakness is deliberate — because the next two things mean you almost never need to.",
     run(){
       const b=$('pcBadge'); if(b) b.classList.add('on'); const st=$('pcStart'); if(st) st.remove();
       $('urlEye').classList.add('shown');
@@ -240,18 +262,18 @@ const steps = [
       add(el('<div class="scroll-note">— the watch card is now two screens up —</div>'));
     } },
 
-  { cap:"<strong>3 · The eye in the address bar is always there.</strong> On any watched page, a small breathing eye sits in the bar — chrome Firefox owns, like the bookmark star, page untouched. It's the permanent answer to \\\"where's my watch?\\\" — no scrolling, no list to visit.",
+  { cap:"<strong>4 · The eye in the address bar is always there.</strong> On any watched page, a small breathing eye sits in the bar — chrome Firefox owns, like the bookmark star, page untouched. It's the permanent answer to \\\"where's my watch?\\\" — no scrolling, no list to visit.",
     run(){ $('urlEye').classList.add('shown'); $('urlEye').style.boxShadow='0 0 0 3px rgba(117,66,229,0.3)'; setTimeout(()=>$('urlEye').style.boxShadow='',1600); } },
 
-  { cap:"<strong>4 · Hover the eye → the status card.</strong> No click needed: current price, the rule, the trend against your target line, last check, pause. Everything a list row would have shown — summoned in place, then gone when your cursor leaves.",
+  { cap:"<strong>5 · Hover the eye → the status card.</strong> No click needed: current price, the rule, the trend against your target line, last check, pause. Everything a list row would have shown — summoned in place, then gone when your cursor leaves.",
     run(){ $('hoverCard').classList.add('open'); } },
 
-  { cap:"<strong>5 · The condition hits → a floating card, not just a ping.</strong> The notification is a real card: the judgment (<em>11% below target, lowest in 3 months, which site won</em>) and the actions that matter — <em>Open Kayak · Snooze · Stop watching</em>. You can finish the whole loop without ever finding the original thread.",
+  { cap:"<strong>6 · The condition hits → a floating card, not just a ping.</strong> The notification is a real card: the judgment (<em>11% below target, lowest in 3 months, which site won</em>) and the actions that matter — <em>Open Kayak · Snooze · Stop watching</em>. You can finish the whole loop without ever finding the original thread.",
     run(){ $('hoverCard').classList.remove('open'); $('floatCard').classList.add('open');
       $('urlEye').classList.add('met'); $('eyeLabel').textContent='Hit $607'; $('fare1').textContent='$631';
       $('hcDot').style.background='var(--violet-40)'; $('hcSub').innerHTML='<b style="color:var(--violet-60)">$607 — condition met</b> · was: nonstop below $620'; $('hcMeta').innerHTML='<span>hit 9:02 AM</span><span>best: Kayak</span><span>SkyFares $631</span>'; } },
 
-  { cap:"<strong>6 · The shape of Concept D.</strong> Chat holds the record (scroll to find it), the bar holds the presence (eye + hover card), notifications close the loop (floating card with actions). Zero list surfaces to build or maintain — and the honest limit: with five watches running, there's no roster to manage. That's what C's Den and F's Firefox View page are for. <a href='index.html'>Compare all concepts →</a>",
+  { cap:"<strong>7 · The shape of Concept D.</strong> Chat holds the record (scroll to find it), the bar holds the presence (eye + hover card), notifications close the loop (floating card with actions). Zero list surfaces to build or maintain — and the honest limit: with five watches running, there's no roster to manage. That's what C's Den and F's Firefox View page are for. <a href='index.html'>Compare all concepts →</a>",
     run(){ $('floatCard').classList.remove('open'); $('hoverCard').classList.add('open'); } },
 ];
 
@@ -260,7 +282,7 @@ const dots=$('dots');
 steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-dot'; d.onclick=()=>goto(i); dots.appendChild(d); });
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
 function reset(){
-  thread.innerHTML=''; $('urlEye').classList.remove('shown','met'); $('eyeLabel').textContent='Watching';
+  thread.innerHTML=''; $('slashPop').classList.remove('open'); $('urlEye').classList.remove('shown','met'); $('eyeLabel').textContent='Watching';
   $('hoverCard').classList.remove('open'); $('floatCard').classList.remove('open');
   $('hcDot').style.background='var(--green)'; $('fare1').textContent='$684';
   $('hcSub').textContent='$684 now · alert when nonstop drops below $620 · Oct 12 – 26';
