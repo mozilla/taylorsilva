@@ -321,6 +321,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 .site-pill { font-family:var(--font); font-size:12px; font-weight:600; border-radius:99px; padding:6px 14px; border:1.5px solid #2f6fd0; background:transparent; color:#2f6fd0; cursor:pointer; transition:all var(--d-quick); }
 .site-pill::before { content:"✓ "; }
 .site-pill.off { border-color:var(--gray-20); color:var(--gray-40); }
+.sites-hint { font-size:10.5px; color:var(--gray-50); margin:2px 0 6px; }
 .site-pill.off::before { content:"+ "; }
 .plan-count { font-size:11.5px; color:var(--gray-50); margin-bottom:4px; }
 .watching-badge { font-size:10.5px; font-weight:700; background:#e7f5e7; color:var(--green); border-radius:99px; padding:3px 10px; margin-left:8px; white-space:nowrap; }
@@ -831,6 +832,7 @@ function proposeWatch(intent, forcePrice) {
   const semantic = intent.semantic?.length ? intent.semantic : (onFlights ? ["refundable", "weekday departure"] : []);
   S.pending = { onFlights, target, semantic };
   const sites = onFlights ? ["FlightFinder", "Kayak", "Google Flights", "Expedia"] : ["SoundHub", "AudioOutlet", "BestBuy"];
+  const currentSite = sites[0]; // default: only the page you're on
   const targets = onFlights ? [850, 800, 900] : [75, 70, 80];
   aiMsg(`Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:`, false);
   setTimeout(() => {
@@ -841,9 +843,10 @@ function proposeWatch(intent, forcePrice) {
       <div class="ac-head"><div style="flex:1"><div class="ac-title">Watch ${onFlights ? "Tokyo fares" : "this price"}<span class="watching-badge" hidden></span></div></div></div>
       <div class="ac-body">
         <p class="plan-sent">${sent}</p>
-        <div class="plan-meta">Checking 4 times daily · Push notification · read-only, every check logged</div>
-        <div class="site-pills">${sites.map(x => `<button class="site-pill">${x}</button>`).join("")}</div>
-        <div class="plan-count">One watch, <span data-n>${sites.length}</span> sites</div>
+        <div class="plan-meta">Checking 4 times daily · <span class="tok" data-k="alert" data-cycle="Push notification|Push + email|Badge only">Push notification</span> · read-only, every check logged</div>
+        <div class="sites-hint">Watching this page. Also relevant — tap to add:</div>
+        <div class="site-pills">${sites.map((x, i) => `<button class="site-pill${i ? " off" : ""}">${x}</button>`).join("")}</div>
+        <div class="plan-count">One watch, <span data-n>1</span> site<span data-pl></span></div>
       </div>
       <div class="ac-foot"><button class="ac-btn primary" data-act="start">Start watching</button><button class="ac-btn" data-act="no">No thanks</button></div></div>`));
     // editable tokens
@@ -858,10 +861,10 @@ function proposeWatch(intent, forcePrice) {
         if (tk.dataset.k === "promo") S.pending.semantic = opts[i].startsWith("Scout") ? ["verified promo found"] : [];
       }
     });
-    // site pills
-    const recount = () => { const n = card.querySelectorAll(".site-pill:not(.off)").length; card.querySelector("[data-n]").textContent = n; S.pendingSites = n; };
-    card.querySelectorAll(".site-pill").forEach(pl => pl.onclick = () => { pl.classList.toggle("off"); recount(); });
-    S.pendingSites = sites.length;
+    // site pills — current page locked in, others optional suggestions
+    const recount = () => { const n = card.querySelectorAll(".site-pill:not(.off)").length; card.querySelector("[data-n]").textContent = n; card.querySelector("[data-pl]").textContent = n === 1 ? "" : "s"; S.pendingSites = n; };
+    card.querySelectorAll(".site-pill").forEach((pl, i) => pl.onclick = () => { if (i === 0) return; pl.classList.toggle("off"); recount(); });
+    S.pendingSites = 1;
     card.querySelector('[data-act="start"]').onclick = () => {
       startWatch();
       const b = card.querySelector(".watching-badge"); b.hidden = false; b.textContent = `Watching · ${S.pendingSites || sites.length} sites`;
@@ -1070,10 +1073,10 @@ function shelfObjNode(o) {
     <span class="so-badge ${o.status}">${o.status}</span></div>
     <div class="so-detail">${spark(o)}
       <div class="so-meta"><span>⏱ checked ${o.checked}</span><span>low ${fmt(low)}</span>${o.promoDay ? "<span>🏷 Scout: SAVE10 verified</span>" : ""}<span>↩ from chat — tap to reopen</span></div>
-      <div class="so-actions"><button class="ac-btn" data-a="pause">${o.status === "paused" ? "▶ Resume" : "⏸ Pause"}</button><button class="ac-btn" data-a="src">Open the page</button></div></div>`;
+      <div class="so-actions"><button class="ac-btn" data-a="pause">${o.status === "paused" ? "▶ Resume" : "⏸ Pause"}</button>${(o.kind === "fare" ? S.activeTab !== "flights" : S.activeTab !== "soundhub") ? '<button class="ac-btn" data-a="src">Open the page</button>' : ""}</div></div>`;
   d.onclick = e => { if (e.target.dataset?.a) return; d.classList.toggle("expanded"); o.seen = true; d.classList.remove("unread"); };
   d.querySelector('[data-a="pause"]').onclick = () => { o.status = o.status === "paused" ? "live" : "paused"; renderAll(); };
-  d.querySelector('[data-a="src"]').onclick = () => { go(o.kind === "fare" ? "flights" : "soundhub"); };
+  const srcBtn = d.querySelector('[data-a="src"]'); if (srcBtn) srcBtn.onclick = () => { go(o.kind === "fare" ? "flights" : "soundhub"); };
   return d;
 }
 function spark(w) {

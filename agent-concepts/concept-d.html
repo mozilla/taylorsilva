@@ -132,6 +132,9 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .pc-meta { font-size:11px; color:var(--grey-50); margin:5px 0 9px; }
 .site-pill { font-family:var(--font); font-size:11.5px; font-weight:600; border-radius:99px; padding:5px 12px; border:1.5px solid var(--blue); background:transparent; color:var(--blue); cursor:pointer; margin:0 5px 5px 0; }
 .site-pill::before { content:"✓ "; }
+.site-pill.off { border-color:var(--grey-20); color:var(--grey-40); }
+.site-pill.off::before { content:"+ "; }
+.pc-hint { font-size:10px; color:var(--grey-50); margin:3px 0 4px; }
 .pc-start { font-family:var(--font); font-size:12px; font-weight:700; background:var(--blue); color:#fff; border:none; border-radius:99px; padding:8px 18px; cursor:pointer; margin-top:6px; }
 .scroll-note { align-self:center; font-size:10.5px; color:var(--grey-40); padding:2px 0; }
 .slash-pop { background:#fff; border-radius:11px; box-shadow:0 8px 26px rgba(43,27,85,0.18); overflow:hidden; margin:0 0 4px; font-size:12px; display:none; }
@@ -237,21 +240,22 @@ const steps = [
       document.querySelectorAll('#slashPop .r').forEach(r => r.onclick = () => goto(1));
     } },
 
-  { cap:"<strong>2 · Creation is a card in the chat — prefilled, editable.</strong> The user asks; Smart Window reads the page and answers with the watch already filled in: route, dates, the rule, four sites. The <em>underlined parts are editable</em> — click $620 to change it, toggle a site off. No form, no new surface. Then <em>Start watching</em>.",
+  { cap:"<strong>2 · Creation is a card in the chat — prefilled, editable.</strong> The user asks; Smart Window reads the page and answers with the watch already filled in: route, dates, the rule — watching this page by default, with three more sites suggested, tap to add. The <em>underlined parts are editable</em> — click $620 to change it, toggle a site off. No form, no new surface. Then <em>Start watching</em>.",
     run(){
       $('slashPop').classList.remove('open'); $('suggStack').classList.remove('open');
       add(el('<div class="msg-u">watch these fares for me</div>'));
       setTimeout(()=>{
         add(el(`<div class="msg-a">Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:</div>`));
         const card = add(el(`<div class="plan-card" id="planCard">
-          <div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching · 4 sites</span></div>
+          <div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching</span></div>
           <p class="pc-sent">Alert me when a <span class="tok" data-c="nonstop|any">nonstop</span> fare drops <b>below</b> <span class="tok" data-c="$620|$600|$650">$620</span> for <span class="tok" data-c="Oct 12 – 26|Oct 10 – 24">Oct 12 – 26</span></p>
-          <div class="pc-meta">Checking 4 times daily · Push notification · read-only</div>
-          <div><button class="site-pill">SkyFares</button><button class="site-pill">Kayak</button><button class="site-pill">Google Flights</button><button class="site-pill">Expedia</button></div>
+          <div class="pc-meta">Checking 4 times daily · <span class="tok" data-c="Push notification|Push + email|Badge only">Push notification</span> · read-only</div>
+          <div class="pc-hint">Watching this page. Also relevant — tap to add:</div>
+          <div><button class="site-pill">SkyFares</button><button class="site-pill off">Kayak</button><button class="site-pill off">Google Flights</button><button class="site-pill off">Expedia</button></div>
           <button class="pc-start" id="pcStart">Start watching</button>
         </div>`));
         card.querySelectorAll('.tok').forEach(t=>t.onclick=()=>{ const o=t.dataset.c.split('|'); t.textContent=o[(o.indexOf(t.textContent)+1)%o.length]; });
-        card.querySelectorAll('.site-pill').forEach(p=>p.onclick=()=>p.style.opacity=p.style.opacity==='0.4'?'':'0.4');
+        card.querySelectorAll('.site-pill').forEach((p,i)=>p.onclick=()=>{ if(i===0) return; p.classList.toggle('off'); });
         $('pcStart').onclick=()=>{ $('pcBadge').classList.add('on'); $('pcStart').remove(); $('urlEye').classList.add('shown'); };
       },450);
     } },
@@ -260,7 +264,7 @@ const steps = [
     run(){
       const b=$('pcBadge'); if(b) b.classList.add('on'); const st=$('pcStart'); if(st) st.remove();
       $('urlEye').classList.add('shown');
-      add(el('<div class="msg-a">Watching now. I will check 4 times a day across the 4 sites and stay quiet until your rule is met.</div>'));
+      add(el('<div class="msg-a">Watching now. I will check 4 times a day and stay quiet until your rule is met.</div>'));
       add(el('<div class="msg-u">thanks! also what terminal does the 9:40 leave from?</div>'));
       add(el('<div class="msg-a">Tom Bradley International (TBIT) — gate posted ~3h before departure.</div>'));
       add(el('<div class="scroll-note">— the watch card is now two screens up —</div>'));

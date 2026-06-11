@@ -90,6 +90,9 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .bp-meta { font-size:11px; color:rgba(255,255,255,0.5); margin:7px 0 10px; }
 .site-pill { font-family:var(--font); font-size:11.5px; font-weight:600; border-radius:99px; padding:5px 13px; border:1.5px solid var(--blue); background:transparent; color:var(--blue); cursor:pointer; margin:0 6px 6px 0; }
 .site-pill::before { content:"✓ "; }
+.site-pill.off { border-color:rgba(255,255,255,0.25); color:rgba(255,255,255,0.45); }
+.site-pill.off::before { content:"+ "; }
+.pc-hint { font-size:10px; color:rgba(255,255,255,0.5); margin:3px 0 4px; }
 .bp-count { font-size:11px; color:rgba(255,255,255,0.5); margin:2px 0 10px; }
 .bp-start { font-family:var(--font); font-size:12.5px; font-weight:700; background:#2f6fd0; color:#fff; border:none; border-radius:10px; padding:9px 20px; cursor:pointer; }
 .bp-start:hover { filter:brightness(1.12); }
@@ -365,13 +368,15 @@ function buildPlanCard(){
   const t = $('sbThread');
   if (t.querySelector('.plan-card')) return;
   const c=document.createElement('div'); c.className='plan-card'; c.id='planCard';
-  c.innerHTML=`<div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching · 4 sites</span></div>
+  c.innerHTML=`<div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching</span></div>
     <p class="pc-sent">Alert me when a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$620</span> for <span class="tok">Oct 12 – 26</span></p>
-    <div class="pc-meta">Checking 4 times daily · Push notification · read-only</div>
-    <div><button class="site-pill">SkyFares</button><button class="site-pill">Kayak</button><button class="site-pill">Google Flights</button><button class="site-pill">Expedia</button></div>
+    <div class="pc-meta">Checking 4 times daily · <span class="tok" data-c="Push notification|Push + email|Badge only">Push notification</span> · read-only</div>
+    <div class="pc-hint">Watching this page. Also relevant — tap to add:</div>
+    <div><button class="site-pill">SkyFares</button><button class="site-pill off">Kayak</button><button class="site-pill off">Google Flights</button><button class="site-pill off">Expedia</button></div>
     <button class="pc-start" id="pcStart">Start watching</button>`;
   t.appendChild(c); t.scrollTop=1e6;
-  c.querySelectorAll('.site-pill').forEach(pl=>pl.onclick=()=>pl.style.opacity=pl.style.opacity==='0.4'?'':'0.4');
+  c.querySelectorAll('.tok').forEach(tk=>{ if(tk.dataset.c) tk.onclick=()=>{ const o=tk.dataset.c.split('|'); tk.textContent=o[(o.indexOf(tk.textContent)+1)%o.length]; }; });
+  c.querySelectorAll('.site-pill').forEach((pl,i)=>pl.onclick=()=>{ if(i===0) return; pl.classList.toggle('off'); });
   $('pcStart').onclick=finishStart;
 }
 function finishStart(){
