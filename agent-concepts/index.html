@@ -64,7 +64,12 @@ td:first-child { color:var(--text); font-weight:600; white-space:nowrap; }
 .bad { color:#ff7a93; font-weight:600; }
 .mid { color:#ffb95e; font-weight:600; }
 
-.concept-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:18px 0; }
+.concept-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(235px,1fr)); gap:14px; margin:18px 0; }
+.cc-e { background:rgba(74,157,248,0.16); color:#7db9ff; }
+.cc-btn.e { background:#2f6fd0; color:#fff; }
+.concept-card.vision { border-color:rgba(74,157,248,0.45); background:linear-gradient(180deg,rgba(74,157,248,0.08),var(--panel)); }
+.h2h td { font-size:11.5px; }
+.h2h td:first-child { white-space:normal; min-width:96px; }
 .cc-d { background:linear-gradient(90deg,rgba(153,89,255,0.2),rgba(237,73,174,0.18)); color:#e8c4ff; }
 .cc-btn.d { background:linear-gradient(90deg,#7542e5,#c4399f); color:#fff; }
 .cc-btn-row { display:flex; gap:8px; }
@@ -98,10 +103,10 @@ td:first-child { color:var(--text); font-weight:600; white-space:nowrap; }
 .score-name { width:190px; font-size:11.5px; color:var(--text-dim); flex-shrink:0; }
 .score-track { flex:1; display:flex; gap:3px; }
 .score-seg { height:8px; flex:1; border-radius:3px; background:rgba(255,255,255,0.07); }
-.score-seg.fa { background:var(--violet-40); } .score-seg.fb { background:var(--orange); } .score-seg.fc { background:var(--green); } .score-seg.fd { background:#ed49ae; }
+.score-seg.fa { background:var(--violet-40); } .score-seg.fb { background:var(--orange); } .score-seg.fc { background:var(--green); } .score-seg.fd { background:#ed49ae; } .score-seg.fe { background:#4a9df8; }
 .legend { display:flex; gap:18px; font-size:10.5px; color:var(--text-faint); margin:12px 0 18px; }
 .legend span::before { content:"●"; margin-right:5px; }
-.legend .la::before { color:var(--violet-40); } .legend .lb::before { color:var(--orange); } .legend .lc::before { color:var(--green); } .legend .ld::before { color:#ed49ae; }
+.legend .la::before { color:var(--violet-40); } .legend .lb::before { color:var(--orange); } .legend .lc::before { color:var(--green); } .legend .ld::before { color:#ed49ae; } .legend .le::before { color:#4a9df8; }
 code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07); padding:1.5px 6px; border-radius:4px; color:var(--violet-30); }
 .qa { margin-bottom:13px; max-width:720px; }
 .qa .q { font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
@@ -137,7 +142,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
 <main>
   <h1>Where should the agents live —<br>and why should they exist?</h1>
-  <p class="intro">Four end-to-end concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
+  <p class="intro">Five concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
   <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
 
   <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Shelf and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/C+D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
@@ -198,8 +203,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   </section>
 
   <section id="concepts">
-    <h2>Four concepts, prototyped end-to-end</h2>
-    <p>All four share the resolved taxonomy (Watch + Research), the same scenario set (price watch at $75, grouped retailers, semantic fare condition, two-week-old report retrieval, contextual flight offer), and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C were designed first; the red-team pass on them produced C+D. No final pick is being made this round — C+D is the strongest current direction, and Concept E is the vision it builds toward.</p>
+    <h2>Five concepts, compared</h2>
+    <p>All five share the resolved taxonomy (Monitor + Scout surfacing as Watch, plus Research), the same scenario set, and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C came first; the red-team pass produced C+D; E is the synthesis they all build toward. No final pick this round — C+D leads, E is the vision.</p>
 
     <div class="concept-grid">
       <div class="concept-card">
@@ -233,7 +238,29 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
           <a class="cc-btn c" href="concept-d.html">Storyboard →</a>
         </div>
       </div>
+      <div class="concept-card vision">
+        <div class="cc-tag cc-e">CONCEPT E · THE VISION</div>
+        <div class="cc-name">The Synthesis</div>
+        <div class="cc-thesis">Not a fifth surface — a sequencing rule: one user-level object whose projections switch on as your agent population grows. A's slash invocation always; C/C+D's shelf and waypoints at the first object; B's hub with the activity feed earned at two. Surfaces appear in order of justification.</div>
+        <div class="cc-mini"><b>Footprint:</b> everything above, sequenced — nothing before it's earned<br><b>Status:</b> stretch surface goal; the experience prototypes it</div>
+        <a class="cc-btn e" href="experience.html">Live experience →</a>
+      </div>
     </div>
+
+    <h3>All five, side by side</h3>
+    <table class="h2h">
+      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · Shelf</th><th>C+D · Waypoints</th><th>E · Synthesis</th></tr></thead>
+      <tbody>
+        <tr><td>Where agents live</td><td>The chat thread</td><td>A dedicated hub off the new tab</td><td>A Shelf segment in the panel</td><td>Shelf + the web itself (waypoint on the page, sleeping tab)</td><td>All of it, unlocked progressively</td></tr>
+        <tr><td>Entry point</td><td>Slash menu in the composer</td><td>Hub "new agent" + chat</td><td>Offer chip at the moment of intent + chat</td><td>Offer chip + chat + the watched page itself on revisit</td><td>Slash everywhere + chips + offer chip</td></tr>
+        <tr><td>Where output is stored</td><td>In the thread; history filter</td><td>Hub library + activity feed</td><td>Shelf: Live watches / kept Reports</td><td>Shelf + waypoint on the page + reports as real pages with URLs</td><td>Shelf always; hub joins when earned</td></tr>
+        <tr><td>How you get back</td><td>Notification → thread; History → Agents</td><td>New tab → hub</td><td>Notification → Shelf; badge counts; canvas reports</td><td>Notification, waking tab, waypoint, shelf — fallback chain that can't be denied</td><td>Whichever surface you've earned — all stay in sync</td></tr>
+        <tr><td>Footprint / ships in</td><td class="good">Smallest · ~1 sprint</td><td class="bad">Largest single surface · multi-sprint</td><td class="mid">Small · ~2 sprints</td><td class="mid">+2 native primitives · ~3 sprints</td><td class="bad">Everything, sequenced · multi-quarter</td></tr>
+        <tr><td>Scales by</td><td class="bad">Doesn't — strip caps at ~3</td><td>Adding cards to the hub</td><td>Adding object types</td><td>Projections of one object</td><td>Surfaces appearing with usage</td></tr>
+        <tr><td>Biggest risk</td><td>Buried retrieval (the Claude-artifacts failure)</td><td>Empty dashboard on day one</td><td>Mode-scoped reach</td><td>The in-content annotation line; 3-way state sync</td><td>Orchestration complexity</td></tr>
+        <tr><td>Status this round</td><td>Explored</td><td>Explored — growth path</td><td>Base of C+D</td><td class="good">Leading direction</td><td class="good">Vision / stretch goal</td></tr>
+      </tbody>
+    </table>
 
     <h3>Concept A — Threadline</h3>
     <p>The strongest version of "chat history is enough." Monitor and Scout collapse into <code>/watch</code>; confirmation is an in-thread card edited by replying; the one concession to persistence is a pinned strip of live agents atop the panel. Delivery deep-links into the originating thread.</p>
@@ -308,26 +335,26 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
   <section id="matrix">
     <h2>Decision matrix</h2>
-    <div class="legend"><span class="la">A · Threadline</span><span class="lb">B · Mission Control</span><span class="lc">C · The Shelf</span><span class="ld">C+D · Waypoints</span></div>
+    <div class="legend"><span class="la">A · Threadline</span><span class="lb">B · Mission Control</span><span class="lc">C · The Shelf</span><span class="ld">C+D · Waypoints</span><span class="le">E · Synthesis</span></div>
     <div id="scores"></div>
     <script>
     const crit=[
-      ['Discoverability of outputs',2,5,4,5],['Retrieval two weeks later',2,5,4,4],
-      ['Maintenance / surface cost (5 = cheapest)',5,1,4,3],['Scales to future agents',1,5,4,5],
-      ['Proximity to browsing intent',3,2,5,5],['Trust & restraint fit (Firefox brand)',4,3,5,5],
-      ['Time to ship Q3',5,1,4,3],['Live-state visibility',2,5,4,5]];
-    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d])=>`
+      ['Discoverability of outputs',2,5,4,5,5],['Retrieval two weeks later',2,5,4,4,5],
+      ['Maintenance / surface cost (5 = cheapest)',5,1,4,3,2],['Scales to future agents',1,5,4,5,5],
+      ['Proximity to browsing intent',3,2,5,5,5],['Trust & restraint fit (Firefox brand)',4,3,5,5,5],
+      ['Time to ship Q3',5,1,4,3,1],['Live-state visibility',2,5,4,5,5]];
+    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d,e])=>`
       <div style="margin-bottom:14px">
         <div class="score-name" style="width:auto;margin-bottom:4px">${n}</div>
-        ${[['fa',a],['fb',b],['fc',c],['fd',d]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
+        ${[['fa',a],['fb',b],['fc',c],['fd',d],['fe',e]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
           [1,2,3,4,5].map(i=>`<div class="score-seg ${i<=v?cls:''}"></div>`).join('')}</div></div>`).join('')}
       </div>`).join('');
     </script>
     <table>
-      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · The Shelf</th><th>C+D · Waypoints</th></tr></thead>
-      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">35</td></tr></tbody>
+      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · The Shelf</th><th>C+D · Waypoints</th><th>E · Synthesis</th></tr></thead>
+      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">35</td><td class="mid">33</td></tr></tbody>
     </table>
-    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C+D trades two points of cost/speed against C for Classic-window reach, the notification fallback, and live-state visibility everywhere — the breaks the red team found. That trade is why C+D leads this round — pending the squad sync.</p>
+    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C+D trades two points of cost/speed against C for Classic-window reach, the notification fallback, and live-state visibility everywhere — the breaks the red team found. That trade is why C+D leads this round. E scores highest on every experience dimension and lowest on cost and Q3 speed — exactly what makes it the vision rather than the pick: you get to E by shipping C+D and letting usage unlock the rest.</p>
   </section>
 
   <section id="redteam">
