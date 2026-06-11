@@ -135,6 +135,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 .sw-prompt-button:active { background:color-mix(in srgb,var(--violet-50) 25%,white); }
 /* followup mode: column, start-aligned (smartwindow-prompts.css :host([mode=followup])) */
 .sw-prompts.followup { flex-direction:column; align-items:flex-start; padding-block:2px 14px; gap:8px; justify-content:flex-start; }
+.sw-prompts.sidebar { flex-direction:column; align-items:flex-end; padding-block:2px 14px; gap:8px; justify-content:flex-start; }
 .sw-prompts.followup .sw-prompt-button { text-align:start; }
 
 /* chat-active conversation (ai-chat-content.css) */
@@ -664,12 +665,12 @@ function loader(text) { return addNode(el(`<div class="assistant-loader"><div cl
 function activateChat() {
   if (S.activeTab === "sw" && !S.chatActive) { S.chatActive = true; $("page-sw").classList.add("chat-active"); }
 }
-function clearFollowups() { document.querySelectorAll(".sw-prompts.followup").forEach(n => n.remove()); }
+function clearFollowups() { document.querySelectorAll(".sw-prompts.followup, .sw-prompts.sidebar").forEach(n => n.remove()); }
 
 /* smartwindow-prompts: starters (row) and followups (column) */
 function chipRow(prompts, mode) {
   const wrap = document.createElement("div");
-  wrap.className = "sw-prompts" + (mode === "followup" ? " followup" : "");
+  wrap.className = "sw-prompts" + (mode === "followup" ? " followup" : mode === "sidebar" ? " sidebar" : "");
   for (const p of prompts) {
     if (S.usedChips.has(p)) continue;
     const b = document.createElement("button");
@@ -683,7 +684,10 @@ function renderFollowups(custom) {
   clearFollowups();
   const list = (custom || computeFollowups()).filter(p => !S.usedChips.has(p)).slice(0, 3);
   if (!list.length) return;
-  threadEl().appendChild(chipRow(list, "followup"));
+  // real smartwindow-prompts: starters sit on the user side (right-aligned),
+  // follow-ups under a response sit left (followup mode)
+  const hasUserMsg = !!threadEl().querySelector(".chat-bubble-user");
+  threadEl().appendChild(chipRow(list, hasUserMsg ? "followup" : "sidebar"));
   scrollEl().scrollTop = 1e6;
 }
 function computeFollowups() {

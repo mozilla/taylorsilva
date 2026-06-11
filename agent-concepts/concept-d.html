@@ -139,8 +139,9 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 .slash-pop .r { display:flex; gap:9px; padding:9px 13px; align-items:center; cursor:pointer; }
 .slash-pop .r:hover { background:var(--violet-05); }
 .slash-pop code { font-size:10.5px; color:var(--violet-50); }
-.sugg-chip { align-self:flex-start; font-family:var(--font); font-size:12px; font-weight:600; border:1.5px solid var(--violet-30); color:var(--violet-60); background:#fff; border-radius:99px; padding:7px 15px; cursor:pointer; display:none; }
-.sugg-chip.open { display:inline-block; }
+.sugg-stack { display:none; flex-direction:column; align-items:flex-end; gap:8px; padding:0 12px 8px; }
+.sugg-stack.open { display:flex; }
+.sugg-chip { font-family:var(--font); font-size:12px; font-weight:600; border:1.5px solid var(--violet-30); color:var(--violet-60); background:#fff; border-radius:99px; padding:7px 15px; cursor:pointer; box-shadow:0 1px 5px rgba(43,27,85,0.1); }
 .sugg-chip:hover { background:var(--violet-05); }
 .sb-input { margin:0 12px 12px; background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(43,27,85,0.1); padding:11px 14px; font-size:12.5px; color:var(--grey-40); flex-shrink:0; }
 </style>
@@ -200,6 +201,10 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
     <div class="sidebar">
       <div class="sb-head"><div class="sb-logo"></div><div class="sb-title">Smart Window</div></div>
       <div class="sb-thread" id="thread"></div>
+      <div class="sugg-stack" id="suggStack">
+        <button class="sugg-chip">👁 Watch these fares for me</button>
+        <button class="sugg-chip">Help me decide when to book</button>
+      </div>
       <div style="padding:0 12px"><div class="slash-pop" id="slashPop">
         <div class="r"><code>/watch</code><span>Keep an eye on this page until a condition is met</span></div>
         <div class="r"><code>/research</code><span>Compare options and keep a report</span></div>
@@ -224,18 +229,17 @@ function el(h){ const d=document.createElement('div'); d.innerHTML=h.trim(); ret
 function add(n){ thread.appendChild(n); thread.scrollTop=1e6; return n; }
 
 const steps = [
-  { cap:"<strong>1 · Three ways to ask — pick your door.</strong> Type <em>/</em> for the slash menu, tap the <em>suggestion chip</em> Smart Window offers from the page, or just type what you want into the ask box. All three lead to the same place: the prefilled card, inline in the chat.",
+  { cap:"<strong>1 · Three ways to ask — pick your door.</strong> Type <em>/</em> for the slash menu, tap a <em>suggestion chip</em> — the suggested prompts stacked on your side of the chat, just above the input, or just type what you want into the ask box. All three lead to the same place: the prefilled card, inline in the chat.",
     run(){
-      const sg = el('<button class="sugg-chip open">👁 Watch these fares for me</button>');
-      add(sg); sg.onclick = () => goto(1);
+      $('suggStack').classList.add('open');
+      document.querySelectorAll('#suggStack .sugg-chip').forEach(c => c.onclick = () => goto(1));
       $('slashPop').classList.add('open');
       document.querySelectorAll('#slashPop .r').forEach(r => r.onclick = () => goto(1));
     } },
 
   { cap:"<strong>2 · Creation is a card in the chat — prefilled, editable.</strong> The user asks; Smart Window reads the page and answers with the watch already filled in: route, dates, the rule, four sites. The <em>underlined parts are editable</em> — click $620 to change it, toggle a site off. No form, no new surface. Then <em>Start watching</em>.",
     run(){
-      $('slashPop').classList.remove('open');
-      document.querySelectorAll('.sugg-chip').forEach(n=>n.remove());
+      $('slashPop').classList.remove('open'); $('suggStack').classList.remove('open');
       add(el('<div class="msg-u">watch these fares for me</div>'));
       setTimeout(()=>{
         add(el(`<div class="msg-a">Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:</div>`));
@@ -282,7 +286,7 @@ const dots=$('dots');
 steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-dot'; d.onclick=()=>goto(i); dots.appendChild(d); });
 function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
 function reset(){
-  thread.innerHTML=''; $('slashPop').classList.remove('open'); $('urlEye').classList.remove('shown','met'); $('eyeLabel').textContent='Watching';
+  thread.innerHTML=''; $('slashPop').classList.remove('open'); $('suggStack').classList.remove('open'); $('urlEye').classList.remove('shown','met'); $('eyeLabel').textContent='Watching';
   $('hoverCard').classList.remove('open'); $('floatCard').classList.remove('open');
   $('hcDot').style.background='var(--green)'; $('fare1').textContent='$684';
   $('hcSub').textContent='$684 now · alert when nonstop drops below $620 · Oct 12 – 26';
