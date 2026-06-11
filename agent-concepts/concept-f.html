@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Concept E — Dens in Firefox View · Smart Window Agent Surfaces</title>
+<title>Concept F — Den everywhere · Smart Window Agent Surfaces</title>
 <style>
 /* ================================================================
-   CONCEPT E — AGENTS IN FIREFOX VIEW
+   CONCEPT F — DEN EVERYWHERE
    Q3 Agent Surfaces · Monitor / Scout / Research
    Taylor Silva · Staff Product Designer, AI UX
 
@@ -225,16 +225,16 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
 
 <div class="proto-bar">
   <a href="index.html">← All concepts</a>
-  <span class="proto-chip">CONCEPT E</span>
-  <span class="proto-title">Dens in Firefox View</span>
-  <span class="proto-sub">Chat creation · Firefox View as the end location, beside Chats</span>
+  <span class="proto-chip">CONCEPT F</span>
+  <span class="proto-title">Den everywhere</span>
+  <span class="proto-sub">One den · panel tab · Dens in Firefox View · live bar pill</span>
   <div class="proto-steps">
     <div class="step-dots" id="dots"></div>
     <button class="proto-btn ghost" id="backBtn">Back</button>
     <button class="proto-btn" id="nextBtn">Start walkthrough</button>
   </div>
 </div>
-<div class="step-caption" id="caption"><strong>Concept E · Dens in Firefox View.</strong> A full management surface like Concept B — but instead of a new page, it's a section in <strong>Firefox View, right beside Chats</strong>, the surface chat history already lives in. Creation happens inline in the chat; the watching pill joins the address bar once something is live. Click <strong>Start walkthrough</strong>.</div>
+<div class="step-caption" id="caption"><strong>Concept F · Den everywhere.</strong> A full management surface like Concept B — but instead of a new page, it's a section in <strong>Firefox View, right beside Chats</strong>, the surface chat history already lives in. Creation happens inline in the chat; the watching pill joins the address bar once something is live. Click <strong>Start walkthrough</strong>.</div>
 
 <div class="browser">
   <div class="tabstrip">
@@ -245,7 +245,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
   </div>
   <div class="toolbar">
     <div class="nav-arrows">‹ ›</div>
-    <div class="urlbar"><span class="lock">🔒</span><input id="barInput" placeholder="Search with Firefox or enter address" autocomplete="off"><span class="offer-chip" id="offerChip"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg>I can watch this price<span class="x">✕</span></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><input id="barInput" placeholder="Search with Firefox or enter address" autocomplete="off"><span id="barPill" style="display:none;align-items:center;gap:6px;background:#f4f1fb;border:1.5px solid var(--violet-30);color:var(--violet-60);border-radius:99px;padding:3px 12px;font-size:11.5px;font-weight:700;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:#1da53f;animation:breathe var(--d-breathe) ease-in-out infinite"></span><span id="pillLabel">Watching · $684</span></span><span class="offer-chip" id="offerChip"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg>I can watch this price<span class="x">✕</span></span></div>
     <div class="tb-ic">⭐</div>
     <div class="tb-ic sw">✦</div>
     <div class="tb-ic">☰</div>
@@ -301,7 +301,7 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
         <div class="fxv-main">
           <div class="fxv-head"><h1>Dens</h1><div class="fxv-search">🔍 Search agents</div></div>
 
-          <div class="fxv-sec">Active watches</div>
+          <div class="fxv-sec" style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:8px;background:rgba(151,110,255,0.2);display:inline-flex;align-items:center;justify-content:center">👁</span>Den · This conversation</div>
           <div class="agent-card" id="watchCard">
             <div class="ag-head">
               <span class="ag-dot" id="agDot"></span>
@@ -321,11 +321,11 @@ body { font-family:var(--font); background:#15141a; height:100vh; display:flex; 
             </div>
           </div>
 
-          <div class="fxv-sec" style="margin-top:26px">Reports</div>
-          <div class="fxv-empty" id="repEmpty">Nothing here yet — ask Smart Window to research something.</div>
+          <div class="fxv-sec" style="margin-top:24px;font-size:13px;color:rgba(255,255,255,0.55)">More children of this den</div>
+          <div class="fxv-empty" id="repEmpty">As this chat makes more — reports, gen tabs — they file in here beside the monitor.</div>
           <div class="report-card" id="repCard">
             <span class="rg"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></span>
-            <span><span class="rt">Where to stay in Tokyo — Oct trip</span><div class="rs">3 neighborhoods ranked · finished just now · opens with its chat attached</div></span>
+            <span><span class="rt">Where to stay in Tokyo — Oct trip <span style='font-size:9px;font-weight:800;letter-spacing:0.5px;color:rgba(255,255,255,0.4)'>REPORT</span></span><div class="rs">3 neighborhoods ranked · opens with its chat attached</div></span>
             <span class="ro">Open →</span>
           </div>
         </div>
@@ -419,7 +419,7 @@ function finishStart(){
   card.insertAdjacentHTML('beforeend',`<div class="pc-viz" id="pcViz">${eSpark([684,684],620)}
     <div class="pc-stats"><span><b id="vNow">$684</b>now</span><span><b id="vLow">$684</b>low</span><span><b id="vChecks">1</b>checks</span><span><b id="vSites">1</b>site</span></div></div>
     <div class="pc-acts"><button class="pc-act" data-a="edit">✎ Edit</button><button class="pc-act" data-a="pause">⏸ Pause</button><button class="pc-act del" data-a="del">🗑 Delete</button></div>
-    <button class="pc-view" id="pcView">Open in Dens — Firefox View →</button>`);
+    <button class="pc-view" id="pcView">Open in your Dens →</button>`);
   card.querySelector('[data-a="edit"]').onclick=()=>eRuleQuestion(card);
   card.querySelector('[data-a="pause"]').onclick=e=>{ const x=e.target; const paused=x.textContent.includes('Pause'); x.textContent=paused?'▶ Resume':'⏸ Pause'; b.style.opacity=paused?'0.45':'1'; };
   card.querySelector('[data-a="del"]').onclick=()=>{ card.remove();
@@ -461,23 +461,30 @@ const steps = [
       setTimeout(buildCreation, 1100);
     } },
 
-  { cap:"<strong>2 · Started — a live card, with a door to your Dens.</strong> The card becomes interactive in place: price line against the dashed target, running stats, and its own <em>✎ Edit · ⏸ Pause · 🗑 Delete</em> (Edit opens the little question card). And it keeps the permanent link — <em>Open in Dens — Firefox View →</em> — so the chat record and the management home stay one click apart.",
+  { cap:"<strong>2 · Started — the den line and the bar pill.</strong> The live card stays in the chat (viz, Edit · Pause · Delete) and the next line says it plainly: <em>it\u2019s in this chat\u2019s Den — and you can also find it in your Dens</em>, with the link. And because you\u2019re on the watched page, the URL bar now carries the labeled pill — <em>Watching · $684</em> — which updates as checks come in.",
     run(){ const t=$('sbThread');
       if(!t.querySelector('.plan-card')){ if(!t.children.length){ t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'watch these fares for me'})); } t.querySelectorAll('.qcard').forEach(n=>n.remove()); buildPlanCard(); }
-      setTimeout(finishStart, 600);
+      setTimeout(finishStart, 500);
+      setTimeout(()=>{ const a=document.createElement('div'); a.className='msg-a';
+        a.innerHTML='It\u2019s in this chat\u2019s <b>Den</b> — and you can also find it in <a href="#" id="densLink" style="color:#5ee8d6;font-weight:700">your Dens</a>.';
+        t.appendChild(a); t.scrollTop=1e6;
+        document.getElementById('densLink').onclick=e=>{ e.preventDefault(); show('page-fxv'); };
+        $('barPill').style.display='inline-flex';
+      }, 1100);
     } },
 
-  { cap:"<strong>3 · The end location: Firefox View → Dens, beside Chats.</strong> The full management surface Concept B wanted — every watch as a card with its rule in plain words, a dot per check (green = something happened), last-check time, cadence, site count, and direct actions: <em>Check now · Pause · Open page · Delete</em>. Search on top. And it cost zero new top-level surfaces — Firefox View already ships.",
-    run(){ show('page-fxv'); setChecks(1, false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites'; } },
+  { cap:"<strong>3 · Firefox View → Dens: every chat\u2019s den, with all its children.</strong> The den from this conversation appears as a group — its <em>monitor</em> (the watch card, with per-check dots and actions), and as the chat produces more, its <em>reports</em> and <em>gen tabs</em> file in as siblings. Other chats\u2019 dens stack below. One page, every den, children grouped by where they came from.",
+    run(){ show('page-fxv'); setChecks(1,false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites';
+      $('repEmpty').style.display='none'; $('repCard').classList.add('open'); } },
 
   { cap:"<strong>4 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
-    run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open');
+    run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open'); $('barPill').style.display='inline-flex'; $('pillLabel').textContent='Hit $607'; document.querySelector('#barPill span').style.background='var(--violet-40)';
       const viz=$('pcViz'); if(viz){ viz.innerHTML=eSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; } $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
 
-  { cap:"<strong>5 · Research files in the same place.</strong> The Reports section starts honest — <em>'Nothing here yet — ask Smart Window to research something.'</em> Ask in the chat, and the finished report cards in beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
+  { cap:"<strong>5 · The den grows children.</strong> The Reports section starts honest — <em>'As this chat makes more — reports, gen tabs — they file in here beside the monitor.'</em> Ask in the chat, and the finished report cards in beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
     run(){ show('page-fxv'); $('osToast').classList.remove('open'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); } },
 
-  { cap:"<strong>6 · Why E earns a seat.</strong> It's Concept B's power — full management, search, transparency — without B's biggest costs: no new page to build a habit around (Firefox View ships today, next to the Chats history users already visit), and no day-one empty dashboard (the section is one rail item until you have agents). The open question vs. D: Firefox View is a destination you go to; D's presence comes to you. <a href='index.html' style='color:#5ee8d6'>Compare all concepts →</a>",
+  { cap:"<strong>6 · Why F: one object, three projections.</strong> The den is the only thing the user has to understand. It lives with its chat (C\u2019s strength), gathers everything in Firefox View → Dens (E\u2019s strength), and announces itself on the page through the labeled pill. The cost is honesty itself: three surfaces that must never disagree — the biggest build on the table. <a href='index.html' style='color:#5ee8d6'>Compare all concepts →</a>",
     run(){ show('page-fxv'); } },
 ];
 
@@ -489,7 +496,7 @@ function reset(){
   show('page-sky'); $('sbThread').innerHTML=''; $('offerChip').classList.remove('shown'); $('barInput').value=''; $('barSuggest').classList.remove('open'); $('barPlan').classList.remove('open');
    $('alertStrip').classList.remove('open');
   $('osToast').classList.remove('open'); $('agentsBub').classList.remove('on'); $('skyDot').style.display='none';
-  $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false);
+  $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false); $('barPill').style.display='none'; $('pillLabel').textContent='Watching · $684';
 }
 function goto(n){
   if(n<cur){ reset(); cur=-1; }
@@ -497,7 +504,7 @@ function goto(n){
   $('caption').innerHTML=steps[cur].cap; renderDots();
   $('nextBtn').textContent = cur>=steps.length-1 ? 'Restart' : 'Next';
 }
-$('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; renderDots(); $('caption').innerHTML="<strong>Concept E · Dens in Firefox View.</strong> Click <strong>Start walkthrough</strong>."; $('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
+$('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; renderDots(); $('caption').innerHTML="<strong>Concept F · Den everywhere.</strong> Click <strong>Start walkthrough</strong>."; $('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
 $('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
 $('tabFx').onclick=()=>show('page-fxv');
 $('tabSky').onclick=()=>show('page-sky');

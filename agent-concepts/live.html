@@ -395,7 +395,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
   <a href="index.html" style="color:#b295ff;text-decoration:none">← Analysis</a>
   <b>Live prototype</b><span style="color:rgba(255,255,255,0.4)">unscripted — type, click, choose your own journey</span>
   <div style="display:flex;background:rgba(255,255,255,0.08);border-radius:99px;padding:3px;margin-left:8px" id="cSwitch">
-    <button class="cbtn" data-c="A">A · Chat</button><button class="cbtn" data-c="B">B · Hub</button><button class="cbtn cbtn-on" data-c="C">C · Den</button><button class="cbtn" data-c="D">D · Bar</button><button class="cbtn" data-c="E">E · Firefox View</button>
+    <button class="cbtn" data-c="A">A · Chat</button><button class="cbtn" data-c="B">B · Hub</button><button class="cbtn cbtn-on" data-c="C">C · Den</button><button class="cbtn" data-c="D">D · Bar</button><button class="cbtn" data-c="E">E · Firefox View</button><button class="cbtn" data-c="F">F · Den everywhere</button>
   </div>
   <button onclick="location.reload()" style="margin-left:auto;font-family:inherit;font-size:11.5px;font-weight:600;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;border-radius:6px;padding:5px 13px;cursor:pointer">Reset</button>
 </div>
@@ -615,7 +615,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
           <div class="fxv-item">▣ Open tabs</div>
           <div class="fxv-item">🕘 History</div>
           <div class="fxv-item" id="fxvChatsItem">💬 Chats</div>
-          <div class="fxv-item" id="fxvAgentsItem">👁 Agents<span class="bub2" id="fxvBub"></span></div>
+          <div class="fxv-item" id="fxvAgentsItem">👁 Dens<span class="bub2" id="fxvBub"></span></div>
         </div>
         <div class="fxv-main" id="fxvMain"></div>
       </div>
@@ -755,7 +755,7 @@ function advanceDay() {
       if (S.concept === 'D') { showFloatCard(w, j); }
       else toast(w.kind === "fare" ? `Found it: ${fmt(w.price)} refundable` : `${w.title}: ${fmt(w.price)}`, j, () => {
         if (S.concept === 'B') { S.hubVisited = true; go('hub'); }
-        else if (S.concept === 'E') { S.fxvMode = 'agents'; go('fxv'); }
+        else if (S.concept === 'E' || S.concept === 'F') { S.fxvMode = 'agents'; go('fxv'); }
         else if (S.concept === 'A') { openPanelChat(); }
         else if (S.activeTab === "sw") { openSwShelf(); } else { S.sidebarOpen = true; setSbView("shelf"); }
         renderAll();
@@ -869,7 +869,7 @@ function submit(text) {
   }
   if (/watch something new/i.test(text))
     return aiMsg(`Open the page you care about and tell me the condition there, so I can read it.`, ["Take me to the headphones page", "Take me to the flight search"]);
-  if (/open in agents|firefox view/i.test(text)) { S.fxvMode='agents'; go('fxv'); return; }
+  if (/open in (agents|dens)|firefox view|your dens/i.test(text)) { S.fxvMode='agents'; go('fxv'); return; }
   if (/keep hunting/i.test(text)) {
     if (!S.watches.find(w => w.kind === "price")) { S.pending = { onFlights: false, target: 75, semantic: ["verified promo found"] }; startWatch(); }
     else aiMsg(`Already on it — Scout reports through the headphones watch in your Den.`);
@@ -1006,7 +1006,13 @@ function startWatch() {
     aiMsg(`Watching this page now — it's in your <b>Den</b>, and you'll see it marked right on the price when you come back. I'll alert you once, with the why.`);
   }
   log(`Started watching ${S.watches[S.watches.length - 1].title}.`);
-  if (S.concept === 'E') setTimeout(()=>renderFollowups(['Open in Agents — Firefox View']), 700);
+  if (S.concept === 'E') setTimeout(()=>renderFollowups(['Open in Dens — Firefox View']), 700);
+  if (S.concept === 'F') setTimeout(()=>{
+    const d=document.createElement('div'); d.className='msg-ai';
+    d.innerHTML='It\u2019s in this chat\u2019s Den — and you can also find it in <a href="#" style="color:var(--violet-50);font-weight:700" id="densLink">your Dens</a>.';
+    threadEl().appendChild(d); scrollEl().scrollTop=1e6;
+    document.getElementById('densLink').onclick=e=>{ e.preventDefault(); S.fxvMode='agents'; go('fxv'); };
+  }, 700);
   if (firstWatch) {
     const ds = document.querySelector(".day-skip");
     ds.classList.add("nudge"); setTimeout(() => ds.classList.remove("nudge"), 4000);
@@ -1180,24 +1186,28 @@ function renderHub() {
 function shelfObjNode(o) {
   const d = document.createElement("div");
   d.className = "shelf-obj" + (o.status === "met" && !o.seen ? " unread" : "");
-  if (o.path === undefined && o.linkedChat) { // report
+  if (o.path === undefined && o.linkedChat) { // report / gen tab
     d.innerHTML = `<div class="so-head"><div class="so-glyph report">${repGlyph}</div>
-      <div><div class="so-title">${o.title}</div><div class="so-sub">${o.status === "working" ? "working…" : "finished " + (o.createdDay === S.day ? "today" : DAYS[o.createdDay % DAYS.length]) + " · opens as a page with its chat attached"}</div></div>
-      <span class="so-badge kept">${o.status === "working" ? "…" : "Kept"}</span></div>`;
+      <div><div class="so-title">${o.title}</div><div class="so-sub">${o.status === "working" ? "working…" : (o.weekly?"gen tab · rebuilt weekly":"report · opens with its chat attached")}</div></div>
+      <span class="so-badge kept">${o.status === "working" ? "…" : (o.weekly?"Weekly":"Kept")}</span></div>`;
     if (o.status === "done") d.onclick = () => openReport(o.id);
     return d;
   }
   const low = Math.min(...o.history);
+  const chips = (o.target?['≤ $'+o.target]:[]).concat(o.semantic).map(x=>`<span class="rule-chip">${x}</span>`).join('');
   d.innerHTML = `<div class="so-head"><div class="so-glyph">${eyeGlyph}</div>
     <div><div class="so-title">${o.title}</div>
-    <div class="so-sub">${o.status === "met" ? `<b style="color:var(--violet-60)">${fmt(o.price)} — condition met</b>` : `${fmt(o.price)} now${o.target ? " · alert at $" + o.target : ""}${o.semantic.length ? " · " + o.semantic.join(", ") : ""}`}${o.retailers > 1 ? " · " + o.retailers + " retailers" : ""}</div></div>
+    <div class="so-sub">${o.status === "met" ? `<b style="color:var(--violet-60)">${fmt(o.price)} — condition met</b>` : `${fmt(o.price)} now · checked ${o.checked}`}${o.retailers > 1 ? " · " + o.retailers + " sites" : ""}</div></div>
     <span class="so-badge ${o.status}">${o.status}</span></div>
-    <div class="so-detail">${spark(o)}
-      <div class="so-meta"><span>⏱ checked ${o.checked}</span><span>low ${fmt(low)}</span>${o.promoDay ? "<span>🏷 Scout: SAVE10 verified</span>" : ""}<span>↩ from chat — tap to reopen</span></div>
-      <div class="so-actions"><button class="ac-btn" data-a="pause">${o.status === "paused" ? "▶ Resume" : "⏸ Pause"}</button>${(o.kind === "fare" ? S.activeTab !== "flights" : S.activeTab !== "soundhub") ? '<button class="ac-btn" data-a="src">Open the page</button>' : ""}</div></div>`;
-  d.onclick = e => { if (e.target.dataset?.a) return; d.classList.toggle("expanded"); o.seen = true; d.classList.remove("unread"); };
-  d.querySelector('[data-a="pause"]').onclick = () => { o.status = o.status === "paused" ? "live" : "paused"; renderAll(); };
-  const srcBtn = d.querySelector('[data-a="src"]'); if (srcBtn) srcBtn.onclick = () => { go(o.kind === "fare" ? "flights" : "soundhub"); };
+    <div class="rule-chips">${chips}</div>
+    <div style="margin-top:7px">${spark(o)}</div>
+    <div style="display:flex;gap:13px;font-size:10px;color:var(--gray-50);margin:4px 0 8px"><span><b style="color:var(--gray-100);font-size:11.5px">${fmt(o.price)}</b> now</span><span><b style="color:var(--gray-100);font-size:11.5px">${fmt(low)}</b> low</span><span><b style="color:var(--gray-100);font-size:11.5px">${o.history.length}</b> checks</span></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${iconBtn('pencil','Edit')}${iconBtn('pause', o.status==='paused'?'Resume':'Pause')}${(o.kind === "fare" ? S.activeTab !== "flights" : S.activeTab !== "soundhub") ? '<button class="icon-act" data-ia="open">Open page</button>' : ''}${iconBtn('trash','Delete',true)}</div>`;
+  d.querySelector('[data-ia="pencil"]').onclick = e => { e.stopPropagation(); openPanelChat(); editWatch(o); };
+  d.querySelector('[data-ia="pause"]').onclick = e => { e.stopPropagation(); o.status = o.status === "paused" ? "live" : "paused"; renderAll(); };
+  const ob = d.querySelector('[data-ia="open"]'); if (ob) ob.onclick = e => { e.stopPropagation(); go(o.kind === "fare" ? "flights" : "soundhub"); };
+  d.querySelector('[data-ia="trash"]').onclick = e => { e.stopPropagation(); S.watches = S.watches.filter(x => x !== o); renderAll(); };
+  d.onclick = () => { o.seen = true; d.classList.remove("unread"); };
   return d;
 }
 function spark(w) {
@@ -1288,7 +1298,7 @@ function renderUrlEye() {
   const slot = $("tbWatchSlot"); slot.innerHTML = "";
   const w = pageWatch();
   if (!w) return;
-  const eye = el(`<span class="tb-eye${w.status === "met" ? " met" : ""}"><span class="pulse"></span>${w.status === "met" ? "Hit " + fmt(w.price) : "Watching"}</span>`);
+  const eye = el(`<span class="tb-eye${w.status === "met" ? " met" : ""}"><span class="pulse"></span>${w.status === "met" ? "Hit " + fmt(w.price) : (S.concept === 'F' ? "Watching · " + fmt(w.price) : "Watching")}</span>`);
   eye.onclick = e => { e.stopPropagation(); toggleWatchPopover(w); };
   eye.onmouseenter = () => { if (!document.querySelector(".watch-popover")) toggleWatchPopover(w); };
   slot.appendChild(eye);
@@ -1421,7 +1431,7 @@ function iconBtn(kind, label, danger){ return `<button class="icon-act${danger?'
 document.querySelectorAll('.cbtn').forEach(b=>b.onclick=()=>{
   S.concept=b.dataset.c;
   document.querySelectorAll('.cbtn').forEach(x=>x.classList.toggle('cbtn-on',x===b));
-  if(S.concept!=='C' && S.sbView==='shelf') setSbView('chat');
+  if(!['C','F'].includes(S.concept) && S.sbView==='shelf') setSbView('chat');
   if(S.activeTab==='hub' && S.concept!=='B') S.activeTab='sw';
   if(S.activeTab==='fxv' && !['A','E'].includes(S.concept)) S.activeTab='sw';
   renderAll();
@@ -1459,14 +1469,14 @@ function targetQuestion(cb){
 
 /* ── per-concept chrome ── */
 function renderConceptChrome(){
-  // Den segment only in C
-  $("segShelf").style.display = S.concept==='C' ? '' : 'none';
+  // Den segment in C and F
+  $("segShelf").style.display = ['C','F'].includes(S.concept) ? '' : 'none';
   // old mini-pin off; our pin bar handles A & B
   $("sbPin").style.display='none';
   // urlbar eye only in D
-  if(S.concept!=='D'){ $("tbWatchSlot").innerHTML=''; const wp=document.querySelector('.watch-popover'); if(wp) wp.remove(); }
+  if(!['D','F'].includes(S.concept)){ $("tbWatchSlot").innerHTML=''; const wp=document.querySelector('.watch-popover'); if(wp) wp.remove(); }
   // offer chip only C & E (renderToolbar already draws it; strip otherwise)
-  if(!['C','E'].includes(S.concept)){ $("tbOfferSlot").innerHTML=''; }
+  if(!['C','E','F'].includes(S.concept)){ $("tbOfferSlot").innerHTML=''; }
   // B feature callout on watchable pages
   const key = S.activeTab==='soundhub'?'aurora':S.activeTab==='flights'?'fares':null;
   const watched = key && S.watches.some(w=>key==='aurora'?w.kind==='price':w.kind==='fare');
@@ -1549,19 +1559,24 @@ function renderFxv(){
     </div>`;
     m.querySelectorAll('[data-w]').forEach(c=>c.onclick=()=>{ S.activeTab='soundhub'; S.sidebarOpen=true; setSbView('chat'); renderAll(); });
   } else {
-    m.innerHTML=`<h1>Agents</h1><div class="fxv-sec">Active watches</div>
-      ${S.watches.length?S.watches.map(w=>{
-        const checks=w.history.length;
-        return `<div class="agent-bigcard" data-id="${w.id}">
-        <div class="ab-t"><span class="ab-dot${w.status==='met'?' met':''}"></span>${w.title}</div>
-        <div class="ab-rule">${w.target?'Alert when the price drops below <b>$'+w.target+'</b>':''} ${w.semantic.length?'· '+w.semantic.join(' · '):''}</div>
-        <div class="ab-meta"><span class="chkdots">${Array.from({length:12},(_,i)=>`<span style="${i<checks?'background:'+(w.status==='met'&&i===checks-1?'#7fe07a':'rgba(255,255,255,0.45)'):''}"></span>`).join('')}</span>
-        <span>${checks} check${checks===1?'':'s'} · last check ${w.checked} · ${w.retailers||1} site${(w.retailers||1)===1?'':'s'}</span></div>
-        <div class="ab-acts"><span data-aa="check">Check now</span><span data-aa="pause">${w.status==='paused'?'Resume':'Pause'}</span>${(w.kind==='fare'?S.activeTab!=='flights':S.activeTab!=='soundhub')?'<span data-aa="open">Open page</span>':''}<span class="del" data-aa="del">Delete</span></div>
-        ${w.status==='met'?`<div class="alert-strip">↘ <span><b>Dropped to ${fmt(w.price)}</b> — ${w.target?Math.round((1-w.price/w.target)*100)+'% below your target':'condition met'}</span><button class="go" data-aa="open2">Open page</button></div>`:''}
-      </div>`;}).join(''):'<div style="font-size:13px;color:rgba(255,255,255,0.5)">Nothing here yet — ask Smart Window to watch something.</div>'}
-      <div class="fxv-sec" style="margin-top:22px">Reports</div>
-      ${S.reports.length?S.reports.map(r=>`<div class="agent-bigcard" style="cursor:pointer" data-r="${r.id}"><div class="ab-t">📄 ${r.title}</div><div class="ab-rule">${r.status==='working'?'working…':'finished · opens with its chat attached'}</div></div>`).join(''):'<div style="font-size:12.5px;color:rgba(255,255,255,0.5)">Nothing here yet — ask Smart Window to research something.</div>'}`;
+    const chats = [...new Set([...S.watches, ...S.reports].map(o=>o.chat||'sb'))];
+    const label = c => c==='sw' ? 'Smart Window chat' : c==='archived' ? 'Earlier chats' : 'This conversation';
+    m.innerHTML=`<h1>Dens</h1><div style="font-size:12px;color:rgba(255,255,255,0.5);margin:-8px 0 16px">Every chat keeps a den — its watches, reports, and generated tabs live here as children of that conversation.</div>` +
+      (chats.length ? chats.map(c=>{
+        const ws=S.watches.filter(w=>(w.chat||'sb')===c), rs=S.reports.filter(r=>(r.chat||'sb')===c);
+        return `<div class="fxv-sec" style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:8px;background:rgba(151,110,255,0.2);display:inline-flex;align-items:center;justify-content:center">${ICONS.eye}</span>Den · ${label(c)} <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400">${ws.length+rs.length} item${ws.length+rs.length===1?'':'s'}</span></div>` +
+        ws.map(w=>{
+          const checks=w.history.length;
+          return `<div class="agent-bigcard" data-id="${w.id}">
+          <div class="ab-t"><span class="ab-dot${w.status==='met'?' met':''}"></span>${w.title} <span style="font-size:9.5px;font-weight:700;letter-spacing:0.5px;color:rgba(255,255,255,0.4);margin-left:4px">MONITOR</span></div>
+          <div class="ab-rule">${w.target?'Alert when the price drops below <b>$'+w.target+'</b>':''} ${w.semantic.length?'· '+w.semantic.join(' · '):''}</div>
+          <div class="ab-meta"><span class="chkdots">${Array.from({length:12},(_,i)=>`<span style="${i<checks?'background:'+(w.status==='met'&&i===checks-1?'#7fe07a':'rgba(255,255,255,0.45)'):''}"></span>`).join('')}</span>
+          <span>${checks} check${checks===1?'':'s'} · last check ${w.checked} · ${w.retailers||1} site${(w.retailers||1)===1?'':'s'}</span></div>
+          <div class="ab-acts"><span data-aa="check">Check now</span><span data-aa="pause">${w.status==='paused'?'Resume':'Pause'}</span>${(w.kind==='fare'?S.activeTab!=='flights':S.activeTab!=='soundhub')?'<span data-aa="open">Open page</span>':''}<span class="del" data-aa="del">Delete</span></div>
+          ${w.status==='met'?`<div class="alert-strip">↘ <span><b>Dropped to ${fmt(w.price)}</b> — ${w.target?Math.round((1-w.price/w.target)*100)+'% below your target':'condition met'}</span><button class="go" data-aa="open2">Open page</button></div>`:''}
+        </div>`;}).join('') +
+        rs.map(r=>`<div class="agent-bigcard" style="cursor:pointer" data-r="${r.id}"><div class="ab-t">📄 ${r.title} <span style="font-size:9.5px;font-weight:700;letter-spacing:0.5px;color:rgba(255,255,255,0.4);margin-left:4px">${r.weekly?'GEN TAB':'REPORT'}</span></div><div class="ab-rule">${r.status==='working'?'working…':'finished · opens with its chat attached'}</div></div>`).join('');
+      }).join('') : '<div style="font-size:13px;color:rgba(255,255,255,0.5)">No dens yet — ask Smart Window to watch or research something, and its chat\u2019s den appears here.</div>');
     m.querySelectorAll('.agent-bigcard[data-id]').forEach(card=>{
       const w=S.watches.find(x=>x.id==card.dataset.id);
       card.querySelector('[data-aa="check"]').onclick=()=>{ w.history.push(w.price); w.checked='just now'; renderFxv(); };
@@ -1595,12 +1610,18 @@ function showFloatCard(w, judgment){
   const items=document.querySelectorAll('.sw-foot-item');
   if(items[1]) items[1].onclick=()=>{ S.fxvMode='chats'; go('fxv'); };
   if(items[2]) items[2].onclick=()=>{ if(S.concept==='B'){ S.hubVisited=true; go('hub'); } else { S.fxvMode='agents'; go('fxv'); } };
+  if(items[2]) items[2].lastChild.textContent = 'Dens';
 })();
 
 /* hook concept chrome into renderAll */
 const _renderAll = renderAll;
 renderAll = function(){ _renderAll(); renderConceptChrome(); };
 
+const _qc=new URLSearchParams(location.search).get('c');
+if(_qc && ['A','B','C','D','E','F'].includes(_qc.toUpperCase())){
+  S.concept=_qc.toUpperCase();
+  document.querySelectorAll('.cbtn').forEach(x=>x.classList.toggle('cbtn-on',x.dataset.c===S.concept));
+}
 renderAll();
 </script>
 </body>
