@@ -64,7 +64,11 @@ td:first-child { color:var(--text); font-weight:600; white-space:nowrap; }
 .bad { color:#ff7a93; font-weight:600; }
 .mid { color:#ffb95e; font-weight:600; }
 
-.concept-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:18px 0; }
+.concept-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:18px 0; }
+.cc-d { background:linear-gradient(90deg,rgba(153,89,255,0.2),rgba(237,73,174,0.18)); color:#e8c4ff; }
+.cc-btn.d { background:linear-gradient(90deg,#7542e5,#c4399f); color:#fff; }
+.cc-btn-row { display:flex; gap:8px; }
+.cc-btn-row .cc-btn { flex:1; }
 .concept-card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; display:flex; flex-direction:column; }
 .concept-card.star { border-color:rgba(5,139,0,0.45); background:linear-gradient(180deg,rgba(5,139,0,0.07),var(--panel)); }
 .cc-tag { font-size:9.5px; font-weight:800; letter-spacing:0.8px; padding:3px 10px; border-radius:99px; width:fit-content; margin-bottom:10px; }
@@ -94,10 +98,10 @@ td:first-child { color:var(--text); font-weight:600; white-space:nowrap; }
 .score-name { width:190px; font-size:11.5px; color:var(--text-dim); flex-shrink:0; }
 .score-track { flex:1; display:flex; gap:3px; }
 .score-seg { height:8px; flex:1; border-radius:3px; background:rgba(255,255,255,0.07); }
-.score-seg.fa { background:var(--violet-40); } .score-seg.fb { background:var(--orange); } .score-seg.fc { background:var(--green); }
+.score-seg.fa { background:var(--violet-40); } .score-seg.fb { background:var(--orange); } .score-seg.fc { background:var(--green); } .score-seg.fd { background:#ed49ae; }
 .legend { display:flex; gap:18px; font-size:10.5px; color:var(--text-faint); margin:12px 0 18px; }
 .legend span::before { content:"●"; margin-right:5px; }
-.legend .la::before { color:var(--violet-40); } .legend .lb::before { color:var(--orange); } .legend .lc::before { color:var(--green); }
+.legend .la::before { color:var(--violet-40); } .legend .lb::before { color:var(--orange); } .legend .lc::before { color:var(--green); } .legend .ld::before { color:#ed49ae; }
 code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07); padding:1.5px 6px; border-radius:4px; color:var(--violet-30); }
 .qa { margin-bottom:13px; max-width:720px; }
 .qa .q { font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
@@ -123,7 +127,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   <a class="sn-link" href="#framing">The two layers</a>
   <a class="sn-link" href="#llm">Why an LLM at all</a>
   <a class="sn-link" href="#landscape">Competitive landscape</a>
-  <a class="sn-link" href="#concepts">Three concepts</a>
+  <a class="sn-link" href="#concepts">The four concepts</a>
   <a class="sn-link" href="#matrix">Decision matrix</a>
   <a class="sn-link" href="#redteam">Red team + Concept D</a>
   <a class="sn-link" href="#recommendation">Recommendation</a>
@@ -133,7 +137,7 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
 
 <main>
   <h1>Where should the agents live —<br>and why should they exist?</h1>
-  <p class="intro">Three end-to-end concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation.</p>
+  <p class="intro">Four end-to-end concepts for the Q3 agent release (Monitor, Scout, Research), prototyped in full against the Smart Window design language, weighed against ten competitor products, and resolved into one recommendation — plus a working, unscripted experience prototype built against the real <code>aiwindow</code> code.</p>
   <div class="meta-line">Taylor Silva · Staff Product Designer, AI UX · June 2026 · companion to the Smart Window Motion System</div>
 
   <div class="callout green" style="margin-bottom:40px"><p><b>Want to feel it instead of read it?</b> Open <a href="experience.html" style="color:#5dd55a;font-weight:700">the experience</a> — the full journey as a real, unscripted product: built against the actual <code>browser/components/aiwindow</code> code from Firefox-AI/firefox-prototypes (fullpage Smart Window, real smartbar gradient, <code>smartwindow-prompts</code> follow-up chips that replace themselves as you act). Entry → agent working → saved to the Shelf and the page itself → retrieved via notification, shelf, or report. For comparing surface options A/B/C/C+D side-by-side, use the <a href="lab/index.html" style="color:#5dd55a">concept lab</a>.</p></div>
@@ -192,8 +196,8 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
   </section>
 
   <section id="concepts">
-    <h2>Three concepts, prototyped end-to-end</h2>
-    <p>All three share the resolved taxonomy (Watch + Research), the same scenario set (price watch at $75, grouped retailers, semantic fare condition, two-week-old report retrieval, contextual flight offer), and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b></p>
+    <h2>Four concepts, prototyped end-to-end</h2>
+    <p>All four share the resolved taxonomy (Watch + Research), the same scenario set (price watch at $75, grouped retailers, semantic fare condition, two-week-old report retrieval, contextual flight offer), and the Smart Window motion system. They differ only on the question that matters: <b>where agents live.</b> A, B, and C were designed first; the red-team pass on them produced C+D — the final recommendation.</p>
 
     <div class="concept-grid">
       <div class="concept-card">
@@ -210,12 +214,22 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <div class="cc-mini"><b>Footprint:</b> new about: page · tile system · feed · gallery · canvas<br><b>Ships in:</b> multi-sprint, cross-squad</div>
         <a class="cc-btn b" href="concept-b.html">Open prototype →</a>
       </div>
-      <div class="concept-card star">
-        <div class="cc-tag cc-c">CONCEPT C · BASE OF FINAL (SEE C+D)</div>
+      <div class="concept-card">
+        <div class="cc-tag cc-c">CONCEPT C · BASE OF FINAL</div>
         <div class="cc-name">The Shelf</div>
         <div class="cc-thesis">Extend the surface users already have. A quiet offer chip where intent happens; a second segment in the Smart Window panel holding typed objects — Live watches and kept Reports; reports open as canvas with linked chat.</div>
         <div class="cc-mini"><b>Footprint:</b> 1 offer chip · 1 panel segment · 1 canvas template<br><b>Ships in:</b> ~2 sprints; grows into B later</div>
         <a class="cc-btn c" href="concept-c.html">Open prototype →</a>
+      </div>
+      <div class="concept-card star">
+        <div class="cc-tag cc-d">CONCEPT C+D · WAYPOINTS — FINAL ★</div>
+        <div class="cc-name">Waypoints</div>
+        <div class="cc-thesis">The Shelf, manifested on the web itself. One user-level object, three projections: a Tab Context Badge pinned to the watched element, a sleeping tab that wakes when the condition hits, and the Shelf as index. Works in Classic windows — and it's the one design no competitor can copy.</div>
+        <div class="cc-mini"><b>Footprint over C:</b> +1 annotation affordance · +1 tab state — both native browser primitives<br><b>Built with:</b> Nova Smart Window Library components</div>
+        <div class="cc-btn-row">
+          <a class="cc-btn d" href="concept-d.html">Walkthrough →</a>
+          <a class="cc-btn c" href="experience.html">Live experience →</a>
+        </div>
       </div>
     </div>
 
@@ -270,29 +284,48 @@ code { font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.07
         <li>Canvas-in-content-area needs a story for "I closed the tab" (answer: it's on the Shelf)</li>
       </ul></div>
     </div>
+
+    <h3>Concept C+D — Waypoints (final)</h3>
+    <p>The red-team amendment to C, and the shipped recommendation. A watch is <b>one user-level object with three projections</b>: a <b>waypoint</b> (Tab Context Badge pinned to the watched price, with sparkline popover, rule, and trust-tier badges), a <b>sleeping tab</b> (🌙 hibernating in the strip, waking with a badge when the condition hits), and the <b>Shelf card</b> (the index — full state, rule editing, pause-all; reports live here and open as real pages with linked chat). Edit the object anywhere and every projection updates. Built entirely from Nova Smart Window Library components — Tab Context Badge, Suggestion Chips, Smart Input, trust-tier cascade.</p>
+    <div class="pro-con">
+      <div class="pc-col pro"><h4>Pros</h4><ul>
+        <li>Works in <b>Classic windows</b> — dissolves the mode-scoping break (agents are user-level, Smart Window is opt-in)</li>
+        <li>The waking tab bridges the notification-permission cliff — a fallback channel that can't be denied</li>
+        <li>Reports as real pages: printable, bookmarkable, shareable URLs</li>
+        <li>Un-copyable: competitors bolt panels <em>beside</em> the web; only the rendering engine's owner annotates <em>into</em> it</li>
+        <li>Footprint over C is two native browser primitives, not new surfaces</li>
+      </ul></div>
+      <div class="pc-col con"><h4>Cons</h4><ul>
+        <li>In-content annotation walks near the line Firefox historically refused to cross (modifying pages) — needs an AnonymousContent overlay, not DOM injection</li>
+        <li>Waypoints only visible on revisit; no ambient state without the Shelf</li>
+        <li>Sleeping tabs are device-local; cross-device story still runs through the Shelf</li>
+        <li>Three projections of one object = state-sync surface area to test</li>
+      </ul></div>
+    </div>
   </section>
 
   <section id="matrix">
     <h2>Decision matrix</h2>
-    <div class="legend"><span class="la">A · Threadline</span><span class="lb">B · Mission Control</span><span class="lc">C · The Shelf</span></div>
+    <div class="legend"><span class="la">A · Threadline</span><span class="lb">B · Mission Control</span><span class="lc">C · The Shelf</span><span class="ld">C+D · Waypoints</span></div>
     <div id="scores"></div>
     <script>
     const crit=[
-      ['Discoverability of outputs',2,5,4],['Retrieval two weeks later',2,5,4],
-      ['Maintenance / surface cost (5 = cheapest)',5,1,4],['Scales to future agents',1,5,4],
-      ['Proximity to browsing intent',3,2,5],['Trust & restraint fit (Firefox brand)',4,3,5],
-      ['Time to ship Q3',5,1,4],['Live-state visibility',2,5,4]];
-    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c])=>`
+      ['Discoverability of outputs',2,5,4,5],['Retrieval two weeks later',2,5,4,4],
+      ['Maintenance / surface cost (5 = cheapest)',5,1,4,3],['Scales to future agents',1,5,4,5],
+      ['Proximity to browsing intent',3,2,5,5],['Trust & restraint fit (Firefox brand)',4,3,5,5],
+      ['Time to ship Q3',5,1,4,3],['Live-state visibility',2,5,4,5]];
+    document.getElementById('scores').innerHTML=crit.map(([n,a,b,c,d])=>`
       <div style="margin-bottom:14px">
         <div class="score-name" style="width:auto;margin-bottom:4px">${n}</div>
-        ${[['fa',a],['fb',b],['fc',c]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
+        ${[['fa',a],['fb',b],['fc',c],['fd',d]].map(([cls,v])=>`<div class="score-bar"><div class="score-track">${
           [1,2,3,4,5].map(i=>`<div class="score-seg ${i<=v?cls:''}"></div>`).join('')}</div></div>`).join('')}
       </div>`).join('');
     </script>
     <table>
-      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · The Shelf</th></tr></thead>
-      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td></tr></tbody>
+      <thead><tr><th></th><th>A · Threadline</th><th>B · Mission Control</th><th>C · The Shelf</th><th>C+D · Waypoints</th></tr></thead>
+      <tbody><tr><td>Total (40)</td><td class="mid">24</td><td class="mid">27</td><td class="good">34</td><td class="good">35</td></tr></tbody>
     </table>
+    <p style="font-size:11.5px;color:var(--text-faint);margin-top:8px">C+D trades two points of cost/speed against C for Classic-window reach, the notification fallback, and live-state visibility everywhere — the breaks the red team found. That trade is the recommendation.</p>
   </section>
 
   <section id="redteam">
