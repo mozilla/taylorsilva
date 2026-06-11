@@ -94,6 +94,18 @@ body { font-family:var(--font); background:#1c1b22; color:var(--grey-100); heigh
 .slash-pop2 .r { display:flex; gap:9px; padding:9px 13px; align-items:center; }
 .slash-pop2 .r:hover { background:var(--violet-05); }
 .slash-pop2 code { font-size:10.5px; color:var(--violet-50); }
+.qcard { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(43,27,85,0.12); padding:14px 16px; animation:arrive 300ms var(--ease-arrive); }
+@keyframes arrive { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.qc-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.qc-title { font-size:14px; font-weight:700; flex:1; }
+.qc-page { font-size:11px; color:var(--grey-40); white-space:nowrap; }
+.qc-x { color:var(--grey-40); cursor:pointer; font-size:13px; padding:2px 4px; }
+.qc-opt { display:flex; align-items:center; gap:11px; padding:10px 4px; border-bottom:1px solid var(--grey-05); cursor:pointer; font-size:12.5px; color:var(--grey-80); }
+.qc-opt:hover { background:var(--violet-05); border-radius:8px; }
+.qc-opt .n { width:22px; height:22px; border-radius:6px; background:var(--violet-10); color:var(--violet-60); font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.qc-else { display:flex; align-items:center; gap:10px; background:var(--grey-05); border-radius:10px; padding:9px 12px; margin-top:9px; font-size:12px; color:var(--grey-40); }
+.qc-else .pen { width:22px; height:22px; border-radius:6px; background:var(--violet-50); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+.qc-skip { margin-left:auto; font-family:var(--font); font-size:11.5px; font-weight:600; background:#fff; border:1px solid var(--grey-20); border-radius:8px; padding:5px 14px; cursor:pointer; color:var(--grey-70); }
 .feat-callout { position:absolute; top:46px; right:54px; background:rgba(28,27,34,0.97); color:#fff; border-radius:11px; padding:9px 14px; font-size:11.5px; display:none; align-items:center; gap:9px; z-index:50; box-shadow:0 10px 30px rgba(0,0,0,0.4); }
 .feat-callout.open { display:flex; }
 .feat-callout button { font-family:var(--font); font-size:11px; font-weight:700; background:var(--violet-50); color:#fff; border:none; border-radius:99px; padding:4px 12px; cursor:pointer; }
@@ -463,7 +475,32 @@ function show(view){
   if(view==='hub'){ hub.querySelectorAll('.agent-tile,.report-row').forEach(t=>{ t.style.animation='none'; t.offsetHeight; t.style.animation=''; }); }
 }
 
+const QS = [
+  { t:"What should I watch for on this page?", opts:["Price drops below a target","Back in stock","A verified promo code","Any meaningful change"] },
+  { t:"What target price feels right?", opts:["$330 — 5% below today","$315 — a real deal","$300 — only if it really drops","No target — just tell me about drops"] },
+];
+function buildQuestions(fromSlash){
+  const t=document.getElementById('bThread');
+  if(t.querySelector('.qcard')||t.querySelector('.bplan')) return;
+  if(fromSlash) t.insertAdjacentHTML('beforeend','<div class="bmsg-u">/watch</div><div class="bmsg-a">Happy to — a couple of questions so I set this up right:</div>');
+  askQ(0);
+}
+function askQ(i){
+  const t=document.getElementById('bThread');
+  t.querySelectorAll('.qcard').forEach(n=>n.remove());
+  if(i>=QS.length){ buildBPlan(); return; }
+  const q=QS[i];
+  const c=document.createElement('div'); c.className='qcard';
+  c.innerHTML=`<div class="qc-head"><div class="qc-title">${q.t}</div><span class="qc-page">‹ ${i+1} of ${QS.length} ›</span><span class="qc-x">✕</span></div>
+    ${q.opts.map((o,n)=>`<div class="qc-opt"><span class="n">${n+1}</span>${o}</div>`).join('')}
+    <div class="qc-else"><span class="pen">✎</span>Something else<button class="qc-skip">Skip</button></div>`;
+  c.querySelectorAll('.qc-opt').forEach(o=>o.onclick=()=>askQ(i+1));
+  c.querySelector('.qc-skip').onclick=()=>askQ(i+1);
+  c.querySelector('.qc-x').onclick=()=>askQ(QS.length);
+  t.appendChild(c); t.scrollTop=1e6;
+}
 function buildBPlan(){
+  document.querySelectorAll('.qcard').forEach(n=>n.remove());
   document.getElementById('featCallout').classList.remove('open');
   document.getElementById('slashPop').style.display='none';
   const t=document.getElementById('bThread'); if(t.querySelector('.bplan')) return;
@@ -486,21 +523,27 @@ function buildBPlan(){
   },420);
 }
 const steps=[
-  { cap:'<strong>1 · Three ways to start — all of them familiar.</strong> On the product page: type <em>/</em> in the chat for the slash menu; or Smart Window <em>recommends</em> it can watch the page for you; or a quiet <em>feature callout</em> by the toolbar suggests it. Three triggers, one destination.',
+  { cap:'<strong>1 · Three ways to start — all of them familiar.</strong> On the product page: type <em>/</em> in the chat for the slash menu; or Smart Window <em>recommends</em> it can watch the page for you; or a quiet <em>feature callout</em> by the toolbar suggests it. Three triggers, one destination — but they carry different amounts of context.',
     run(){ show('shop');
       document.getElementById('bThread').innerHTML='<div class="bmsg-a">I\u2019m reading this page — <b>Sony WH-1000XM6, $349</b>. I can keep an eye on it for you.</div>';
       document.getElementById('slashPop').style.display='';
       document.getElementById('featCallout').classList.add('open');
       document.getElementById('fcGo').onclick=buildBPlan;
-      document.querySelectorAll('#slashPop .r').forEach(r=>r.onclick=buildBPlan);
+      document.querySelectorAll('#slashPop .r').forEach(r=>r.onclick=()=>buildQuestions(true));
     } },
 
-  { cap:'<strong>2 · Creation is inline in the chat — then it lives in the hub.</strong> The prefilled card: rule editable, retailers toggleable, one primary action. Start it, and the confirmation names the home: <em>saved to your Agent Hub</em>.',
+  { cap:'<strong>2 · No context? Smart Window asks — Claude\'s pattern, Smart Window\'s skin.</strong> The slash command carries no context, so setup questions appear inline in the chat: numbered options, <em>Something else</em> for free text, <em>Skip</em>, and ‹ 1 of 2 › pagination. A chip, recommendation, or callout already knows the page — those paths skip most or all of this.',
+    run(){ show('shop');
+      const t=document.getElementById('bThread');
+      if(!t.querySelector('.bmsg-u')) buildQuestions(true); else askQ(0);
+    } },
+
+  { cap:'<strong>3 · Answers become the prefilled card.</strong> The questions resolve into the editable setup card — rule, target, retailers — one primary action. Start it, and the confirmation names the home: <em>saved to your Agent Hub</em>.',
     run(){ show('shop'); buildBPlan(); setTimeout(()=>{ const b=document.getElementById('bStart'); if(b) b.click(); }, 1100); } },
 
-  { cap:'<strong>3 · The front door.</strong> The new tab carries a "Your agents" card that summarizes the whole hub — every live watch with its rule and last check, the report count, what needs attention — and an explicit <em>Open Agent Hub →</em> button, so it reads as a doorway to a full surface, not a notification about one item. The new tab is the one surface every user already visits daily, so discoverability is structural.',
+  { cap:'<strong>4 · The front door.</strong> The new tab carries a "Your agents" card that summarizes the whole hub — every live watch with its rule and last check, the report count, what needs attention — and an explicit <em>Open Agent Hub →</em> button, so it reads as a doorway to a full surface, not a notification about one item. The new tab is the one surface every user already visits daily, so discoverability is structural.',
     run(){ show('newtab'); } },
-  { cap:'<strong>4 · The hub — and the new watch is already there.</strong> Click through to <em>about:agents</em> — a true destination. Left: live agents as tiles with real state (price sparkline vs. target line, grouped retailers, semantic fare conditions). Right: the reports library and an activity feed showing every check the agents made. <em>Transparency builds the trust that background agents spend.</em>',
+  { cap:'<strong>5 · The hub — and the new watch is already there.</strong> Click through to <em>about:agents</em> — a true destination. Left: live agents as tiles with real state (price sparkline vs. target line, grouped retailers, semantic fare conditions). Right: the reports library and an activity feed showing every check the agents made. <em>Transparency builds the trust that background agents spend.</em>',
     run(){ if(!document.getElementById('newTile')){
         const t=document.createElement('div'); t.className='agent-tile'; t.id='newTile'; t.style.animationDelay='0ms';
         t.innerHTML=`<div class="at-head"><div class="at-glyph watch"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
@@ -510,14 +553,14 @@ const steps=[
         const live=document.querySelector('.hub-cols > div');
         live.insertBefore(t, live.children[1]);
       } show('hub'); } },
-  { cap:'<strong>5 · Built for the proactive future.</strong> The "Suggested" row is where habit-learning lives: the browser noticed a Thursday pattern and offers a weekly weekend-events digest. In a hub model, proactive agents have an obvious place to be offered, accepted, and managed — this is the strongest argument for Concept B.',
+  { cap:'<strong>6 · Built for the proactive future.</strong> The "Suggested" row is where habit-learning lives: the browser noticed a Thursday pattern and offers a weekly weekend-events digest. In a hub model, proactive agents have an obvious place to be offered, accepted, and managed — this is the strongest argument for Concept B.',
     run(){ show('hub'); setTimeout(()=>{ document.querySelectorAll('.agent-tile')[3].style.boxShadow='0 0 0 3px rgba(0,96,223,0.25)'; },400); } },
-  { cap:'<strong>6 · The gallery — creating from the hub works too.</strong> "New agent" opens a gallery: Watch (Monitor + Scout unified), Research, and dashed future slots — Routine (habit reports) and Errand (end-to-end tasks, parked behind payment/auth blockers but visibly on the roadmap). The hub scales by adding cards, not surfaces.',
+  { cap:'<strong>7 · The gallery — creating from the hub works too.</strong> "New agent" opens a gallery: Watch (Monitor + Scout unified), Research, and dashed future slots — Routine (habit reports) and Errand (end-to-end tasks, parked behind payment/auth blockers but visibly on the roadmap). The hub scales by adding cards, not surfaces.',
     run(){ document.querySelectorAll('.agent-tile')[3].style.boxShadow=''; galleryScrim.classList.add('open'); } },
 
-  { cap:'<strong>7 · Reports open as canvas.</strong> A report is a kept document, not a chat message: full-width canvas with the comparison table and a verdict — and the <em>linked chat</em> rail preserving the conversation that produced it. You can continue the conversation, or hand the top pick straight to a Watch. Agents compose.',
+  { cap:'<strong>8 · Reports open as canvas.</strong> A report is a kept document, not a chat message: full-width canvas with the comparison table and a verdict — and the <em>linked chat</em> rail preserving the conversation that produced it. You can continue the conversation, or hand the top pick straight to a Watch. Agents compose.',
     run(){ galleryScrim.classList.remove('open'); show('canvas'); } },
-  { cap:'<strong>8 · The cost, stated honestly.</strong> This is the best possible home for agents — and the most expensive thing on this page. A new about: page, tile system, feed, gallery and canvas to design, build, localize and maintain; and it sits one click <em>away</em> from where intent actually happens (the page you\'re browsing). Mission Control is the destination Concept C\'s shelf can grow into — probably not the place to start. <a href="index.html">Compare all concepts →</a>',
+  { cap:'<strong>9 · The cost, stated honestly.</strong> This is the best possible home for agents — and the most expensive thing on this page. A new about: page, tile system, feed, gallery and canvas to design, build, localize and maintain; and it sits one click <em>away</em> from where intent actually happens (the page you\'re browsing). Mission Control is the destination Concept C\'s shelf can grow into — probably not the place to start. <a href="index.html">Compare all concepts →</a>',
     run(){ show('hub'); } },
 ];
 
