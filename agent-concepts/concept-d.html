@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept D — In the chat + the address bar · Smart Window Agent Surfaces</title>
+<style>
+/* ================================================================
+   CONCEPT D — IN THE CHAT + THE ADDRESS BAR
+   Agent Surfaces · Monitor / Scout / Research
+   Taylor Silva · Staff Product Designer, AI UX
+
+   Thesis: no list surface at all. Creation is a prefilled, editable
+   card in the chat — and it stays in the chat (scroll to find it
+   later; that's the honest trade). Live state is carried by an
+   always-there watching eye in the address bar with hover status
+   cards, and floating notification cards when something hits.
+   The page itself is never modified.
+   ================================================================ */
+:root {
+  --violet-90:#2b1b55; --violet-60:#623ac3; --violet-50:#7542e5;
+  --violet-40:#976eff; --violet-30:#b295ff; --violet-20:#d0bfff;
+  --violet-10:#ede6ff; --violet-05:#f6f2ff;
+  --grey-100:#15141a; --grey-80:#2b2a33; --grey-70:#52525e; --grey-50:#6b6b7b;
+  --grey-40:#8f8f9d; --grey-20:#cfcfd8; --grey-10:#e0e0e6; --grey-05:#f0f0f4;
+  --orange:#e66000; --green:#058b00; --blue:#2f6fd0; --red:#e22850;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  --d-instant:60ms; --d-quick:140ms; --d-moderate:240ms; --d-gracious:300ms;
+  --d-considered:360ms; --d-breathe:3000ms;
+  --ease-arrive:linear(0,0.002,0.01 2.8%,0.058 6.2%,0.16 10.9%,0.842 40.2%,0.924 46.9%,0.974 55.5%,0.994 66.6%,1 80.2%,1);
+  --ease-settle:cubic-bezier(0.2,0,0,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:#15141a; height:100vh; display:flex; flex-direction:column; overflow:hidden; color:var(--grey-100); }
+
+/* ─── Storyboard chrome ─── */
+.proto-bar { background:#15141a; color:rgba(255,255,255,0.85); padding:10px 16px; display:flex; align-items:center; gap:14px; font-size:12.5px; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.08); }
+.proto-bar a { color:var(--violet-30); text-decoration:none; }
+.proto-bar a:hover { text-decoration:underline; }
+.proto-chip { background:rgba(237,73,174,0.16); color:#ff8ad1; border:1px solid rgba(237,73,174,0.4); padding:2px 10px; border-radius:99px; font-weight:600; font-size:11px; letter-spacing:0.4px; }
+.proto-title { font-weight:600; }
+.proto-sub { color:rgba(255,255,255,0.45); }
+.proto-steps { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.step-dots { display:flex; gap:5px; }
+.step-dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all var(--d-quick) var(--ease-settle); cursor:pointer; }
+.step-dot.active { background:#ED49AE; transform:scale(1.25); }
+.step-dot.done { background:rgba(151,110,255,0.45); }
+.proto-btn { background:var(--violet-50); border:none; color:#fff; font-family:var(--font); font-size:12px; font-weight:600; padding:6px 16px; border-radius:6px; cursor:pointer; }
+.proto-btn:hover { background:var(--violet-60); }
+.proto-btn.ghost { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); }
+.step-caption { background:#15141a; color:rgba(255,255,255,0.62); font-size:12.5px; line-height:1.5; padding:9px 16px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+.step-caption strong { color:#ff8ad1; font-weight:600; }
+.step-caption em { color:rgba(255,255,255,0.84); font-style:normal; font-weight:600; }
+
+/* ─── Browser ─── */
+.browser { flex:1; display:flex; flex-direction:column; margin:14px; border-radius:12px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.5); background:var(--grey-05); min-height:0; }
+.tabstrip { background:#f9f9fb; display:flex; align-items:center; padding:6px 10px 0; gap:4px; border-bottom:1px solid var(--grey-10); flex-shrink:0; }
+.traffic { display:flex; gap:7px; padding:0 10px 6px 4px; }
+.traffic span { width:11px; height:11px; border-radius:50%; }
+.tab { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--grey-10); border-bottom:none; border-radius:8px 8px 0 0; padding:7px 14px; font-size:12px; color:var(--grey-80); max-width:250px; }
+.tab .fav { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+.toolbar { background:#fff; display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid var(--grey-10); flex-shrink:0; position:relative; }
+.nav-arrows { color:var(--grey-40); font-size:15px; letter-spacing:6px; }
+.urlbar { flex:1; display:flex; align-items:center; gap:8px; background:var(--grey-05); border:1px solid var(--grey-10); border-radius:99px; padding:7px 15px; font-size:12.5px; color:var(--grey-70); }
+.urlbar .lock { color:var(--grey-40); font-size:11px; }
+.mode-chip { font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--grey-40); border:1px solid var(--grey-20); border-radius:99px; padding:3px 10px; white-space:nowrap; }
+.tb-ic { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--grey-50); }
+.tb-ic.sw { background:var(--violet-10); color:var(--violet-60); border-radius:10px; }
+
+/* the always-there eye */
+.url-eye { margin-left:auto; display:none; align-items:center; gap:5px; color:var(--violet-60); font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; padding:2px 9px; border-radius:99px; transition:background var(--d-quick); }
+.url-eye.shown { display:inline-flex; }
+.url-eye:hover { background:var(--violet-10); }
+.url-eye .pulse { width:7px; height:7px; border-radius:50%; background:var(--green); animation:breathe var(--d-breathe) ease-in-out infinite; }
+.url-eye.met .pulse { background:var(--violet-40); }
+@keyframes breathe { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.82)} }
+
+/* hover status card off the eye */
+.hover-card { position:absolute; top:46px; right:110px; width:330px; background:#fff; border-radius:14px; box-shadow:0 14px 44px rgba(43,27,85,0.24); z-index:50; padding:14px 16px; display:none; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.hover-card.open { display:block; }
+@keyframes arrive { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.hc-t { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.hc-s { font-size:11.5px; color:var(--grey-50); margin:3px 0 8px; }
+.hc-meta { font-size:10.5px; color:var(--grey-40); display:flex; gap:11px; margin-top:7px; flex-wrap:wrap; }
+.hc-actions { display:flex; gap:7px; margin-top:10px; }
+.hc-btn { font-family:var(--font); font-size:11.5px; font-weight:600; border-radius:99px; padding:6px 14px; cursor:pointer; border:1px solid var(--grey-20); background:#fff; color:var(--grey-70); }
+.hc-btn:hover { border-color:var(--violet-30); color:var(--violet-60); }
+
+/* floating notification card */
+.float-card { position:fixed; top:64px; right:28px; width:360px; background:#fff; border-radius:16px; box-shadow:0 18px 56px rgba(43,27,85,0.3); z-index:90; padding:16px 18px; display:none; animation:arrive var(--d-considered) var(--ease-arrive); }
+.float-card.open { display:block; }
+.fc-app { font-size:9.5px; color:var(--grey-40); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+.fc-glyph { width:16px; height:16px; border-radius:5px; background:linear-gradient(135deg,#9959FF,#ED49AE); display:inline-flex; }
+.fc-t { font-size:14px; font-weight:800; }
+.fc-b { font-size:12.5px; color:var(--grey-70); line-height:1.55; margin:4px 0 10px; }
+.fc-b b { color:var(--green); }
+.fc-row { display:flex; gap:8px; }
+.fc-btn { font-family:var(--font); font-size:12px; font-weight:700; border-radius:99px; padding:8px 17px; cursor:pointer; border:none; background:var(--blue); color:#fff; }
+.fc-btn.ghost { background:var(--grey-05); color:var(--grey-70); }
+
+.window-body { flex:1; display:flex; min-height:0; }
+.content { flex:1; overflow-y:auto; background:#fff; min-height:0; }
+.fl-page { padding:30px 44px; max-width:920px; }
+.fl-search { display:flex; gap:10px; align-items:center; background:var(--grey-05); border-radius:12px; padding:12px 18px; font-size:12.5px; color:var(--grey-70); margin-bottom:18px; }
+.fl-row { display:flex; align-items:center; gap:20px; border:1px solid var(--grey-10); border-radius:12px; padding:14px 20px; margin-bottom:9px; }
+.fl-air { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.fl-t { font-size:13.5px; font-weight:700; }
+.fl-r { font-size:11px; color:var(--grey-50); margin-top:2px; }
+.fl-price { margin-left:auto; text-align:right; }
+.fl-n { font-size:17px; font-weight:800; }
+.fl-ty { font-size:10px; color:var(--grey-40); }
+
+/* ─── Smart Window sidebar — chat only, no Den ─── */
+.sidebar { width:380px; flex-shrink:0; background:linear-gradient(180deg,#f8f5fe 0%,#f3eefb 100%); border-left:1px solid rgba(43,27,85,0.07); display:flex; flex-direction:column; min-height:0; }
+.sb-head { display:flex; align-items:center; gap:9px; padding:11px 14px; flex-shrink:0; }
+.sb-logo { width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg,#9959FF,#ED49AE); }
+.sb-title { font-size:13px; font-weight:700; color:var(--violet-90); }
+.sb-thread { flex:1; overflow-y:auto; padding:14px 14px 18px; display:flex; flex-direction:column; gap:10px; min-height:0; }
+.msg-u { align-self:flex-end; background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(117,66,229,0.14), inset 0 0 5px rgba(178,149,255,0.12); max-width:82%; padding:9px 14px; font-size:12.5px; line-height:1.5; }
+.msg-a { align-self:stretch; color:var(--grey-100); font-size:12.5px; line-height:1.6; }
+.msg-a b { font-weight:600; }
+.dim-old { opacity:0.45; }
+/* the creation card — prefilled, editable, lives in the thread */
+.plan-card { align-self:stretch; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(43,27,85,0.1); padding:13px 15px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.pc-t { font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pc-badge { font-size:10px; font-weight:700; background:#e7f5e7; color:var(--green); border-radius:99px; padding:3px 10px; display:none; }
+.pc-badge.on { display:inline-block; }
+.pc-badge::before { content:"● "; }
+.pc-sent { font-size:13px; line-height:1.65; margin:7px 0 2px; }
+.tok { border-bottom:2px dotted var(--violet-40); font-weight:700; cursor:pointer; }
+.tok:hover { background:var(--violet-05); }
+.pc-meta { font-size:11px; color:var(--grey-50); margin:5px 0 9px; }
+.site-pill { font-family:var(--font); font-size:11.5px; font-weight:600; border-radius:99px; padding:5px 12px; border:1.5px solid var(--blue); background:transparent; color:var(--blue); cursor:pointer; margin:0 5px 5px 0; }
+.site-pill::before { content:"✓ "; }
+.site-pill.off { border-color:var(--grey-20); color:var(--grey-40); }
+.site-pill.off::before { content:"+ "; }
+.pc-hint { font-size:10px; color:var(--grey-50); margin:3px 0 4px; }
+.pc-start { font-family:var(--font); font-size:12px; font-weight:700; background:var(--blue); color:#fff; border:none; border-radius:99px; padding:8px 18px; cursor:pointer; margin-top:6px; }
+.pc-viz { border-top:1px solid var(--grey-05); margin-top:10px; padding-top:9px; }
+.pc-stats { display:flex; gap:14px; font-size:10.5px; color:var(--grey-50); margin-top:5px; }
+.pc-stats b { color:var(--grey-100); font-size:12px; display:block; }
+.pc-acts { display:flex; gap:6px; margin-top:10px; }
+.pc-act { font-family:var(--font); font-size:10.5px; font-weight:600; border-radius:99px; padding:5px 12px; cursor:pointer; border:1px solid var(--grey-20); background:#fff; color:var(--grey-70); }
+.pc-act:hover { border-color:var(--violet-30); color:var(--violet-60); }
+.pc-act.del:hover { border-color:var(--red); color:var(--red); }
+.qcard { background:#fff; border:1px solid var(--grey-10); border-radius:14px; box-shadow:0 4px 16px rgba(43,27,85,0.12); padding:13px 15px; margin-top:8px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.qc-head { display:flex; align-items:center; gap:10px; margin-bottom:3px; }
+.qc-title { font-size:13px; font-weight:700; flex:1; }
+.qc-page { font-size:10.5px; color:var(--grey-40); white-space:nowrap; }
+.qc-x { color:var(--grey-40); cursor:pointer; font-size:12px; }
+.qc-opt { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--grey-05); cursor:pointer; font-size:12px; }
+.qc-opt:hover { background:var(--violet-05); border-radius:8px; }
+.qc-opt .n { width:20px; height:20px; border-radius:6px; background:var(--violet-10); color:var(--violet-60); font-size:10.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.qc-else { display:flex; align-items:center; gap:9px; background:var(--grey-05); border-radius:9px; padding:8px 11px; margin-top:8px; font-size:11.5px; color:var(--grey-40); }
+.qc-else .pen { width:20px; height:20px; border-radius:6px; background:var(--violet-50); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:10px; }
+.qc-skip { margin-left:auto; font-family:var(--font); font-size:11px; font-weight:600; background:#fff; border:1px solid var(--grey-20); border-radius:7px; padding:4px 12px; cursor:pointer; color:var(--grey-70); }
+.scroll-note { align-self:center; font-size:10.5px; color:var(--grey-40); padding:2px 0; }
+.slash-pop { background:#fff; border-radius:11px; box-shadow:0 8px 26px rgba(43,27,85,0.18); overflow:hidden; margin:0 0 4px; font-size:12px; display:none; }
+.slash-pop.open { display:block; }
+.slash-pop .r { display:flex; gap:9px; padding:9px 13px; align-items:center; cursor:pointer; }
+.slash-pop .r:hover { background:var(--violet-05); }
+.slash-pop code { font-size:10.5px; color:var(--violet-50); }
+.sugg-stack { display:none; flex-direction:column; align-items:flex-end; gap:8px; padding:0 12px 8px; }
+.sugg-stack.open { display:flex; }
+.sugg-chip { font-family:var(--font); font-size:12px; font-weight:600; border:1.5px solid var(--violet-30); color:var(--violet-60); background:#fff; border-radius:99px; padding:7px 15px; cursor:pointer; box-shadow:0 1px 5px rgba(43,27,85,0.1); }
+.sugg-chip:hover { background:var(--violet-05); }
+.sb-input { margin:0 12px 12px; background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(43,27,85,0.1); padding:11px 14px; font-size:12.5px; color:var(--grey-40); flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<div class="proto-bar">
+  <a href="index.html">← All concepts</a>
+  <span class="proto-chip">CONCEPT D</span>
+  <span class="proto-title">In the chat + the address bar</span>
+  <span class="proto-sub">No list surface — the eye and notifications carry what the thread can't</span>
+  <div class="proto-steps">
+    <div class="step-dots" id="dots"></div>
+    <button class="proto-btn ghost" id="backBtn">Back</button>
+    <button class="proto-btn" id="nextBtn">Start walkthrough</button>
+  </div>
+</div>
+<div class="step-caption" id="caption"><strong>Concept D · In the chat + the address bar.</strong> Creation is a prefilled, editable card in the chat — and it stays there. The always-on <strong>watching eye in the address bar</strong> (with hover status cards) and <strong>floating notification cards</strong> carry the live state, so you never have to dig for the thread. Click <strong>Start walkthrough</strong>.</div>
+
+<div class="browser">
+  <div class="tabstrip">
+    <div class="traffic"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div>
+    <div class="tab" id="tabSky"><span class="fav" style="background:#2f6fd0"></span>SkyFares — LAX to TYO</div>
+    <div class="tab" id="tabShop" style="background:transparent;border-color:transparent;color:var(--grey-50);cursor:pointer"><span class="fav" style="background:#7a4dd8"></span>AudioHaus — Sony WH-10…</div>
+    <div class="tab" id="tabRep" style="display:none;background:transparent;border-color:transparent;color:var(--grey-50);cursor:pointer"><span class="fav" style="background:#e66000"></span>Report — Tokyo neighborhoods</div>
+  </div>
+  <div class="toolbar">
+    <div class="nav-arrows">‹ ›</div>
+    <div class="urlbar"><span class="lock">🔒</span> skyfares.com/search?lax-tyo-oct
+      <span class="url-eye" id="urlEye"><span class="pulse"></span><span id="eyeLabel">Watching</span></span>
+    </div>
+    <div class="mode-chip">Classic window</div>
+    <div class="tb-ic sw">✦</div>
+
+    <!-- hover status card -->
+    <div class="hover-card" id="hoverCard">
+      <div class="hc-t"><span class="pulse" id="hcDot" style="width:8px;height:8px;border-radius:50%;background:var(--green)"></span>Tokyo fares</div>
+      <div class="hc-s" id="hcSub">$684 now · alert when nonstop drops below $620 · Oct 12 – 26</div>
+      <svg width="100%" height="42" viewBox="0 0 290 42" preserveAspectRatio="none" id="hcSpark">
+        <polyline id="hcLine" points="0,10 60,12 120,11 180,16 240,19 290,22" fill="none" stroke="#7542e5" stroke-width="2"/>
+        <line x1="0" y1="33" x2="290" y2="33" stroke="#d0bfff" stroke-width="1" stroke-dasharray="4 4"/>
+      </svg>
+      <div class="hc-meta" id="hcMeta"><span>⏱ checked 20m ago</span><span>4 sites</span><span>🔒 read-only · checks logged</span></div>
+      <div class="hc-actions"><button class="hc-btn" id="hcPause">⏸ Pause</button><button class="hc-btn" id="hcGo">Go to the card</button></div>
+    </div>
+  </div>
+
+  <div class="window-body">
+    <div class="content">
+      <div class="fl-page" id="page-sky">
+        <div class="fl-search">✈️ &nbsp;<b>LAX → TYO</b> · Oct 12–26 · 1 adult &nbsp;·&nbsp; 52 results</div>
+        <div class="fl-row"><div class="fl-air" style="background:#e8f1fd">🛫</div><div><div class="fl-t">9:40 — 14:55<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n" id="fare1">$684</div><div class="fl-ty">economy</div></div></div>
+        <div class="fl-row"><div class="fl-air" style="background:#fdeee8">🛫</div><div><div class="fl-t">11:05 — 16:30<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n">$702</div><div class="fl-ty">economy</div></div></div>
+        <div class="fl-row" style="opacity:0.6"><div class="fl-air" style="background:#eefae8">🛫</div><div><div class="fl-t">7:15 — 15:40<sup>+1</sup></div><div class="fl-r">1 stop · SEA</div></div><div class="fl-price"><div class="fl-n">$641</div><div class="fl-ty">economy</div></div></div>
+      </div>
+      <div id="page-rep" style="display:none;padding:36px 48px;max-width:760px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--grey-50);text-transform:uppercase">Research report · Smart Window · read-only</div>
+        <h1 style="font-size:22px;margin:8px 0 4px">Tokyo neighborhoods — where to stay, Oct 12–26</h1>
+        <div style="font-size:11px;color:var(--grey-50);margin-bottom:18px">12 pages read · 5 neighborhoods compared · generated from your chat · printable · bookmarkable</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <tr style="text-align:left;color:var(--grey-50);font-size:10.5px;text-transform:uppercase;letter-spacing:0.6px"><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Area</th><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Vibe</th><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Nightly</th><th style="padding:7px 8px;border-bottom:1px solid var(--grey-10)">Call</th></tr>
+          <tr><td style="padding:7px 8px"><b>Shimokitazawa</b></td><td style="padding:7px 8px">Vintage shops, live music, quiet nights</td><td style="padding:7px 8px">$96</td><td style="padding:7px 8px;color:var(--green);font-weight:700">Best fit</td></tr>
+          <tr><td style="padding:7px 8px">Asakusa</td><td style="padding:7px 8px">Classic Tokyo, busy mornings</td><td style="padding:7px 8px">$88</td><td style="padding:7px 8px">Good value</td></tr>
+          <tr><td style="padding:7px 8px">Shinjuku</td><td style="padding:7px 8px">Everything, all night</td><td style="padding:7px 8px">$132</td><td style="padding:7px 8px">If you want loud</td></tr>
+        </table>
+        <p style="font-size:12.5px;color:var(--grey-70);margin-top:14px;max-width:560px">Verdict: <b>Shimokitazawa</b> — your chat said quiet nights and live music; it is the only area with both under $100. The record card stays in your chat; this page is yours to bookmark, print, or share.</p>
+      </div>
+      <div id="page-shop" style="display:none;padding:32px 44px;max-width:920px">
+        <div style="font-size:11.5px;color:var(--grey-40);margin-bottom:16px">AudioHaus › Headphones › Noise-cancelling</div>
+        <div style="display:flex;gap:30px">
+          <div style="width:220px;height:220px;border-radius:14px;background:linear-gradient(135deg,#e5e9f5,#c9d4ee);display:flex;align-items:center;justify-content:center;font-size:50px;flex-shrink:0">🎧</div>
+          <div><h1 style="font-size:21px;font-weight:700">Sony WH-1000XM6</h1>
+          <div style="font-size:27px;font-weight:800;margin-top:10px">$349.00</div>
+          <p style="font-size:13px;line-height:1.6;color:var(--grey-70);margin:12px 0;max-width:420px">Industry-leading noise cancellation, 32-hour battery, multipoint.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Window sidebar — chat only -->
+    <div class="sidebar">
+      <div class="sb-head"><div class="sb-logo"></div><div class="sb-title">Smart Window</div></div>
+      <div class="sb-thread" id="thread"></div>
+      <div class="sugg-stack" id="suggStack">
+        <button class="sugg-chip">👁 Watch these fares for me</button>
+        <button class="sugg-chip">Help me decide when to book</button>
+      </div>
+      <div style="padding:0 12px"><div class="slash-pop" id="slashPop">
+        <div class="r"><code>/watch</code><span>Keep an eye on this page until a condition is met</span></div>
+        <div class="r"><code>/research</code><span>Compare options and keep a report</span></div>
+      </div></div>
+      <div class="sb-input" id="sbInput">Ask about this page…</div>
+    </div>
+  </div>
+
+  <!-- floating notification card -->
+  <div class="float-card" id="floatCard">
+    <div class="fc-app"><span class="fc-glyph"></span>Firefox · Smart Window</div>
+    <div class="fc-t">Tokyo fares: dropped to $607</div>
+    <div class="fc-b"><b>11% below your $620 target</b> — nonstop, Oct 14, lowest in 3 months. Found on Kayak; SkyFares is at $631.</div>
+    <div class="fc-row"><button class="fc-btn">Open Kayak</button><button class="fc-btn ghost">Snooze a day</button><button class="fc-btn ghost" id="fcStop">Stop watching</button></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function showPage(which){
+  $('page-sky').style.display = which==='sky' ? '' : 'none';
+  $('page-shop').style.display = which==='shop' ? '' : 'none';
+  $('page-rep').style.display = which==='rep' ? '' : 'none';
+  const off='background:transparent;border-color:transparent;color:var(--grey-50)';
+  $('tabSky').style.cssText = which==='sky' ? '' : off;
+  $('tabShop').style.cssText = (which==='shop' ? '' : off) + ';cursor:pointer';
+  const tr=$('tabRep');
+  if(tr && tr.style.display!=='none') tr.style.cssText = (which==='rep' ? '' : off) + ';cursor:pointer';
+  // the eye lives on the WATCHED page only
+  $('urlEye').style.display = (which==='sky' && $('urlEye').classList.contains('shown')) ? 'inline-flex' : 'none';
+  document.querySelector('.urlbar').childNodes[1].textContent = which==='sky' ? ' skyfares.com/search?lax-tyo-oct\n      ' : which==='rep' ? ' smartwindow/report/tokyo-neighborhoods\n      ' : ' audiohaus.com/sony-wh-1000xm6\n      ';
+}
+document.addEventListener('DOMContentLoaded',()=>{ const tr=$('tabRep'); if(tr) tr.onclick=()=>showPage('rep'); });
+$('tabSky') && ($('tabSky').onclick=()=>showPage('sky'));
+$('tabShop') && ($('tabShop').onclick=()=>showPage('shop'));
+const thread = $('thread');
+function el(h){ const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
+function add(n){ thread.appendChild(n); thread.scrollTop=1e6; return n; }
+
+function dSpark(points, target){
+  const max=Math.max(...points,target), min=Math.min(...points,target);
+  const pts=points.map((p,i)=>`${(i/(points.length-1))*270},${8+30*(1-(p-min)/(max-min||1))}`).join(' ');
+  const ty=8+30*(1-(target-min)/(max-min||1));
+  return `<svg width="100%" height="46" viewBox="0 0 270 46" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="#7542e5" stroke-width="2"/>
+    <line x1="0" y1="${ty}" x2="270" y2="${ty}" stroke="#d0bfff" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <circle cx="270" cy="${pts.split(' ').pop().split(',')[1]}" r="3.5" fill="#ED49AE"/>
+    <text x="4" y="${ty-4}" font-size="8.5" fill="#976eff" font-family="system-ui">target $620</text></svg>`;
+}
+function dRuleQuestion(afterEl, onPick){
+  const ex=document.querySelector('.qcard'); if(ex){ ex.remove(); return; }
+  const q=el(`<div class="qcard">
+    <div class="qc-head"><div class="qc-title">What should trigger the alert?</div><span class="qc-page">‹ 1 of 1 ›</span><span class="qc-x">✕</span></div>
+    <div class="qc-opt" data-r='a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$600</span>'><span class="n">1</span>Below $600 — only a real deal</div>
+    <div class="qc-opt" data-r='a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$650</span>'><span class="n">2</span>Below $650 — alert me sooner</div>
+    <div class="qc-opt" data-r='<span class="tok">any</span> fare drops <b>below</b> <span class="tok">$620</span>'><span class="n">3</span>Any flight, stops OK, below $620</div>
+    <div class="qc-opt" data-r='a <span class="tok">refundable</span> fare appears <b>below</b> <span class="tok">$650</span>'><span class="n">4</span>Refundable below $650</div>
+    <div class="qc-else"><span class="pen">✎</span>Something else<button class="qc-skip">Skip</button></div></div>`);
+  q.querySelectorAll('.qc-opt').forEach(o=>o.onclick=()=>{ onPick(o.dataset.r); q.remove(); });
+  q.querySelector('.qc-skip').onclick=()=>q.remove();
+  q.querySelector('.qc-x').onclick=()=>q.remove();
+  afterEl.insertAdjacentElement('afterend', q);
+  thread.scrollTop=1e6;
+}
+function activateCard(){
+  const card=$('planCard'); if(!card || card.dataset.live) return;
+  card.dataset.live='1';
+  $('pcBadge').classList.add('on');
+  const st=$('pcStart'); if(st) st.remove();
+  $('urlEye').classList.add('shown');
+  card.insertAdjacentHTML('beforeend',`<div class="pc-viz" id="pcViz">${dSpark([684,684],620)}
+    <div class="pc-stats"><span><b id="vNow">$684</b>now</span><span><b id="vLow">$684</b>low</span><span><b id="vChecks">1</b>checks</span><span><b id="vSites">1</b>site</span></div></div>
+    <div class="pc-acts"><button class="pc-act" data-a="edit">✎ Edit</button><button class="pc-act" data-a="pause">⏸ Pause</button><button class="pc-act del" data-a="del">🗑 Delete</button></div>`);
+  card.querySelector('[data-a="edit"]').onclick=()=>dRuleQuestion(card, r=>{
+    card.querySelector('.pc-sent').innerHTML='Alert me when '+r+' for <span class="tok">Oct 12 – 26</span>';
+  });
+  card.querySelector('[data-a="pause"]').onclick=e=>{ const b=e.target; const paused=b.textContent.includes('Pause'); b.textContent=paused?'▶ Resume':'⏸ Pause'; $('pcBadge').style.opacity=paused?'0.45':'1'; };
+  card.querySelector('[data-a="del"]').onclick=()=>{ card.remove(); $('urlEye').classList.remove('shown');
+    add(el('<div class="msg-a">Deleted — I\u2019ve stopped watching. The record stays in this chat.</div>')); };
+}
+const steps = [
+  { cap:"<strong>1 · Three ways to ask — pick your door.</strong> Type <em>/</em> for the slash menu, tap a <em>suggestion chip</em> — the suggested prompts stacked on your side of the chat, just above the input, or just type what you want into the ask box. All three lead to the same place: the prefilled card, inline in the chat.",
+    run(){
+      $('suggStack').classList.add('open');
+      document.querySelectorAll('#suggStack .sugg-chip').forEach(c => c.onclick = () => goto(1));
+      $('slashPop').classList.add('open');
+      document.querySelectorAll('#slashPop .r').forEach(r => r.onclick = () => goto(1));
+    } },
+
+  { cap:"<strong>2 · Creation is a card in the chat — prefilled, editable.</strong> The user asks; Smart Window reads the page and answers with the watch already filled in: route, dates, the rule — watching this page by default, with three more sites suggested, tap to add. The <em>underlined parts are editable</em> — click $620 to change it, toggle a site off. No form, no new surface. Then <em>Start watching</em>.",
+    run(){
+      $('slashPop').classList.remove('open'); $('suggStack').classList.remove('open');
+      add(el('<div class="msg-u">watch these fares for me</div>'));
+      setTimeout(()=>{
+        add(el(`<div class="msg-a">Here's the watch I'll set up from this page — adjust anything by clicking the underlined parts:</div>`));
+        const card = add(el(`<div class="plan-card" id="planCard">
+          <div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching</span></div>
+          <p class="pc-sent">Alert me when a <span class="tok" data-c="nonstop|any">nonstop</span> fare drops <b>below</b> <span class="tok" data-c="$620|$600|$650">$620</span> for <span class="tok" data-c="Oct 12 – 26|Oct 10 – 24">Oct 12 – 26</span></p>
+          <div class="pc-meta">Checking 4 times daily · <span class="tok" data-c="Push notification|Push + email|Badge only">Push notification</span> · read-only</div>
+          <div class="pc-hint">Watching this page. Also relevant — tap to add:</div>
+          <div><button class="site-pill">SkyFares</button><button class="site-pill off">Kayak</button><button class="site-pill off">Google Flights</button><button class="site-pill off">Expedia</button></div>
+          <button class="pc-start" id="pcStart">Start watching</button>
+        </div>`));
+        card.querySelectorAll('.tok').forEach(t=>t.onclick=()=>{ const o=t.dataset.c.split('|'); t.textContent=o[(o.indexOf(t.textContent)+1)%o.length]; });
+        card.querySelectorAll('.site-pill').forEach((p,i)=>p.onclick=()=>{ if(i===0) return; p.classList.toggle('off'); });
+        $('pcStart').onclick=activateCard;
+      },450);
+    } },
+
+  { cap:"<strong>3 · Started — the card becomes a live, interactive thing.</strong> Price line against the dashed target, running stats (now · low · checks · sites), and its own controls: <em>✎ Edit</em> opens the little question card to change the rule, <em>⏸ Pause</em>, <em>🗑 Delete</em>. It stays in the thread — keep talking and it scrolls away, which is fine, because of what comes next.",
+    run(){
+      activateCard();
+      add(el('<div class="msg-a">Watching now. I will check 4 times a day and stay quiet until your rule is met.</div>'));
+      add(el('<div class="msg-u">thanks! also what terminal does the 9:40 leave from?</div>'));
+      add(el('<div class="msg-a">Tom Bradley International (TBIT) — gate posted ~3h before departure.</div>'));
+      add(el('<div class="scroll-note">— the watch card is now two screens up —</div>'));
+    } },
+
+  { cap:"<strong>4 · The eye in the address bar is always there.</strong> On any watched page, a small breathing eye sits in the bar — chrome Firefox owns, like the bookmark star, page untouched. It's the permanent answer to \\\"where's my watch?\\\" — no scrolling, no list to visit.",
+    run(){ $('urlEye').classList.add('shown'); $('urlEye').style.boxShadow='0 0 0 3px rgba(117,66,229,0.3)'; setTimeout(()=>$('urlEye').style.boxShadow='',1600); } },
+
+  { cap:"<strong>5 · Hover the eye → the status card.</strong> No click needed: current price, the rule, the trend against your target line, last check, pause. Everything a list row would have shown — summoned in place, then gone when your cursor leaves.",
+    run(){ $('hoverCard').classList.add('open'); } },
+
+  { cap:"<strong>6 · The condition hits — while you\u2019re somewhere else entirely.</strong> You\u2019ve moved on to a different site, different tab, chat closed in your mind. The floating card finds you anyway: the judgment (<em>11% below target, lowest in 3 months, which site won</em>) and the actions that matter — <em>Open Kayak · Snooze · Stop watching</em>. No hunting for the thread.",
+    run(){ showPage('shop'); $('floatCard').classList.add('open');
+      $('urlEye').classList.add('met'); $('eyeLabel').textContent='Hit $607'; $('fare1').textContent='$631';
+      const viz=$('pcViz'); if(viz){ viz.innerHTML=dSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; }
+      $('hcDot').style.background='var(--violet-40)'; $('hcSub').innerHTML='<b style="color:var(--violet-60)">$607 — condition met</b> · was: nonstop below $620'; $('hcMeta').innerHTML='<span>hit 9:02 AM</span><span>best: Kayak</span><span>SkyFares $631</span>'; } },
+
+  { cap:"<strong>7 · Scout — the right-now sweep, same chat.</strong> Ask <em>scout the other fare sites now</em> — Scout checks all four in one pass: effective fares, your dates, read-only, nothing booked. Its sweep is ephemeral by design; the handoff is not — the Monitor now alerts on the best of the group, and the eye and hover card carry that on the page.",
+    run(){ showPage('sky'); $('floatCard').classList.remove('open'); $('hoverCard').classList.remove('open');
+      add(el('<div class="msg-u">scout the other fare sites now</div>'));
+      setTimeout(()=>{ add(el(`<div class="plan-card">
+        <div class="pc-t">Scout — fares right now <span style="font-size:10px;font-weight:700;background:#fff3e6;color:#b45309;border-radius:99px;padding:3px 9px">ONE-TIME SWEEP</span></div>
+        <p class="pc-sent">🏆 <b>$598 — Google Flights</b> · nonstop · matches Oct 12 – 26</p>
+        <p class="pc-sent" style="color:var(--grey-50)">$607 — Kayak · $619 — SkyFares (this page) · $641 — Expedia</p>
+        <div class="pc-meta" style="color:var(--green)">→ Handed to the Monitor — it now alerts on the best of all 4 sites</div></div>`));
+        const vs=$('vSites'); if(vs) vs.textContent='4';
+      },450);
+    } },
+
+  { cap:"<strong>8 · Research — the report is a real page.</strong> <em>compare tokyo neighborhoods — keep a report.</em> The third agent runs once. The record card stays in the chat — and the report opens as <em>its own tab</em>: a page with a URL, so it can be bookmarked, printed, or shared. That is D\u2019s pattern for outputs: chat records + real pages, no library surface.",
+    run(){ showPage('sky');
+      add(el('<div class="msg-u">compare tokyo neighborhoods for our dates — keep a report</div>'));
+      setTimeout(()=>{ add(el(`<div class="plan-card">
+        <div class="pc-t">Report — Tokyo neighborhoods <span style="font-size:10px;font-weight:700;background:#e8f0fe;color:#1a56db;border-radius:99px;padding:3px 9px">REPORT</span></div>
+        <p class="pc-sent"><b>Shimokitazawa</b> is the call — quiet nights, live music, under $100. Full comparison in the report.</p>
+        <div class="pc-meta">12 pages read · opens as its own tab — bookmark it, print it, share it</div>
+        <button class="pc-start" id="repOpen">Open the report tab →</button></div>`));
+        const ro=$('repOpen'); if(ro) ro.onclick=()=>{ $('tabRep').style.display=''; showPage('rep'); };
+        setTimeout(()=>{ $('tabRep').style.display=''; showPage('rep'); }, 1600);
+      },450);
+    } },
+
+  { cap:"<strong>9 · The shape of Concept D.</strong> Chat holds the record (scroll to find it), the bar holds the presence (eye + hover card — Pause, or jump straight to the card in the open chat), notifications close the loop anywhere (the floating card found you on another site), and reports live as real pages in real tabs. Zero list surfaces to build or maintain — and the honest limit: with five watches running, there's no roster to manage. That's what C's Den and F's Firefox View page are for. <a href='index.html'>Compare all concepts →</a>",
+    run(){ showPage('sky'); $('floatCard').classList.remove('open'); $('hoverCard').classList.add('open'); } },
+];
+
+let cur=-1;
+const dots=$('dots');
+steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='step-dot'; d.onclick=()=>goto(i); dots.appendChild(d); });
+function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
+function reset(){
+  const tr=$('tabRep'); if(tr) tr.style.cssText='display:none;background:transparent;border-color:transparent;color:var(--grey-50);cursor:pointer';
+  showPage('sky'); thread.innerHTML=''; $('slashPop').classList.remove('open'); $('suggStack').classList.remove('open'); $('urlEye').classList.remove('shown','met'); $('eyeLabel').textContent='Watching';
+  $('hoverCard').classList.remove('open'); $('floatCard').classList.remove('open');
+  $('hcDot').style.background='var(--green)'; $('fare1').textContent='$684';
+  $('hcSub').textContent='$684 now · alert when nonstop drops below $620 · Oct 12 – 26';
+  $('hcMeta').innerHTML='<span>⏱ checked 20m ago</span><span>4 sites</span><span>🔒 read-only · checks logged</span>';
+}
+function goto(n){ if(n<cur){ reset(); cur=-1; } while(cur<n){ cur++; steps[cur].run(); } $('caption').innerHTML=steps[cur].cap; renderDots(); $('nextBtn').textContent=cur>=steps.length-1?'Restart':'Next'; }
+$('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; renderDots(); $('caption').innerHTML="<strong>Concept D · In the chat + the address bar.</strong> Click <strong>Start walkthrough</strong>."; $('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
+$('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
+$('urlEye').onmouseenter=()=>$('hoverCard').classList.add('open');
+$('hoverCard').onmouseleave=()=>$('hoverCard').classList.remove('open');
+$('urlEye').onclick=()=>$('hoverCard').classList.toggle('open');
+$('hcPause').onclick=()=>{ $('hcPause').textContent=$('hcPause').textContent.includes('Pause')?'▶ Resume':'⏸ Pause'; };
+$('hcGo').onclick=()=>{ $('hoverCard').classList.remove('open');
+  const card=$('planCard'); if(card){ card.scrollIntoView({behavior:'smooth',block:'center'});
+    card.style.boxShadow='0 0 0 3px rgba(117,66,229,0.4)'; setTimeout(()=>card.style.boxShadow='',1500); } };
+$('fcStop').onclick=()=>{ $('floatCard').classList.remove('open'); $('urlEye').classList.remove('shown'); };
+renderDots();
+</script>
+</body>
+</html>

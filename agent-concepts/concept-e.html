@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept E — Dens in Firefox View · Smart Window Agent Surfaces</title>
+<style>
+/* ================================================================
+   CONCEPT E — AGENTS IN FIREFOX VIEW
+   Agent Surfaces · Monitor / Scout / Research
+   Taylor Silva · Staff Product Designer, AI UX
+
+   Thesis: Concept B's management destination, but the end location
+   is Firefox View — the surface where chat history already lives.
+   A "Dens" section beside Chats: every watch as a card with its
+   rule, check history, and actions; alerts land as a strip on the
+   card; reports file beneath. Creation is inline in the sidebar
+   chat (offer chip or ask); the bar pill arrives after creation.
+   No new top-level surface — Firefox View already ships.
+   ================================================================ */
+:root {
+  --violet-90:#2b1b55; --violet-60:#623ac3; --violet-50:#7542e5;
+  --violet-40:#976eff; --violet-30:#b295ff; --violet-20:#d0bfff;
+  --violet-10:#ede6ff; --violet-05:#f6f2ff;
+  --grey-100:#15141a; --grey-80:#2b2a33; --grey-70:#52525e; --grey-50:#6b6b7b;
+  --grey-40:#8f8f9d; --grey-20:#cfcfd8; --grey-10:#e0e0e6; --grey-05:#f0f0f4;
+  --orange:#e66000; --green:#058b00; --teal:#5ee8d6; --blue:#4a9df8; --red:#e22850;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  --d-instant:60ms; --d-quick:140ms; --d-moderate:240ms; --d-gracious:300ms;
+  --d-considered:360ms; --d-breathe:3000ms;
+  --ease-arrive:linear(0,0.002,0.01 2.8%,0.058 6.2%,0.16 10.9%,0.842 40.2%,0.924 46.9%,0.974 55.5%,0.994 66.6%,1 80.2%,1);
+  --ease-settle:cubic-bezier(0.2,0,0,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:#15141a; height:100vh; display:flex; flex-direction:column; overflow:hidden; color:var(--grey-100); }
+
+/* ─── Storyboard chrome ─── */
+.proto-bar { background:#15141a; color:rgba(255,255,255,0.85); padding:10px 16px; display:flex; align-items:center; gap:14px; font-size:12.5px; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.08); }
+.proto-bar a { color:var(--violet-30); text-decoration:none; }
+.proto-bar a:hover { text-decoration:underline; }
+.proto-chip { background:rgba(94,232,214,0.14); color:var(--teal); border:1px solid rgba(94,232,214,0.35); padding:2px 10px; border-radius:99px; font-weight:600; font-size:11px; letter-spacing:0.4px; }
+.proto-title { font-weight:600; }
+.proto-sub { color:rgba(255,255,255,0.45); }
+.proto-steps { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.step-dots { display:flex; gap:5px; }
+.step-dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all var(--d-quick) var(--ease-settle); cursor:pointer; }
+.step-dot.active { background:var(--teal); transform:scale(1.25); }
+.step-dot.done { background:rgba(94,232,214,0.45); }
+.proto-btn { background:#0d9488; border:none; color:#fff; font-family:var(--font); font-size:12px; font-weight:600; padding:6px 16px; border-radius:6px; cursor:pointer; }
+.proto-btn:hover { filter:brightness(1.15); }
+.proto-btn.ghost { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); }
+.step-caption { background:#15141a; color:rgba(255,255,255,0.62); font-size:12.5px; line-height:1.5; padding:9px 16px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+.step-caption strong { color:var(--teal); font-weight:600; }
+.step-caption em { color:rgba(255,255,255,0.84); font-style:normal; font-weight:600; }
+
+/* ─── Browser (dark, per the mock) ─── */
+.browser { flex:1; display:flex; flex-direction:column; margin:14px; border-radius:14px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.6); background:#1c1722; min-height:0; }
+.tabstrip { background:#16121d; display:flex; align-items:center; padding:8px 12px 0; gap:6px; flex-shrink:0; }
+.traffic { display:flex; gap:7px; padding:0 10px 8px 4px; }
+.traffic span { width:11px; height:11px; border-radius:50%; background:rgba(255,255,255,0.18); }
+.tab { display:flex; align-items:center; gap:8px; background:#2a2433; border-radius:8px 8px 0 0; padding:8px 16px; font-size:12px; color:rgba(255,255,255,0.85); max-width:240px; cursor:pointer; position:relative; white-space:nowrap; overflow:hidden; }
+.tab:not(.active) { background:transparent; color:rgba(255,255,255,0.5); }
+.tab .fav { width:15px; height:15px; border-radius:4px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700; color:#fff; }
+.tab .dot { position:absolute; top:5px; right:8px; width:7px; height:7px; border-radius:50%; background:var(--violet-40); animation:breathe var(--d-breathe) ease-in-out infinite; }
+@keyframes breathe { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.82)} }
+.toolbar { background:#1c1722; display:flex; align-items:center; gap:12px; padding:9px 16px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; position:relative; }
+.nav-arrows { color:rgba(255,255,255,0.5); font-size:15px; letter-spacing:8px; }
+.urlbar { flex:1; display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.07); border-radius:99px; padding:8px 16px; font-size:12.5px; color:rgba(255,255,255,0.75); position:relative; }
+.urlbar .lock { color:rgba(255,255,255,0.4); font-size:11px; }
+.urlbar input { flex:1; background:transparent; border:none; outline:none; color:rgba(255,255,255,0.9); font-family:var(--font); font-size:12.5px; }
+.tb-ic { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); font-size:14px; }
+.tb-ic.sw { background:rgba(151,110,255,0.18); color:var(--violet-30); border-radius:10px; }
+
+/* address-bar agent suggestion row (creation entry) */
+.bar-suggest { position:absolute; top:46px; left:120px; right:120px; background:#241e30; border:1px solid rgba(151,110,255,0.3); border-radius:12px; box-shadow:0 14px 40px rgba(0,0,0,0.5); z-index:40; overflow:hidden; display:none; animation:arrive var(--d-moderate) var(--ease-arrive); }
+.bar-suggest.open { display:block; }
+@keyframes arrive { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.bs-row { display:flex; align-items:center; gap:11px; padding:11px 16px; font-size:12.5px; color:rgba(255,255,255,0.85); cursor:pointer; }
+.bs-row:hover, .bs-row.sel { background:rgba(151,110,255,0.14); }
+.bs-row .ic { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(151,110,255,0.18); color:var(--violet-30); }
+.bs-row .k { margin-left:auto; font-size:10px; color:rgba(255,255,255,0.35); border:1px solid rgba(255,255,255,0.15); border-radius:5px; padding:2px 7px; }
+.bs-row .sub { font-size:10.5px; color:rgba(255,255,255,0.45); margin-top:1px; }
+
+/* plan card dropdown from the bar (editable, per the Den design) */
+.bar-plan { position:absolute; top:46px; left:120px; right:120px; background:#241e30; border:1px solid rgba(151,110,255,0.3); border-radius:14px; box-shadow:0 14px 40px rgba(0,0,0,0.5); z-index:40; padding:16px 18px; display:none; color:rgba(255,255,255,0.88); animation:arrive var(--d-moderate) var(--ease-arrive); }
+.bar-plan.open { display:block; }
+.bar-plan h3 { font-size:14px; font-weight:700; margin-bottom:6px; }
+.bp-sent { font-size:13.5px; line-height:1.65; }
+.tok { border-bottom:2px dotted var(--violet-40); font-weight:700; cursor:pointer; }
+.bp-meta { font-size:11px; color:rgba(255,255,255,0.5); margin:7px 0 10px; }
+.site-pill { font-family:var(--font); font-size:11.5px; font-weight:600; border-radius:99px; padding:5px 13px; border:1.5px solid var(--blue); background:transparent; color:var(--blue); cursor:pointer; margin:0 6px 6px 0; }
+.site-pill::before { content:"✓ "; }
+.site-pill.off { border-color:rgba(255,255,255,0.25); color:rgba(255,255,255,0.45); }
+.site-pill.off::before { content:"+ "; }
+.pc-hint { font-size:10px; color:rgba(255,255,255,0.5); margin:3px 0 4px; }
+.bp-count { font-size:11px; color:rgba(255,255,255,0.5); margin:2px 0 10px; }
+.bp-start { font-family:var(--font); font-size:12.5px; font-weight:700; background:#2f6fd0; color:#fff; border:none; border-radius:10px; padding:9px 20px; cursor:pointer; }
+.bp-start:hover { filter:brightness(1.12); }
+
+/* saved confirmation near the View button */
+.saved-callout { position:absolute; top:46px; right:14px; background:rgba(28,27,34,0.97); border:1px solid rgba(94,232,214,0.3); color:#fff; border-radius:10px; padding:8px 14px; font-size:11.5px; display:none; align-items:center; gap:8px; z-index:45; animation:arrive var(--d-considered) var(--ease-arrive); }
+.saved-callout.open { display:flex; }
+.saved-callout .chk { width:16px; height:16px; border-radius:50%; background:var(--green); display:inline-flex; align-items:center; justify-content:center; font-size:9px; }
+
+.window-body { flex:1; display:flex; min-height:0; position:relative; }
+.content { flex:1; overflow-y:auto; min-height:0; background:#fff; }
+.page { display:none; min-height:100%; } .page.active { display:block; }
+
+/* ─── SkyFares page (light site) ─── */
+.fl-page { padding:30px 44px; max-width:960px; }
+.fl-search { display:flex; gap:10px; align-items:center; background:var(--grey-05); border-radius:12px; padding:12px 18px; font-size:12.5px; color:var(--grey-70); margin-bottom:18px; }
+.fl-row { display:flex; align-items:center; gap:20px; border:1px solid var(--grey-10); border-radius:12px; padding:14px 20px; margin-bottom:9px; }
+.fl-air { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.fl-t { font-size:13.5px; font-weight:700; }
+.fl-r { font-size:11px; color:var(--grey-50); margin-top:2px; }
+.fl-price { margin-left:auto; text-align:right; }
+.fl-n { font-size:17px; font-weight:800; }
+.fl-ty { font-size:10px; color:var(--grey-40); }
+
+/* ─── Firefox View — Dens (the mock, faithfully) ─── */
+.fxview { display:none; min-height:100%; background:linear-gradient(115deg,#17131f 0%,#1c1626 60%,#241a33 100%); color:rgba(255,255,255,0.9); }
+.fxview.active { display:flex; }
+.fxv-rail { width:230px; flex-shrink:0; padding:28px 16px; }
+.fxv-brand { display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; margin-bottom:24px; padding-left:8px; }
+.fxv-brand .fx { width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,#9959FF,#ED49AE); }
+.fxv-item { display:flex; align-items:center; gap:11px; font-size:13px; color:rgba(255,255,255,0.65); padding:9px 12px; border-radius:9px; cursor:pointer; position:relative; }
+.fxv-item:hover { background:rgba(255,255,255,0.06); }
+.fxv-item.active { background:rgba(255,255,255,0.1); color:var(--teal); }
+.fxv-item .bub { margin-left:auto; min-width:18px; height:18px; border-radius:99px; background:#2f6fd0; color:#fff; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; padding:0 5px; }
+.fxv-item .bub.on { display:inline-flex; }
+.fxv-main { flex:1; padding:30px 40px; min-width:0; max-width:1100px; }
+.fxv-head { display:flex; align-items:center; gap:16px; margin-bottom:22px; }
+.fxv-head h1 { font-size:24px; font-weight:800; }
+.fxv-search { margin-left:auto; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:9px 16px; font-size:12.5px; color:rgba(255,255,255,0.4); width:280px; }
+.fxv-sec { font-size:16px; font-weight:700; margin:6px 0 14px; }
+.agent-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:18px 20px; margin-bottom:18px; max-width:920px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.ag-head { display:flex; align-items:flex-start; gap:11px; }
+.ag-dot { width:9px; height:9px; border-radius:50%; background:#7fe07a; margin-top:7px; flex-shrink:0; animation:breathe var(--d-breathe) ease-in-out infinite; }
+.ag-dot.paused { background:rgba(255,255,255,0.3); animation:none; }
+.ag-t { font-size:16px; font-weight:700; }
+.ag-rule { font-size:13px; color:rgba(255,255,255,0.75); margin-top:3px; }
+.ag-checks { display:flex; align-items:center; gap:10px; margin:10px 0 2px; font-size:12px; color:rgba(255,255,255,0.55); flex-wrap:wrap; }
+.chk-dots { display:inline-flex; gap:4px; }
+.chk-dots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.18); }
+.chk-dots span.hit { background:#7fe07a; }
+.ag-actions { display:flex; gap:18px; margin-top:10px; font-size:13px; font-weight:600; }
+.ag-actions span { color:#5b9bf3; cursor:pointer; }
+.ag-actions span:hover { text-decoration:underline; }
+.ag-actions .del { color:#ff8da3; }
+/* the alert strip */
+.alert-strip { display:none; align-items:center; gap:12px; background:rgba(20,83,45,0.35); border-left:3px solid #7fe07a; border-radius:8px; padding:12px 16px; margin-top:13px; font-size:13px; color:#a8e8b8; animation:arrive var(--d-considered) var(--ease-arrive); }
+.alert-strip.open { display:flex; }
+.alert-strip b { color:#c9f5d3; }
+.alert-strip .go { margin-left:auto; background:#2f6fd0; color:#fff; font-family:var(--font); font-size:12.5px; font-weight:700; border:none; border-radius:9px; padding:9px 18px; cursor:pointer; white-space:nowrap; }
+.fxv-empty { font-size:13px; color:rgba(255,255,255,0.5); max-width:920px; }
+.report-card { display:none; background:rgba(255,255,255,0.05); border:1px solid rgba(255,151,40,0.25); border-radius:14px; padding:15px 20px; margin-bottom:14px; max-width:920px; cursor:pointer; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.report-card.open { display:flex; align-items:center; gap:13px; }
+.report-card .rg { width:34px; height:34px; border-radius:9px; background:rgba(255,151,40,0.15); color:#ffb95e; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.report-card .rt { font-size:14px; font-weight:700; }
+.report-card .rs { font-size:11.5px; color:rgba(255,255,255,0.5); margin-top:2px; }
+.report-card .ro { margin-left:auto; color:#5b9bf3; font-size:13px; font-weight:600; }
+
+/* hover status card off the watching pill — opens Firefox View, no Den in F */
+.hover-card { position:absolute; top:46px; right:104px; width:330px; background:#fff; border-radius:16px; box-shadow:0 16px 48px rgba(0,0,0,0.45); z-index:60; padding:15px 17px; display:none; color:var(--grey-100); animation:arrive var(--d-moderate) var(--ease-arrive); }
+.hover-card.open { display:block; }
+.hc-t { font-size:14px; font-weight:800; display:flex; align-items:center; gap:8px; }
+.hc-dot { width:9px; height:9px; border-radius:50%; background:#1da53f; animation:breathe var(--d-breathe) ease-in-out infinite; }
+.hc-s { font-size:12px; color:var(--grey-50); margin:3px 0 6px; }
+.hc-meta { font-size:11px; color:var(--grey-40); display:flex; gap:13px; margin-bottom:11px; }
+.hc-actions { display:flex; gap:8px; }
+.hc-btn { font-family:var(--font); font-size:12.5px; font-weight:600; border-radius:99px; padding:8px 17px; cursor:pointer; border:1.5px solid var(--grey-20); background:#fff; color:var(--grey-70); }
+.hc-btn:hover { border-color:var(--violet-30); color:var(--violet-60); }
+/* offer chip in the bar — a trigger, opens the sidebar chat */
+.offer-chip { margin-left:auto; display:none; align-items:center; gap:7px; background:#f4f1fb; border:1.5px solid var(--violet-30); color:var(--violet-60); border-radius:99px; padding:4px 13px; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.offer-chip.shown { display:inline-flex; }
+.offer-chip:hover { background:#ece6f9; }
+.offer-chip .x { color:var(--grey-40); font-weight:400; padding-left:4px; }
+/* Smart Window sidebar — creation happens here */
+.sidebar { width:370px; flex-shrink:0; background:linear-gradient(180deg,#241e30 0%,#1d1827 100%); border-left:1px solid rgba(255,255,255,0.07); display:flex; flex-direction:column; min-height:0; color:rgba(255,255,255,0.88); }
+.sb-head { display:flex; align-items:center; gap:9px; padding:12px 14px; flex-shrink:0; }
+.sb-logo { width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg,#9959FF,#ED49AE); }
+.sb-title { font-size:13px; font-weight:700; }
+.sb-thread { flex:1; overflow-y:auto; padding:14px 14px 18px; display:flex; flex-direction:column; gap:10px; min-height:0; }
+.msg-u { align-self:flex-end; background:rgba(255,255,255,0.1); border-radius:12px; max-width:84%; padding:9px 14px; font-size:12.5px; line-height:1.5; }
+.msg-a { align-self:stretch; font-size:12.5px; line-height:1.6; color:rgba(255,255,255,0.85); }
+.plan-card { align-self:stretch; background:rgba(255,255,255,0.06); border:1px solid rgba(151,110,255,0.25); border-radius:13px; padding:13px 15px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.pc-t { font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pc-badge { font-size:10px; font-weight:700; background:rgba(20,83,45,0.4); color:#7fe07a; border-radius:99px; padding:3px 10px; display:none; }
+.pc-badge.on { display:inline-block; }
+.pc-badge::before { content:"● "; }
+.pc-sent { font-size:12.5px; line-height:1.65; margin:7px 0 2px; }
+.pc-meta { font-size:10.5px; color:rgba(255,255,255,0.5); margin:5px 0 9px; }
+.pc-start { font-family:var(--font); font-size:12px; font-weight:700; background:#2f6fd0; color:#fff; border:none; border-radius:99px; padding:8px 18px; cursor:pointer; margin-top:7px; }
+.qcard { background:rgba(255,255,255,0.06); border:1px solid rgba(151,110,255,0.25); border-radius:14px; padding:14px 16px; animation:arrive var(--d-gracious) var(--ease-arrive); }
+.qc-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.qc-title { font-size:13.5px; font-weight:700; flex:1; }
+.qc-page { font-size:11px; color:rgba(255,255,255,0.4); white-space:nowrap; }
+.qc-x { color:rgba(255,255,255,0.4); cursor:pointer; font-size:13px; padding:2px 4px; }
+.qc-opt { display:flex; align-items:center; gap:11px; padding:10px 4px; border-bottom:1px solid rgba(255,255,255,0.07); cursor:pointer; font-size:12.5px; color:rgba(255,255,255,0.85); }
+.qc-opt:hover { background:rgba(151,110,255,0.12); border-radius:8px; }
+.qc-opt .n { width:22px; height:22px; border-radius:6px; background:rgba(151,110,255,0.2); color:#d4bfff; font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.qc-else { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); border-radius:10px; padding:9px 12px; margin-top:9px; font-size:12px; color:rgba(255,255,255,0.4); }
+.qc-else .pen { width:22px; height:22px; border-radius:6px; background:var(--violet-50); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+.qc-skip { margin-left:auto; font-family:var(--font); font-size:11.5px; font-weight:600; background:transparent; border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:5px 14px; cursor:pointer; color:rgba(255,255,255,0.7); }
+.pc-viz { border-top:1px solid rgba(255,255,255,0.08); margin-top:10px; padding-top:9px; }
+.pc-stats { display:flex; gap:14px; font-size:10.5px; color:rgba(255,255,255,0.5); margin-top:5px; }
+.pc-stats b { color:rgba(255,255,255,0.92); font-size:12px; display:block; }
+.pc-acts { display:flex; gap:6px; margin-top:10px; }
+.pc-act { font-family:var(--font); font-size:10.5px; font-weight:600; border-radius:99px; padding:5px 12px; cursor:pointer; border:1px solid rgba(255,255,255,0.22); background:transparent; color:rgba(255,255,255,0.7); }
+.pc-act:hover { border-color:var(--violet-40); color:#d4bfff; }
+.pc-act.del:hover { border-color:#ff8da3; color:#ff8da3; }
+.pc-view { display:inline-flex; align-items:center; gap:6px; margin-top:9px; font-size:12px; font-weight:700; color:#5ee8d6; cursor:pointer; background:none; border:none; font-family:var(--font); padding:0; }
+.pc-view:hover { text-decoration:underline; }
+.sb-input { margin:0 12px 12px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:11px 14px; font-size:12.5px; color:rgba(255,255,255,0.4); flex-shrink:0; }
+/* OS toast */
+.os-toast { position:fixed; top:60px; right:28px; width:340px; background:rgba(28,27,34,0.97); border-radius:14px; padding:13px 15px; box-shadow:0 10px 36px rgba(0,0,0,0.5); display:none; gap:11px; z-index:90; cursor:pointer; animation:arrive var(--d-considered) var(--ease-arrive); }
+.os-toast.open { display:flex; }
+.ot-icon { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,#9959FF,#ED49AE); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ot-app { font-size:9.5px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:2px; }
+.ot-title { font-size:12px; font-weight:700; color:#fff; }
+.ot-body { font-size:11.5px; color:rgba(255,255,255,0.72); line-height:1.45; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<div class="proto-bar">
+  <a href="index.html">← All concepts</a>
+  <span class="proto-chip">CONCEPT E</span>
+  <span class="proto-title">Dens in Firefox View</span>
+  <span class="proto-sub">Chat creation · Firefox View as the end location, beside Chats</span>
+  <div class="proto-steps">
+    <div class="step-dots" id="dots"></div>
+    <button class="proto-btn ghost" id="backBtn">Back</button>
+    <button class="proto-btn" id="nextBtn">Start walkthrough</button>
+  </div>
+</div>
+<div class="step-caption" id="caption"><strong>Concept E · Dens in Firefox View.</strong> A full management surface like Concept B — but instead of a new page, it's a section in <strong>Firefox View, right beside Chats</strong>, the surface chat history already lives in. Creation happens inline in the chat; the watching pill joins the address bar once something is live. Click <strong>Start walkthrough</strong>.</div>
+
+<div class="browser">
+  <div class="tabstrip">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="tab" id="tabFx" style="max-width:46px"><span class="fav" style="background:linear-gradient(135deg,#9959FF,#ED49AE);border-radius:50%">⊙</span></div>
+    <div class="tab active" id="tabSky"><span class="fav" style="background:#2f6fd0">S</span>SkyFares — LAX to TYO<span class="dot" id="skyDot" style="display:none"></span></div>
+    <div class="tab" style="color:rgba(255,255,255,0.5)"><span class="fav" style="background:#7a4dd8">A</span>AudioHaus — Sony WH-10…</div>
+  </div>
+  <div class="toolbar">
+    <div class="nav-arrows">‹ ›</div>
+    <div class="urlbar"><span class="lock">🔒</span><input id="barInput" placeholder="Search with Firefox or enter address" autocomplete="off"><span class="offer-chip" id="offerChip"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg>I can watch this price<span class="x">✕</span></span></div>
+    <div class="tb-ic">⭐</div>
+    <div class="tb-ic sw">✦</div>
+    <div class="tb-ic">☰</div>
+
+    <!-- address-bar agent suggestions -->
+    <div class="bar-suggest" id="barSuggest">
+      <div class="bs-row sel">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></span>
+        <span>Watch this with Smart Window<div class="sub">Keep an eye on these fares — alert when your rule is met</div></span>
+        <span class="k">Tab</span>
+      </div>
+      <div class="bs-row">
+        <span class="ic" style="background:rgba(255,151,40,0.15);color:#ffb95e"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></span>
+        <span>Research with Smart Window<div class="sub">Compare options and keep a report</div></span>
+      </div>
+    </div>
+
+    <!-- editable plan, dropped from the bar -->
+    <div class="bar-plan" id="barPlan">
+      <h3>Watch Tokyo fares</h3>
+      <p class="bp-sent">Alert me when a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$620</span> for <span class="tok">Oct 12 – 26</span></p>
+      <div class="bp-meta">Checking 4 times daily · Push notification · read-only, every check logged</div>
+      <div><button class="site-pill">SkyFares</button><button class="site-pill">Kayak</button><button class="site-pill">Google Flights</button><button class="site-pill">Expedia</button></div>
+      <div class="bp-count">One watch, 4 sites</div>
+      <button class="bp-start" id="bpStart">Start watching</button>
+    </div>
+  </div>
+
+  <div class="window-body">
+    <div class="content">
+      <!-- SkyFares -->
+      <div class="page active" id="page-sky">
+        <div class="fl-page">
+          <div class="fl-search">✈️ &nbsp;<b>LAX → TYO</b> · Oct 12–26 · 1 adult &nbsp;·&nbsp; 52 results</div>
+          <div class="fl-row"><div class="fl-air" style="background:#e8f1fd">🛫</div><div><div class="fl-t">9:40 — 14:55<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n" id="fare1">$684</div><div class="fl-ty">economy</div></div></div>
+          <div class="fl-row"><div class="fl-air" style="background:#fdeee8">🛫</div><div><div class="fl-t">11:05 — 16:30<sup>+1</sup></div><div class="fl-r">nonstop</div></div><div class="fl-price"><div class="fl-n">$702</div><div class="fl-ty">economy</div></div></div>
+          <div class="fl-row" style="opacity:0.6"><div class="fl-air" style="background:#eefae8">🛫</div><div><div class="fl-t">7:15 — 15:40<sup>+1</sup></div><div class="fl-r">1 stop · SEA</div></div><div class="fl-price"><div class="fl-n">$641</div><div class="fl-ty">economy</div></div></div>
+        </div>
+      </div>
+
+      <!-- Firefox View → Dens -->
+      <div class="page fxview" id="page-fxv">
+        <div class="fxv-rail">
+          <div class="fxv-brand"><span class="fx"></span>Firefox View</div>
+          <div class="fxv-item">✨ Recent browsing</div>
+          <div class="fxv-item">▣ Open tabs</div>
+          <div class="fxv-item">↩ Recently closed tabs</div>
+          <div class="fxv-item">⇄ Tabs from other devices</div>
+          <div class="fxv-item">🕘 History</div>
+          <div class="fxv-item">💬 Chats</div>
+          <div class="fxv-item active">👁 Dens<span class="bub" id="agentsBub">1</span></div>
+        </div>
+        <div class="fxv-main">
+          <div class="fxv-head"><h1>Dens</h1><div class="fxv-search">🔍 Search agents</div></div>
+
+          <div class="fxv-sec">Active watches</div>
+          <div class="agent-card" id="watchCard">
+            <div class="ag-head">
+              <span class="ag-dot" id="agDot"></span>
+              <div style="flex:1">
+                <div class="ag-t">Tokyo fares</div>
+                <div class="ag-rule">Alert me when a <b>nonstop</b> fare drops below <b>$620</b> for Oct 12 – 26</div>
+                <div class="ag-checks">
+                  <span class="chk-dots" id="chkDots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+                  <span id="chkLine">1 check · last check just now · Checking 4 times daily · 4 sites</span>
+                </div>
+                <div class="ag-actions"><span id="actCheck">Check now</span><span id="actPause">Pause</span><span>Open page</span><span class="del">Delete</span></div>
+                <div class="alert-strip" id="alertStrip">
+                  ↘ <span><b>Dropped to $607</b> — 11% below your target · lowest in 3 months</span>
+                  <button class="go">Open Kayak</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fxv-sec" style="margin-top:26px">Reports</div>
+          <div class="fxv-empty" id="repEmpty">Nothing here yet — ask Smart Window to research something.</div>
+          <div class="report-card" id="repCard">
+            <span class="rg"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4z"/><path d="M6 8h5M6 11h5"/></svg></span>
+            <span><span class="rt">Where to stay in Tokyo — Oct trip</span><div class="rs">3 neighborhoods ranked · finished just now · opens with its chat attached</div></span>
+            <span class="ro">Open →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Window sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sb-head"><div class="sb-logo"></div><div class="sb-title">Smart Window</div></div>
+      <div class="sb-thread" id="sbThread"></div>
+      <div class="sb-input">Ask about this page…</div>
+    </div>
+
+    <!-- OS toast -->
+    <div class="os-toast" id="osToast">
+      <div class="ot-icon"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg></div>
+      <div>
+        <div class="ot-app">Firefox</div>
+        <div class="ot-title">Tokyo fares: dropped to $607</div>
+        <div class="ot-body">11% below your $620 target — lowest in 3 months. Tap to see it in your Dens.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function show(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  $(page).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  (page === 'page-fxv' ? $('tabFx') : $('tabSky')).classList.add('active');
+}
+function typeBar(text, cb) {
+  let i = 0; $('barInput').value = '';
+  const t = setInterval(() => {
+    i++; $('barInput').value = text.slice(0, i);
+    if (i >= text.length) { clearInterval(t); cb && setTimeout(cb, 350); }
+  }, 28);
+}
+function setChecks(n, hit) {
+  [...$('chkDots').children].forEach((d, i) => d.className = i < n ? (hit && i === n - 1 ? 'hit' : '') : '');
+  [...$('chkDots').children].forEach((d, i) => { if (i < n) d.style.background = (hit && i === n - 1) ? '#7fe07a' : 'rgba(255,255,255,0.45)'; else d.style.background = 'rgba(255,255,255,0.18)'; });
+}
+
+function eSpark(points, target){
+  const max=Math.max(...points,target), min=Math.min(...points,target);
+  const pts=points.map((p,i)=>`${(i/(points.length-1))*270},${8+30*(1-(p-min)/(max-min||1))}`).join(' ');
+  const ty=8+30*(1-(target-min)/(max-min||1));
+  return `<svg width="100%" height="46" viewBox="0 0 270 46" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="#b295ff" stroke-width="2"/>
+    <line x1="0" y1="${ty}" x2="270" y2="${ty}" stroke="rgba(178,149,255,0.4)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <circle cx="270" cy="${pts.split(' ').pop().split(',')[1]}" r="3.5" fill="#ED49AE"/>
+    <text x="4" y="${ty-4}" font-size="8.5" fill="rgba(212,191,255,0.75)" font-family="system-ui">target $620</text></svg>`;
+}
+function eRuleQuestion(card){
+  const ex=document.querySelector('.qcard'); if(ex){ ex.remove(); return; }
+  const q=document.createElement('div'); q.className='qcard';
+  q.innerHTML=`<div class="qc-head"><div class="qc-title">What should trigger the alert?</div><span class="qc-page">‹ 1 of 1 ›</span><span class="qc-x">✕</span></div>
+    <div class="qc-opt" data-r='a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$600</span>'><span class="n">1</span>Below $600 — only a real deal</div>
+    <div class="qc-opt" data-r='a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$650</span>'><span class="n">2</span>Below $650 — alert me sooner</div>
+    <div class="qc-opt" data-r='<span class="tok">any</span> fare drops <b>below</b> <span class="tok">$620</span>'><span class="n">3</span>Any flight, stops OK, below $620</div>
+    <div class="qc-opt" data-r='a <span class="tok">refundable</span> fare appears <b>below</b> <span class="tok">$650</span>'><span class="n">4</span>Refundable below $650</div>
+    <div class="qc-else"><span class="pen">✎</span>Something else<button class="qc-skip">Skip</button></div>`;
+  q.querySelectorAll('.qc-opt').forEach(o=>o.onclick=()=>{ card.querySelector('.pc-sent').innerHTML='Alert me when '+o.dataset.r+' for <span class="tok">Oct 12 – 26</span>'; q.remove(); });
+  q.querySelector('.qc-skip').onclick=()=>q.remove();
+  q.querySelector('.qc-x').onclick=()=>q.remove();
+  card.insertAdjacentElement('afterend', q);
+  $('sbThread').scrollTop=1e6;
+}
+function buildPlanCard(){
+  const t = $('sbThread');
+  if (t.querySelector('.plan-card')) return;
+  const c=document.createElement('div'); c.className='plan-card'; c.id='planCard';
+  c.innerHTML=`<div class="pc-t">Watch Tokyo fares <span class="pc-badge" id="pcBadge">Watching</span></div>
+    <p class="pc-sent">Alert me when a <span class="tok">nonstop</span> fare drops <b>below</b> <span class="tok">$620</span> for <span class="tok">Oct 12 – 26</span></p>
+    <div class="pc-meta">Checking 4 times daily · <span class="tok" data-c="Push notification|Push + email|Badge only">Push notification</span> · read-only</div>
+    <div class="pc-hint">Watching this page. Also relevant — tap to add:</div>
+    <div><button class="site-pill">SkyFares</button><button class="site-pill off">Kayak</button><button class="site-pill off">Google Flights</button><button class="site-pill off">Expedia</button></div>
+    <button class="pc-start" id="pcStart">Start watching</button>`;
+  t.appendChild(c); t.scrollTop=1e6;
+  c.querySelectorAll('.tok').forEach(tk=>{ if(tk.dataset.c) tk.onclick=()=>{ const o=tk.dataset.c.split('|'); tk.textContent=o[(o.indexOf(tk.textContent)+1)%o.length]; }; });
+  c.querySelectorAll('.site-pill').forEach((pl,i)=>pl.onclick=()=>{ if(i===0) return; pl.classList.toggle('off'); });
+  $('pcStart').onclick=finishStart;
+}
+function finishStart(){
+  const b=$('pcBadge'); if(!b || b.classList.contains('on')) return;
+  b.classList.add('on');
+  const st=$('pcStart'); if(st) st.remove();
+  const card=$('planCard');
+  card.insertAdjacentHTML('beforeend',`<div class="pc-viz" id="pcViz">${eSpark([684,684],620)}
+    <div class="pc-stats"><span><b id="vNow">$684</b>now</span><span><b id="vLow">$684</b>low</span><span><b id="vChecks">1</b>checks</span><span><b id="vSites">1</b>site</span></div></div>
+    <div class="pc-acts"><button class="pc-act" data-a="edit">✎ Edit</button><button class="pc-act" data-a="pause">⏸ Pause</button><button class="pc-act del" data-a="del">🗑 Delete</button></div>
+    <button class="pc-view" id="pcView">Open in Dens — Firefox View →</button>`);
+  card.querySelector('[data-a="edit"]').onclick=()=>eRuleQuestion(card);
+  card.querySelector('[data-a="pause"]').onclick=e=>{ const x=e.target; const paused=x.textContent.includes('Pause'); x.textContent=paused?'▶ Resume':'⏸ Pause'; b.style.opacity=paused?'0.45':'1'; };
+  card.querySelector('[data-a="del"]').onclick=()=>{ card.remove();
+    const t=$('sbThread'); const a=document.createElement('div'); a.className='msg-a';
+    a.innerHTML='Deleted — removed here and from your <b>Dens</b> in Firefox View.'; t.appendChild(a); };
+  document.getElementById('pcView').onclick=()=>show('page-fxv');
+  const t=$('sbThread'); const a=document.createElement('div'); a.className='msg-a';
+  a.innerHTML='Watching now — saved under <b>Dens</b> in Firefox View. I\u2019ll stay quiet until your rule is met.'; t.appendChild(a); t.scrollTop=1e6;
+}
+function askEQ(){
+  const t=$('sbThread');
+  if(t.querySelector('.qcard')||t.querySelector('.plan-card')) return;
+  const c=document.createElement('div'); c.className='qcard';
+  c.innerHTML=`<div class="qc-head"><div class="qc-title">What matters most for this trip?</div><span class="qc-page">‹ 1 of 1 ›</span><span class="qc-x">✕</span></div>
+    <div class="qc-opt"><span class="n">1</span>Lowest nonstop, any day in my window</div>
+    <div class="qc-opt"><span class="n">2</span>Specific dates — Oct 12 – 26 only</div>
+    <div class="qc-opt"><span class="n">3</span>Refundable fares only</div>
+    <div class="qc-opt"><span class="n">4</span>Anything under $620</div>
+    <div class="qc-else"><span class="pen">✎</span>Something else<button class="qc-skip">Skip</button></div>`;
+  const done=()=>{ c.remove(); buildPlanCard(); };
+  c.querySelectorAll('.qc-opt').forEach(o=>o.onclick=done);
+  c.querySelector('.qc-skip').onclick=done;
+  c.querySelector('.qc-x').onclick=done;
+  t.appendChild(c); t.scrollTop=1e6;
+}
+function buildCreation(){
+  $('offerChip').classList.remove('shown');
+  const t = $('sbThread'); if (t.children.length) return;
+  t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'watch these fares for me'}));
+  setTimeout(()=>{
+    const a=document.createElement('div'); a.className='msg-a'; a.textContent='One quick question, then I\u2019ll set it up:'; t.appendChild(a);
+    askEQ();
+  },420);
+}
+const steps = [
+  { cap:"<strong>1 · The trigger, then one question.</strong> The offer chip opens the sidebar; because the chip carries page context, Smart Window needs just one clarifying question — Claude\u2019s pattern in Smart Window\u2019s skin: numbered options, <em>Something else</em>, <em>Skip</em>. Answer it and the prefilled card appears. (Slash, suggestion chips, and plain asking live in the experience prototype.)",
+    run(){ show('page-sky'); $('offerChip').classList.add('shown');
+      $('offerChip').onclick = buildCreation;
+      setTimeout(buildCreation, 1100);
+    } },
+
+  { cap:"<strong>2 · Started — a live card, with a door to your Dens.</strong> The card becomes interactive in place: price line against the dashed target, running stats, and its own <em>✎ Edit · ⏸ Pause · 🗑 Delete</em> (Edit opens the little question card). And it keeps the permanent link — <em>Open in Dens — Firefox View →</em> — so the chat record and the management home stay one click apart.",
+    run(){ const t=$('sbThread');
+      if(!t.querySelector('.plan-card')){ if(!t.children.length){ t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'watch these fares for me'})); } t.querySelectorAll('.qcard').forEach(n=>n.remove()); buildPlanCard(); }
+      setTimeout(finishStart, 600);
+    } },
+
+  { cap:"<strong>3 · Scout — the right-now sweep, second agent.</strong> Ask <em>scout the other fare sites right now</em> and Scout checks them in one pass — effective fares, your dates, read-only, nothing booked. Its answer is ephemeral; the handoff is not: the Monitor now alerts on the best of all four sites, and the den card in Firefox View carries the wider coverage.",
+    run(){ const t=$('sbThread');
+      t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'scout the other fare sites right now'}));
+      setTimeout(()=>{
+        const sc=document.createElement('div'); sc.className='plan-card';
+        sc.innerHTML=`<div class="pc-t">Scout — fares right now <span style="font-size:9.5px;font-weight:800;letter-spacing:1px;color:#5ee8d6;background:rgba(94,232,214,0.14);border-radius:99px;padding:2px 9px">ONE-TIME SWEEP</span></div>
+          <p class="pc-sent">🏆 <b>$668 — Google Flights</b> · nonstop · matches Oct 12 – 26</p>
+          <p class="pc-sent" style="color:rgba(255,255,255,0.6)">$684 — SkyFares (this page) · $702 — Expedia · $719 — Kayak</p>
+          <div class="pc-meta" style="color:#7fe07a">→ Handed to the Monitor — it now alerts on the best of all 4 sites. Above your $620 target, so no alert yet.</div>`;
+        t.appendChild(sc); t.scrollTop=1e6;
+      }, 450);
+    } },
+
+  { cap:"<strong>4 · The end location: Firefox View → Dens, beside Chats.</strong> The full management surface Concept B wanted — every watch as a card with its rule in plain words, a dot per check (green = something happened), last-check time, cadence, site count, and direct actions: <em>Check now · Pause · Open page · Delete</em>. Search on top. And it cost zero new top-level surfaces — Firefox View already ships.",
+    run(){ show('page-fxv'); setChecks(1, false); $('chkLine').textContent='1 check · last check just now · Checking 4 times daily · 4 sites'; } },
+
+  { cap:"<strong>5 · The condition hits — the alert lands on the card.</strong> Days later: a push notification, and in Dens the card grows a green strip with the judgment — <em>$607, 11% below your target, lowest in 3 months</em> — and the one action that matters: <em>Open Kayak</em>. The rail badge and the Firefox View tab dot carry the unread state.",
+    run(){ show('page-fxv'); setChecks(12, true); $('chkLine').textContent='12 checks · last check just now · Checking 4 times daily · 4 sites'; $('alertStrip').classList.add('open'); $('osToast').classList.add('open');
+      const viz=$('pcViz'); if(viz){ viz.innerHTML=eSpark([684,679,668,671,654,632,607],620)+viz.innerHTML.slice(viz.innerHTML.indexOf('<div class="pc-stats"')); const n=$('vNow'); if(n){ n.textContent='$607'; $('vLow').textContent='$607'; $('vChecks').textContent='21'; } const bb=$('pcBadge'); if(bb) bb.textContent='Hit $607'; } $('agentsBub').classList.add('on'); $('skyDot').style.display='block'; setTimeout(()=>$('osToast').classList.remove('open'), 5000); } },
+
+  { cap:"<strong>6 · Research — created in the chat, filed in your Dens.</strong> The third agent: <em>when should I actually book? keep a report</em>. It runs once, writes it up, the card stays in the thread — and the report files into the Dens section beneath the watches, opening with its chat attached. One page in Firefox View answers create → see → return for all three agents.",
+    run(){ $('osToast').classList.remove('open');
+      const t=$('sbThread');
+      t.appendChild(Object.assign(document.createElement('div'),{className:'msg-u',textContent:'when should I actually book? keep a report'}));
+      setTimeout(()=>{
+        const rc=document.createElement('div'); rc.className='plan-card';
+        rc.innerHTML=`<div class="pc-t">Tokyo trip — fare strategy <span style="font-size:9.5px;font-weight:800;letter-spacing:1px;color:#8ec2ff;background:rgba(74,157,248,0.18);border-radius:99px;padding:2px 9px">REPORT</span></div>
+          <p class="pc-sent">Book 3–6 weeks out for this route; fares dip Tue–Wed. Your $620 target cleared twice last quarter — realistic.</p>
+          <div class="pc-meta">12 pages read · saved to your Dens in Firefox View</div>`;
+        t.appendChild(rc); t.scrollTop=1e6;
+        setTimeout(()=>{ show('page-fxv'); $('repEmpty').style.display='none'; $('repCard').classList.add('open'); }, 1000);
+      }, 450);
+    } },
+
+  { cap:"<strong>7 · Why E earns a seat.</strong> It's Concept B's power — full management, search, transparency — without B's biggest costs: no new page to build a habit around (Firefox View ships today, next to the Chats history users already visit), and no day-one empty dashboard (the section is one rail item until you have agents). The open question vs. D: Firefox View is a destination you go to; D's presence comes to you. <a href='index.html' style='color:#5ee8d6'>Compare all concepts →</a>",
+    run(){ show('page-fxv'); } },
+];
+
+let cur = -1;
+const dots = $('dots');
+steps.forEach((s, i) => { const d = document.createElement('div'); d.className = 'step-dot'; d.onclick = () => goto(i); dots.appendChild(d); });
+function renderDots(){ [...dots.children].forEach((d,i)=>{ d.classList.toggle('active',i===cur); d.classList.toggle('done',i<cur); }); }
+function reset(){
+  show('page-sky'); $('sbThread').innerHTML=''; $('offerChip').classList.remove('shown'); $('barInput').value=''; $('barSuggest').classList.remove('open'); $('barPlan').classList.remove('open');
+   $('alertStrip').classList.remove('open');
+  $('osToast').classList.remove('open'); $('agentsBub').classList.remove('on'); $('skyDot').style.display='none';
+  $('repEmpty').style.display=''; $('repCard').classList.remove('open'); setChecks(0,false);
+}
+function goto(n){
+  if(n<cur){ reset(); cur=-1; }
+  while(cur<n){ cur++; steps[cur].run(); }
+  $('caption').innerHTML=steps[cur].cap; renderDots();
+  $('nextBtn').textContent = cur>=steps.length-1 ? 'Restart' : 'Next';
+}
+$('nextBtn').onclick=()=>{ if(cur>=steps.length-1){ reset(); cur=-1; renderDots(); $('caption').innerHTML="<strong>Concept E · Dens in Firefox View.</strong> Click <strong>Start walkthrough</strong>."; $('nextBtn').textContent='Start walkthrough'; return; } goto(cur+1); };
+$('backBtn').onclick=()=>{ if(cur>0) goto(cur-1); };
+$('tabFx').onclick=()=>show('page-fxv');
+$('tabSky').onclick=()=>show('page-sky');
+$('bpStart').onclick=()=>goto(2);
+$('actPause').onclick=()=>{ const d=$('agDot'); d.classList.toggle('paused'); $('actPause').textContent=d.classList.contains('paused')?'Resume':'Pause'; };
+$('actCheck').onclick=()=>{ $('chkLine').textContent=$('chkLine').textContent.replace(/^\d+/, m=>+m+1); };
+$('osToast').onclick=()=>{ $('osToast').classList.remove('open'); show('page-fxv'); };
+renderDots();
+</script>
+</body>
+</html>
