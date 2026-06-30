@@ -398,7 +398,7 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
   <a href="index.html" style="color:#b295ff;text-decoration:none">← Analysis</a>
   <b>Live prototype</b><span style="color:rgba(255,255,255,0.4)">unscripted — type, click, choose your own journey</span>
   <div style="display:flex;background:rgba(255,255,255,0.08);border-radius:99px;padding:3px;margin-left:8px" id="cSwitch">
-    <button class="cbtn" data-c="A">A · Chat</button><button class="cbtn" data-c="B">B · Hub</button><button class="cbtn cbtn-on" data-c="C">C · Den</button><button class="cbtn" data-c="D">D · Bar</button><button class="cbtn" data-c="E">E · Firefox View</button><button class="cbtn" data-c="F">F · Den everywhere</button>
+    <button class="cbtn" data-c="A">A · Chat</button><button class="cbtn" data-c="B">B · Hub</button><button class="cbtn cbtn-on" data-c="C">C · Den</button><button class="cbtn" data-c="D">D · Bar</button><button class="cbtn" data-c="E">E · Dens in Firefox View</button><button class="cbtn" data-c="F">F · Den everywhere</button>
   </div>
   <button onclick="location.reload()" style="margin-left:auto;font-family:inherit;font-size:11.5px;font-weight:600;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;border-radius:6px;padding:5px 13px;cursor:pointer">Reset</button>
 </div>
@@ -484,6 +484,46 @@ body { font-family:var(--font); background:#dcd7e8; height:100vh; display:flex; 
 /* B: new tab agents summary card */
 .nt-agents { display:none; width:min(620px,92%); margin-top:8px; border:1.5px solid var(--violet-20); background:linear-gradient(135deg,#fff,var(--violet-05)); border-radius:16px; padding:14px 18px 10px; cursor:pointer; }
 .nt-agents.on { display:block; }
+
+/* ── Concept E — the full Den library (Firefox View) ── */
+.den-framing { font-size:12px; color:rgba(255,255,255,0.55); max-width:880px; margin:-6px 0 18px; line-height:1.55; }
+.den-framing b { color:rgba(255,255,255,0.82); font-weight:700; }
+.den-limit { display:flex; align-items:center; gap:9px; max-width:880px; margin:0 0 16px; padding:10px 14px; border-radius:10px; background:rgba(226,40,80,0.14); border:1px solid rgba(226,40,80,0.4); color:#ffb3c1; font-size:12px; font-weight:600; }
+/* watch mode tag — Jolie's three experiences, surfaced per card */
+.mode-tag { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:99px; font-size:10px; font-weight:700; letter-spacing:0.3px; }
+.mode-tag.m-page-check { background:rgba(74,157,248,0.18); color:#9ec8ff; }
+.mode-tag.m-cross-search { background:rgba(151,110,255,0.2); color:#cdb4ff; }
+.mode-tag.m-one-time { background:rgba(245,158,11,0.18); color:#ffce8a; }
+/* blocked-page edge state */
+.ab-dot.blocked { background:#ff6b81; animation:none; }
+.block-strip { display:flex; align-items:flex-start; gap:10px; background:rgba(226,40,80,0.16); border-left:3px solid #ff6b81; border-radius:8px; padding:11px 15px; margin-top:12px; font-size:12.5px; color:#ffc2cd; }
+.block-strip b { color:#ffd7de; }
+.find-strip { display:flex; align-items:center; gap:11px; background:rgba(245,158,11,0.14); border-left:3px solid #f59e0b; border-radius:8px; padding:11px 15px; margin-top:12px; font-size:12.5px; color:#ffdfa6; }
+.find-strip b { color:#ffe9c4; }
+.find-strip .go { margin-left:auto; background:#2f6fd0; color:#fff; font-family:var(--font); font-size:12px; font-weight:700; border:none; border-radius:9px; padding:8px 16px; cursor:pointer; white-space:nowrap; }
+/* library cards: prompts / skills / presets */
+.den-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(248px,1fr)); gap:13px; max-width:880px; margin-bottom:10px; }
+.den-card { display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09); border-radius:13px; padding:14px 16px; }
+.den-card .dc-glyph { width:28px; height:28px; border-radius:8px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; background:rgba(151,110,255,0.18); color:#d4bfff; }
+.den-card .dc-body { flex:1; min-width:0; }
+.den-card .dc-title { font-size:13px; font-weight:700; }
+.den-card .dc-sub { font-size:11px; color:rgba(255,255,255,0.55); margin-top:3px; line-height:1.45; }
+.den-switch { width:34px; height:20px; border-radius:99px; flex-shrink:0; background:rgba(255,255,255,0.2); position:relative; cursor:pointer; transition:background var(--d-quick) var(--ease-settle); }
+.den-switch::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform var(--d-quick) var(--ease-settle); }
+.den-switch.on { background:#2f6fd0; }
+.den-switch.on::after { transform:translateX(14px); }
+/* Firefox reusable components (moz-*) — used in Concept E's Den */
+moz-card { display:block; }
+moz-button.mozbtn { display:inline-flex; align-items:center; justify-content:center; gap:7px; font-family:var(--font); font-size:12px; font-weight:600; line-height:1; padding:8px 14px; border-radius:8px; cursor:pointer; user-select:none; border:1px solid transparent; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.92); }
+moz-button.mozbtn:hover { filter:brightness(1.14); }
+moz-button.mozbtn[data-type="primary"] { background:#2f6fd0; color:#fff; }
+moz-button.mozbtn[data-type="ghost"] { background:transparent; border-color:rgba(255,255,255,0.22); color:rgba(255,255,255,0.82); }
+moz-button.mozbtn[data-type="destructive"] { background:transparent; border-color:rgba(255,109,129,0.5); color:#ff9aa8; }
+moz-button.mozbtn:focus-visible, moz-toggle.moztoggle:focus-visible { outline:2px solid #9ec8ff; outline-offset:2px; }
+moz-toggle.moztoggle { width:34px; height:20px; border-radius:99px; flex-shrink:0; background:rgba(255,255,255,0.2); position:relative; cursor:pointer; display:inline-block; transition:background var(--d-quick) var(--ease-settle); }
+moz-toggle.moztoggle::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform var(--d-quick) var(--ease-settle); }
+moz-toggle.moztoggle[pressed] { background:#2f6fd0; }
+moz-toggle.moztoggle[pressed]::after { transform:translateX(14px); }
 </style>
 
 <div class="browser">
@@ -687,6 +727,43 @@ const S = {
 function log(text) { S.activity.unshift({ day: S.day, text }); }
 function hubUnlocked() { return S.watches.length + S.reports.filter(r => r.status === "done").length >= 2; }
 const $ = id => document.getElementById(id);
+
+/* Minimal faithful stand-ins for Firefox's reusable components (moz-button,
+   moz-card, moz-toggle) — light DOM, design-system API surface (type, pressed,
+   heading). Used in Concept E's Den so it's built from moz-* components. */
+(function(){
+  if (customElements.get('moz-button')) return;
+  customElements.define('moz-button', class extends HTMLElement {
+    connectedCallback(){
+      if (this._wired) return; this._wired = true;
+      this.classList.add('mozbtn'); this.setAttribute('role','button');
+      if (!this.hasAttribute('tabindex')) this.tabIndex = 0;
+      this.dataset.type = this.getAttribute('type') || 'default';
+      const label = this.getAttribute('label');
+      if (label && !this.textContent.trim()) this.textContent = label;
+      this.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); } });
+    }
+  });
+  customElements.define('moz-card', class extends HTMLElement {
+    connectedCallback(){
+      this.classList.add('mozcard');
+      const h = this.getAttribute('heading');
+      if (h && !this._h) { this._h = document.createElement('div'); this._h.className = 'mozcard-heading'; this.prepend(this._h); this._h.textContent = h; }
+    }
+  });
+  customElements.define('moz-toggle', class extends HTMLElement {
+    connectedCallback(){
+      if (this._wired) return; this._wired = true;
+      this.classList.add('moztoggle'); this.setAttribute('role','switch');
+      if (!this.hasAttribute('tabindex')) this.tabIndex = 0;
+      const sync = () => this.setAttribute('aria-checked', this.hasAttribute('pressed') ? 'true' : 'false');
+      const flip = () => { this.toggleAttribute('pressed'); sync(); this.dispatchEvent(new CustomEvent('toggle', { bubbles: true })); };
+      sync();
+      this.addEventListener('click', flip);
+      this.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+    }
+  });
+})();
 const fmt = p => "$" + (p % 1 ? p.toFixed(2) : p);
 const esc = s => s.replace(/</g, "&lt;");
 const eyeGlyph = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c2-4.5 10-4.5 12 0-2 4.5-10 4.5-12 0z"/><circle cx="8" cy="8" r="1.6"/></svg>';
@@ -1543,9 +1620,13 @@ function attachSlash(wrapId, inputId) {
     if (input.value === "/") {
       if (pop) return;
       pop = el(`<div class="slash-pop">
-        <div class="slash-item" data-s="watch"><div class="so-glyph">${eyeGlyph}</div><div><div class="si-name"><code>/watch</code>Watch</div><div class="si-desc">Keep an eye on this page until a condition is met</div></div></div>
+        <div class="slash-item" data-s="watch"><div class="so-glyph">${eyeGlyph}</div><div><div class="si-name"><code>/watch</code>Page check</div><div class="si-desc">Re-check this page until a condition is met</div></div></div>
+        <div class="slash-item" data-s="track"><div class="so-glyph">${eyeGlyph}</div><div><div class="si-name"><code>/track</code>Cross-site search</div><div class="si-desc">Search several retailers on a schedule</div></div></div>
+        <div class="slash-item" data-s="find"><div class="so-glyph">${eyeGlyph}</div><div><div class="si-name"><code>/find</code>One-time find</div><div class="si-desc">Sweep sites once for a coupon or deal</div></div></div>
         <div class="slash-item" data-s="research"><div class="so-glyph report">${repGlyph}</div><div><div class="si-name"><code>/research</code>Research</div><div class="si-desc">Compare options and keep a report</div></div></div></div>`);
-      pop.querySelector('[data-s="watch"]').onclick = () => { close(); input.value = ""; submit(S.activeTab === "sw" ? "Watch something new for me" : "Watch this for me"); };
+      pop.querySelector('[data-s="watch"]').onclick = () => { close(); input.value = ""; submit(S.activeTab === "sw" ? "Watch something new for me" : "Watch this page for me"); };
+      pop.querySelector('[data-s="track"]').onclick = () => { close(); input.value = ""; submit("Watch this price across all the major retailers"); };
+      pop.querySelector('[data-s="find"]').onclick = () => { close(); input.value = ""; submit("Find the best coupon code for this deal"); };
       pop.querySelector('[data-s="research"]').onclick = () => { close(); input.value = ""; submit("Help me pick ANC headphones under $100"); };
       if (wrapId === "tbWrap") { pop.style.bottom = "auto"; pop.style.top = "calc(100% + 6px)"; }
       wrap.style.position = "relative"; wrap.appendChild(pop);
@@ -1712,6 +1793,45 @@ function renderNtAgents(){
   n.onclick=()=>{ S.hubVisited=true; go('hub'); };
 }
 
+/* ── Concept E: watch modes + Den library ── */
+const MONITOR_LIMIT = 5;
+const MODE_LABEL = { 'page-check':'Page check', 'cross-search':'Cross-site search', 'one-time':'One-time find' };
+function watchMode(w){
+  if (w.mode) return w.mode;
+  if (w.status === 'done' || w.oneTime) return 'one-time';
+  if ((w.retailers || 1) > 1) return 'cross-search';
+  return 'page-check';
+}
+const skillGlyph = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 4.1L14 5.6l-3 3 .8 4.4L8 11l-3.8 2 .8-4.4-3-3 4.2-.5z"/></svg>';
+const presetGlyph = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5h10M3 8h10M3 11.5h10"/></svg>';
+function seedDenLibrary(){
+  S.prompts = [
+    { id:'p1', title:'Summarize this page', body:'Give me 5 bullets and any action items from the open page.' },
+    { id:'p2', title:'Compare my open tabs', body:'Compare the products in my tabs on price, reviews, and warranty.' },
+    { id:'p3', title:'Draft a friendly reply', body:'Write a warm, concise reply to the selected message.' },
+  ];
+  S.skills = [
+    { id:'s1', name:'Page Watch', desc:'Re-checks one page, pings you on change', on:true },
+    { id:'s2', name:'Price Hunter', desc:'Searches multiple retailers on a schedule', on:true },
+    { id:'s3', name:'Coupon Scout', desc:'One-time sweep for working promo codes', on:true },
+    { id:'s4', name:'Research Report', desc:'Compares options and writes a report', on:false },
+  ];
+  S.presets = [
+    { id:'c1', name:'Explain like I’m 5', desc:'Rewrite the selection in plain language' },
+    { id:'c2', name:'Make it concise', desc:'Tighten the selection by half' },
+    { id:'c3', name:'Translate to Japanese', desc:'Translate, keep the tone' },
+  ];
+  const flat = v => () => v;
+  // an archived den so all three watch modes + edge states are visible at a glance
+  S.watches.push(
+    { id:9001, chat:'archived', title:'PS5 restock — Aurora store', source:'Aurora', kind:'generic', mode:'page-check', target:null, semantic:['back in my size'], price:0, history:[0,0,0,0,0,0], retailers:1, status:'live', createdDay:S.day, checked:'12 min ago', path:flat(0) },
+    { id:9002, chat:'archived', title:'Standing desk under $500', source:'DeskWorks', kind:'generic', mode:'cross-search', target:500, semantic:[], price:540, history:[579,571,560,554,548,540], retailers:5, status:'live', createdDay:S.day, checked:'just now', path:flat(540) },
+    { id:9003, chat:'archived', title:'Coupon for Aurora ANC', source:'8 sources', kind:'generic', mode:'one-time', target:null, semantic:[], price:0, history:[], retailers:8, status:'done', createdDay:S.day, checked:'2 days ago', result:'SAVE12 — 12% off, verified at checkout' },
+    { id:9004, chat:'archived', title:'Fuji Rock resale tickets', source:'TicketResale', kind:'generic', mode:'page-check', target:null, semantic:['face value only'], price:0, history:[0,0,0], retailers:1, status:'blocked', createdDay:S.day, checked:'55 min ago', blockedReason:'it blocks automated access — Firefox couldn’t read it on the last 3 checks.' }
+  );
+  S.id = Math.max(S.id, 9200);
+}
+
 /* ── Firefox View (A: Chats · E: Agents) ── */
 function renderFxv(){
   $("fxvChatsItem").classList.toggle('active', S.fxvMode==='chats');
@@ -1728,31 +1848,59 @@ function renderFxv(){
   } else {
     const chats = [...new Set([...S.watches, ...S.reports].map(o=>o.chat||'sb'))];
     const label = c => c==='sw' ? 'Smart Window chat' : c==='archived' ? 'Earlier chats' : 'This conversation';
-    m.innerHTML=`<h1>Dens</h1><div style="font-size:12px;color:rgba(255,255,255,0.5);margin:-8px 0 16px">Every chat keeps a den — its watches, reports, and generated tabs live here as children of that conversation.</div>` +
-      (chats.length ? chats.map(c=>{
-        const ws=S.watches.filter(w=>(w.chat||'sb')===c), rs=S.reports.filter(r=>(r.chat||'sb')===c);
-        return `<div class="fxv-sec" style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:8px;background:rgba(151,110,255,0.2);display:inline-flex;align-items:center;justify-content:center">${ICONS.eye}</span>Den · ${label(c)} <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400">${ws.length+rs.length} item${ws.length+rs.length===1?'':'s'}</span></div>` +
-        ws.map(w=>{
-          const checks=w.history.length;
-          return `<div class="agent-bigcard" data-id="${w.id}">
-          <div class="ab-t"><span class="ab-dot${w.status==='met'?' met':''}"></span>${w.title} <span style="font-size:9.5px;font-weight:700;letter-spacing:0.5px;color:rgba(255,255,255,0.4);margin-left:4px">MONITOR</span></div>
+    const modeTag = w => `<span class="mode-tag m-${watchMode(w)}">${MODE_LABEL[watchMode(w)]}</span>`;
+    const denCard = w => {
+      const checks=w.history.length;
+      if(w.status==='blocked') return `<div class="agent-bigcard" data-id="${w.id}">
+          <div class="ab-t"><span class="ab-dot blocked"></span>${w.title} ${modeTag(w)}</div>
+          <div class="ab-rule">${w.semantic.length?w.semantic.join(' · '):'Watching this page'}</div>
+          <div class="ab-acts"><span data-aa="check">Retry now</span><span data-aa="open">Open page</span><span class="del" data-aa="del">Delete</span></div>
+          <div class="block-strip">⚠ <span><b>Can’t read this page</b> — ${w.blockedReason||'it blocks automated access.'}</span></div>
+        </div>`;
+      if(watchMode(w)==='one-time') return `<div class="agent-bigcard" data-id="${w.id}">
+          <div class="ab-t"><span class="ab-dot met"></span>${w.title} ${modeTag(w)}</div>
+          <div class="ab-rule">One-time search · ${w.retailers||1} source${(w.retailers||1)===1?'':'s'} · finished ${w.checked}</div>
+          <div class="ab-acts"><span data-aa="check">Run again</span><span data-aa="open">Open page</span><span class="del" data-aa="del">Delete</span></div>
+          ${w.result?`<div class="find-strip">🏷 <span><b>Found ${w.result.split(' — ')[0]}</b> — ${w.result.split(' — ').slice(1).join(' — ')}</span><button class="go" data-aa="open2">Open page</button></div>`:''}
+        </div>`;
+      return `<div class="agent-bigcard" data-id="${w.id}">
+          <div class="ab-t"><span class="ab-dot${w.status==='met'?' met':''}"></span>${w.title} ${modeTag(w)}</div>
           <div class="ab-rule">${w.target?'Alert when the price drops below <b>$'+w.target+'</b>':''} ${w.semantic.length?'· '+w.semantic.join(' · '):''}</div>
           <div class="ab-meta"><span class="chkdots">${Array.from({length:12},(_,i)=>`<span style="${i<checks?'background:'+(w.status==='met'&&i===checks-1?'#7fe07a':'rgba(255,255,255,0.45)'):''}"></span>`).join('')}</span>
           <span>${checks} check${checks===1?'':'s'} · last check ${w.checked} · ${w.retailers||1} site${(w.retailers||1)===1?'':'s'}</span></div>
           <div class="ab-acts"><span data-aa="check">Check now</span><span data-aa="pause">${w.status==='paused'?'Resume':'Pause'}</span>${(w.kind==='fare'?S.activeTab!=='flights':S.activeTab!=='soundhub')?'<span data-aa="open">Open page</span>':''}<span class="del" data-aa="del">Delete</span></div>
           ${w.status==='met'?`<div class="alert-strip">↘ <span><b>Dropped to ${fmt(w.price)}</b> — ${w.target?Math.round((1-w.price/w.target)*100)+'% below your target':'condition met'}</span><button class="go" data-aa="open2">Open page</button></div>`:''}
-        </div>`;}).join('') +
+        </div>`;
+    };
+    const recurring = S.watches.filter(w=>w.status!=='done').length;
+    const limitBanner = recurring>=MONITOR_LIMIT ? `<div class="den-limit">⚠ Monitoring limit reached (${recurring}/${MONITOR_LIMIT}) — pause or delete a watch before adding another.</div>` : '';
+    const lib = (S.prompts && S.prompts.length) ? `
+      <div class="fxv-sec" style="margin-top:30px">Saved prompts <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400">${S.prompts.length}</span></div>
+      <div class="den-grid">${S.prompts.map(p=>`<moz-card class="den-card"><span class="dc-glyph">${repGlyph}</span><div class="dc-body"><div class="dc-title">${p.title}</div><div class="dc-sub">${p.body}</div></div></moz-card>`).join('')}</div>
+      <div class="fxv-sec" style="margin-top:24px">Skills <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400">${S.skills.length}</span></div>
+      <div class="den-grid">${S.skills.map(s=>`<moz-card class="den-card"><span class="dc-glyph">${skillGlyph}</span><div class="dc-body"><div class="dc-title">${s.name}</div><div class="dc-sub">${s.desc}</div></div><moz-toggle${s.on?' pressed':''} data-skill-sw="${s.id}" label="${s.name}"></moz-toggle></moz-card>`).join('')}</div>
+      <div class="fxv-sec" style="margin-top:24px">Smart cursor presets <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400">${S.presets.length}</span></div>
+      <div class="den-grid">${S.presets.map(p=>`<moz-card class="den-card"><span class="dc-glyph">${presetGlyph}</span><div class="dc-body"><div class="dc-title">${p.name}</div><div class="dc-sub">${p.desc}</div></div></moz-card>`).join('')}</div>` : '';
+    m.innerHTML=`<h1>Dens</h1><div class="den-framing"><b>Created</b> from chat or a <b>/</b> command — <b>they live here</b>, in Firefox View beside Chats. Watches, reports, prompts, skills and presets in one durable home.</div><div style="margin:0 0 18px"><moz-button type="primary" id="denNew">+ New watch</moz-button></div>${limitBanner}` +
+      (chats.length ? chats.map(c=>{
+        const ws=S.watches.filter(w=>(w.chat||'sb')===c), rs=S.reports.filter(r=>(r.chat||'sb')===c);
+        return `<div class="fxv-sec" style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:8px;background:rgba(151,110,255,0.2);display:inline-flex;align-items:center;justify-content:center">${ICONS.eye}</span>Den · ${label(c)} <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400">${ws.length+rs.length} item${ws.length+rs.length===1?'':'s'}</span></div>` +
+        ws.map(denCard).join('') +
         rs.map(r=>`<div class="agent-bigcard" style="cursor:pointer" data-r="${r.id}"><div class="ab-t">📄 ${r.title} <span style="font-size:9.5px;font-weight:700;letter-spacing:0.5px;color:rgba(255,255,255,0.4);margin-left:4px">${r.weekly?'GEN TAB':'REPORT'}</span></div><div class="ab-rule">${r.status==='working'?'working…':'finished · opens with its chat attached'}</div></div>`).join('');
       }).join('') : '<div style="font-size:13px;color:rgba(255,255,255,0.5)">No dens yet — ask Smart Window to watch or research something, and its chat\u2019s den appears here.</div>');
+    m.insertAdjacentHTML('beforeend', lib);
     m.querySelectorAll('.agent-bigcard[data-id]').forEach(card=>{
       const w=S.watches.find(x=>x.id==card.dataset.id);
-      card.querySelector('[data-aa="check"]').onclick=()=>{ w.history.push(w.price); w.checked='just now'; renderFxv(); };
-      card.querySelector('[data-aa="pause"]').onclick=()=>{ w.status=w.status==='paused'?'live':'paused'; renderFxv(); };
-      const op=card.querySelector('[data-aa="open"]'); if(op) op.onclick=()=>go(w.kind==='fare'?'flights':'soundhub');
-      const op2=card.querySelector('[data-aa="open2"]'); if(op2) op2.onclick=()=>go(w.kind==='fare'?'flights':'soundhub');
-      card.querySelector('[data-aa="del"]').onclick=()=>{ S.watches=S.watches.filter(x=>x!==w); renderFxv(); renderAll(); };
+      const q=s=>card.querySelector(`[data-aa="${s}"]`);
+      const chk=q('check'); if(chk) chk.onclick=()=>{ if(w.price!=null) w.history.push(w.price); w.checked='just now'; renderFxv(); };
+      const ps=q('pause'); if(ps) ps.onclick=()=>{ w.status=w.status==='paused'?'live':'paused'; renderFxv(); };
+      const op=q('open'); if(op) op.onclick=()=>go(w.kind==='fare'?'flights':'soundhub');
+      const op2=q('open2'); if(op2) op2.onclick=()=>go(w.kind==='fare'?'flights':'soundhub');
+      const dl=q('del'); if(dl) dl.onclick=()=>{ S.watches=S.watches.filter(x=>x!==w); renderFxv(); renderAll(); };
     });
     m.querySelectorAll('[data-r]').forEach(c=>c.onclick=()=>openReport(+c.dataset.r));
+    m.querySelectorAll('[data-skill-sw]').forEach(sw=>sw.addEventListener('toggle',()=>{ const s=S.skills.find(x=>x.id===sw.dataset.skillSw); if(s){ s.on=sw.hasAttribute('pressed'); renderFxv(); } }));
+    const dn=$("denNew"); if(dn) dn.onclick=()=>{ go('sw'); const i=$("swInput"); if(i){ i.value='/'; i.dispatchEvent(new Event('input')); i.focus(); } };
     S.watches.forEach(w=>w.seen=true);
   }
 }
@@ -1788,6 +1936,9 @@ if(_qc && ['A','B','C','D','E','F'].includes(_qc.toUpperCase())){
   S.concept=_qc.toUpperCase();
   document.querySelectorAll('.cbtn').forEach(x=>x.classList.toggle('cbtn-on',x.dataset.c===S.concept));
 }
+/* Concept E/F: seed the full Den library (prompts/skills/presets) + an archived
+   den that shows all three watch modes and the blocked-page edge state. */
+if(['E','F'].includes(S.concept)) seedDenLibrary();
 /* one color per concept — same coding as the analysis page, for wayfinding */
 const CONCEPT_COLOR={A:'#9959FF',B:'#e66000',C:'#058b00',D:'#ED49AE',E:'#14b8a6',F:'#f59e0b'};
 const _onBtn=document.querySelector('.cbtn-on');
