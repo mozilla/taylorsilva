@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firefox Smart Window — Memory starters</title>
+<style>
+  :root {
+    --chrome-bg: #1c1b22;
+    --tab-active-bg: #42414d;
+    --tab-hover-bg: rgba(251,251,254,.07);
+    --urlbar-bg: #1c1b22;
+    --toolbar-bg: #2b2a33;
+    --text-primary: #fbfbfe;
+    --text-secondary: #cfc7e8;
+    --text-deemphasized: #9d93bd;
+    --border-color: rgba(251,251,254,.09);
+    --icon-color: #cfcfd8;
+    --sw-bg1: #2b1a43;
+    --sw-bg2: #1a0f2b;
+    --sw-card: #241d38;
+    --sw-card-border: rgba(158,120,255,.28);
+    --sw-input: #131022;
+    --sw-pill: #262038;
+    --sw-purple: #9e78ff;
+    --sw-lavender: #cbb8f5;
+    --sw-pink: #e35ba8;
+    --sw-amber: #ffb45c;
+    --chip-border: rgba(158,120,255,.45);
+    --live: #3fe1b0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--chrome-bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .window { display: flex; flex-direction: column; height: 100vh; }
+
+  /* ============ Tab strip ============ */
+  .tab-strip {
+    display: flex; align-items: center;
+    height: 44px; padding: 6px 8px 0;
+    background: var(--chrome-bg); gap: 2px;
+  }
+  .traffic-lights { display: flex; gap: 8px; padding: 0 12px 6px 8px; flex-shrink: 0; }
+  .traffic-lights span { width: 12px; height: 12px; border-radius: 50%; }
+  .tl-close { background: #ff5f57; } .tl-min { background: #febc2e; } .tl-max { background: #28c840; }
+
+  .tabs { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; height: 100%; }
+
+  .tab {
+    display: flex; align-items: center; gap: 7px;
+    height: 34px; padding: 0 10px;
+    min-width: 36px; max-width: 200px; flex: 0 1 auto;
+    border-radius: 8px 8px 0 0;
+    cursor: default; user-select: none; overflow: hidden;
+    transition: background .15s ease;
+  }
+  .tab:hover:not(.active) { background: var(--tab-hover-bg); border-radius: 8px; height: 30px; }
+  .tab.active { background: var(--tab-active-bg); }
+  .tab .tab-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+  .tab .favicon { flex-shrink: 0; }
+
+  .favicon {
+    width: 16px; height: 16px; border-radius: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #fff;
+  }
+
+  .new-tab-btn {
+    width: 30px; height: 30px; border: none; background: none; border-radius: 6px;
+    color: var(--icon-color); font-size: 16px; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .new-tab-btn:hover { background: var(--tab-hover-bg); }
+
+  .tab-group {
+    display: flex; align-items: center; gap: 2px;
+    height: 100%; min-width: 0; flex: 0 1 auto;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .4s cubic-bezier(.22,1,.36,1), transform .4s cubic-bezier(.22,1,.36,1);
+  }
+  .tab-group.in { opacity: 1; transform: translateY(0); }
+  .tab-group.leaving { opacity: 0; transform: translateY(6px); }
+  .group-label {
+    display: flex; align-items: center;
+    height: 22px; padding: 0 9px; margin: 0 3px;
+    border-radius: 5px; font-size: 11px; font-weight: 600; color: #fff;
+    white-space: nowrap; flex-shrink: 0; align-self: center;
+  }
+  .tab-group .tab {
+    opacity: 0; transform: translateY(5px);
+    transition: opacity .35s cubic-bezier(.22,1,.36,1), transform .35s cubic-bezier(.22,1,.36,1), background .15s ease;
+  }
+  .tab-group.in .tab { opacity: 1; transform: translateY(0); }
+
+  /* ============ Toolbar ============ */
+  .toolbar {
+    display: flex; align-items: center; gap: 4px;
+    height: 44px; padding: 0 10px;
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--border-color);
+  }
+  .tool-btn {
+    width: 32px; height: 32px; border: none; background: none; border-radius: 6px;
+    color: var(--icon-color); cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tool-btn:hover { background: var(--tab-hover-bg); }
+  .tool-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .tool-btn.disabled { opacity: .4; pointer-events: none; }
+  .urlbar {
+    flex: 1; display: flex; align-items: center; gap: 8px;
+    height: 32px; margin: 0 6px; padding: 0 12px;
+    background: var(--urlbar-bg); border-radius: 8px;
+    color: var(--text-deemphasized); font-size: 13px;
+  }
+  .urlbar svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; flex-shrink: 0; }
+  .urlbar .url-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .urlbar .url-text .domain { color: var(--text-primary); }
+
+  /* ============ Smart Window page ============ */
+  .sw-page {
+    flex: 1; min-height: 0; overflow-y: auto;
+    background:
+      radial-gradient(1200px 700px at 20% -10%, rgba(158,120,255,.16), transparent 60%),
+      radial-gradient(1000px 600px at 85% 110%, rgba(227,91,168,.10), transparent 60%),
+      linear-gradient(155deg, var(--sw-bg1), var(--sw-bg2) 70%);
+  }
+  .sw-inner {
+    max-width: 980px; margin: 0 auto;
+    padding: calc(7vh + 80px) 32px 60px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* Logo */
+  .sw-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 34px; }
+  .sw-logo svg { width: 44px; height: 44px; }
+  .sw-logo .name { font-size: 30px; font-weight: 500; color: var(--sw-lavender); letter-spacing: .2px; }
+  .sw-logo .beta {
+    font-size: 12px; font-weight: 600; color: var(--sw-lavender);
+    border: 1px solid rgba(203,184,245,.5); border-radius: 8px;
+    padding: 3px 9px; letter-spacing: .8px; margin-left: 2px;
+  }
+
+  /* Glowing input */
+  .sw-input-wrap {
+    width: min(760px, 100%);
+    border-radius: 22px; padding: 1.5px;
+    background: linear-gradient(100deg, #8a63ff, #c86dd7 45%, #e35ba8 70%, #ffb45c);
+    box-shadow:
+      -40px 10px 110px rgba(138,99,255,.30),
+      40px 30px 110px rgba(255,180,92,.16),
+      0 6px 40px rgba(0,0,0,.35);
+    margin-bottom: 30px;
+    transition: box-shadow .3s ease;
+  }
+  .sw-input-wrap:focus-within {
+    box-shadow:
+      -40px 10px 130px rgba(138,99,255,.42),
+      40px 30px 130px rgba(255,180,92,.24),
+      0 6px 40px rgba(0,0,0,.35);
+  }
+  .sw-input {
+    background: var(--sw-input); border-radius: 21px;
+    padding: 22px 22px 14px;
+  }
+  .sw-input input {
+    width: 100%; border: none; outline: none; background: none;
+    font-size: 19px; color: var(--text-primary); font-family: inherit;
+    margin-bottom: 22px;
+  }
+  .sw-input input::placeholder { color: #b7aed4; opacity: .85; }
+  .sw-input-row { display: flex; align-items: center; gap: 10px; }
+  .sw-ic-btn {
+    width: 32px; height: 32px; border: none; background: none; border-radius: 8px;
+    color: #cfc7e8; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sw-ic-btn:hover { background: rgba(251,251,254,.07); }
+  .sw-ic-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .sw-spacer { flex: 1; }
+  .sw-mode {
+    display: flex; align-items: center; gap: 7px;
+    height: 38px; padding: 0 16px; border: none; border-radius: 12px;
+    background: var(--sw-pill); color: var(--text-primary);
+    font-size: 15px; font-family: inherit; cursor: pointer;
+  }
+  .sw-mode:hover { background: #2f2842; }
+  .sw-mode svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .sw-send {
+    width: 46px; height: 38px; border: none; border-radius: 12px;
+    background: #322c46; color: #b7aed4; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sw-send:hover { background: #3c3554; color: #fff; }
+  .sw-send svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ============ Memory starter chips ============ */
+  .sw-memory-label {
+    font-size: 12px; font-weight: 600; color: var(--text-deemphasized);
+    letter-spacing: .3px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+    transition: opacity .3s ease, transform .35s cubic-bezier(.22,1,.36,1);
+  }
+  .sw-memory-label svg { width: 12px; height: 12px; fill: var(--sw-purple); }
+
+  .sw-chips {
+    display: flex; flex-wrap: nowrap; justify-content: center; gap: 10px;
+    margin-bottom: 40px; max-width: 100%;
+    transition: opacity .3s ease, transform .35s cubic-bezier(.22,1,.36,1);
+  }
+  .sw-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 14px;
+    background: rgba(31,26,46,.9);
+    border: 1px solid var(--chip-border);
+    box-shadow: 0 0 18px rgba(138,99,255,.14);
+    color: var(--text-primary); font-size: 13.5px; font-weight: 500;
+    font-family: inherit; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease, border-color .2s ease;
+  }
+  .sw-chip:hover {
+    transform: translateY(-2px);
+    border-color: var(--sw-purple);
+    box-shadow: 0 0 26px rgba(138,99,255,.30);
+  }
+  .sw-chip .chip-ic { width: 15px; height: 15px; flex-shrink: 0; }
+  .sw-chip .chip-sub { font-size: 11.5px; color: var(--text-deemphasized); font-weight: 500; }
+
+  /* Journey chips rest like normal chips; the gradient only appears on hover */
+  .sw-chip.primary {
+    padding: 1.5px; background: var(--chip-border); border: none;
+    box-shadow: 0 0 18px rgba(138,99,255,.14);
+    transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease, background .2s ease;
+  }
+  .sw-chip.primary .chip-inner {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 13px; border-radius: 13px;
+    background: #201936; white-space: nowrap;
+  }
+  .sw-chip.primary:hover {
+    background: linear-gradient(100deg, #8a63ff, #e35ba8 60%, #ffb45c);
+    box-shadow: 0 0 36px rgba(138,99,255,.45);
+  }
+
+  .sw-hidden { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+  /* ============ Session picker cards ============ */
+  .sw-cards {
+    display: flex; gap: 16px; justify-content: center; align-items: flex-start;
+    margin-bottom: 40px; width: 100%;
+  }
+  .sw-cards.sw-gone { display: none; }
+  .sw-card {
+    width: 300px; text-align: left;
+    display: flex; flex-direction: column; align-items: flex-start;
+    background: var(--sw-card);
+    border: 1px solid var(--sw-card-border);
+    border-radius: 16px; padding: 16px 18px;
+    font-family: inherit; color: var(--text-primary); cursor: pointer;
+    opacity: 0; transform: translateY(14px);
+    transition: opacity .4s ease, transform .45s cubic-bezier(.22,1,.36,1),
+                box-shadow .25s ease, border-color .2s ease;
+  }
+  .sw-card.in { opacity: 1; transform: translateY(0); }
+  .sw-card:hover {
+    border-color: var(--sw-purple);
+    box-shadow: 0 0 30px rgba(138,99,255,.22);
+    transform: translateY(-3px);
+  }
+  .sw-card .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; width: 100%; }
+  .sw-card .card-title { font-size: 14.5px; font-weight: 600; }
+  .sw-card .card-meta { font-size: 11px; color: var(--text-deemphasized); white-space: nowrap; }
+  .sw-card .card-summary { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px; }
+  .sw-card ul { list-style: none; margin-bottom: 11px; }
+  .sw-card li {
+    font-size: 11.5px; color: var(--text-secondary); line-height: 1.45;
+    padding: 3px 0 3px 15px; position: relative;
+  }
+  .sw-card li::before {
+    content: ""; position: absolute; left: 2px; top: 9px;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--group-dot, var(--sw-purple)); opacity: .7;
+  }
+  .favicon-row { display: flex; }
+  .favicon-row .favicon {
+    width: 20px; height: 20px; border-radius: 5px; font-size: 10px;
+    border: 2px solid var(--sw-card); margin-left: -5px;
+  }
+  .favicon-row .favicon:first-child { margin-left: 0; }
+  .favicon-row .more {
+    width: 20px; height: 20px; border-radius: 5px; margin-left: -5px;
+    background: rgba(251,251,254,.08); color: var(--text-secondary);
+    border: 2px solid var(--sw-card);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 600;
+  }
+
+  /* ============ Conversation thread ============ */
+  .sw-thread { width: min(760px, 100%); }
+  .sw-msg-user {
+    display: flex; justify-content: flex-end; margin-bottom: 18px;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .35s ease, transform .4s cubic-bezier(.22,1,.36,1);
+  }
+  .sw-msg-user.in { opacity: 1; transform: translateY(0); }
+  .sw-msg-user .u-bubble {
+    background: var(--sw-pill); border: 1px solid rgba(158,120,255,.25);
+    border-radius: 16px 16px 4px 16px; padding: 10px 16px;
+    font-size: 14px; max-width: 75%;
+  }
+  .sw-msg-ai { display: flex; gap: 12px; margin-bottom: 22px; }
+  .sw-msg-ai .avatar { width: 26px; height: 26px; flex-shrink: 0; margin-top: 2px; }
+  .sw-msg-ai .bubble { flex: 1; min-width: 0; }
+  .group-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 12px; border-radius: 9px;
+    background: rgba(251,251,254,.07); font-size: 12px; font-weight: 600;
+    margin-bottom: 12px;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .35s ease, transform .4s cubic-bezier(.22,1,.36,1);
+  }
+  .group-pill.in { opacity: 1; transform: translateY(0); }
+  .group-pill .dot { width: 8px; height: 8px; border-radius: 3px; }
+  .sw-msg-ai p {
+    font-size: 14px; line-height: 1.6; color: var(--text-primary);
+    margin-bottom: 11px;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .45s ease, transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .sw-msg-ai p.in { opacity: 1; transform: translateY(0); }
+  .sw-msg-ai p strong { font-weight: 600; }
+  .sw-msg-ai p .muted { color: var(--text-deemphasized); }
+  .next-chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 6px; }
+  .next-chip {
+    border: 1px solid var(--chip-border); background: rgba(31,26,46,.9);
+    color: var(--text-primary); font-size: 12.5px; font-weight: 500;
+    padding: 8px 14px; border-radius: 16px; cursor: pointer; font-family: inherit;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .4s ease, transform .45s cubic-bezier(.22,1,.36,1),
+                border-color .2s ease, box-shadow .25s ease;
+  }
+  .next-chip.in { opacity: 1; transform: translateY(0); }
+  .next-chip:hover { border-color: var(--sw-purple); box-shadow: 0 0 18px rgba(138,99,255,.25); }
+
+  .sw-reset {
+    border: none; background: none; color: var(--text-deemphasized);
+    font-size: 12px; font-family: inherit; cursor: pointer;
+    margin-top: 4px; padding: 6px 10px; border-radius: 8px;
+    opacity: 0; transition: opacity .4s ease .8s, background .15s ease;
+  }
+  .sw-reset.in { opacity: 1; }
+  .sw-reset:hover { background: rgba(251,251,254,.06); color: var(--text-primary); }
+
+  /* ============ Shortcuts ============ */
+  .sw-shortcuts {
+    display: flex; gap: 26px; justify-content: center; flex-wrap: wrap;
+    transition: opacity .3s ease, transform .35s cubic-bezier(.22,1,.36,1);
+  }
+  .sw-shortcut { display: flex; flex-direction: column; align-items: center; gap: 9px; width: 86px; cursor: pointer; }
+  .sw-shortcut .tile {
+    width: 62px; height: 62px; border-radius: 16px;
+    background: #262233; border: 1px solid rgba(251,251,254,.06);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease;
+  }
+  .sw-shortcut:hover .tile { transform: translateY(-2px); box-shadow: 0 0 22px rgba(138,99,255,.18); }
+  .sw-shortcut .tile .favicon { width: 30px; height: 30px; border-radius: 8px; font-size: 14px; }
+  .sw-shortcut .name {
+    font-size: 12.5px; color: var(--sw-lavender);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 86px;
+  }
+
+  /* ============ Full page chat (prompts that do not open tabs) ============ */
+  .fullchat {
+    position: absolute; top: 89px; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: flex; flex-direction: column; align-items: center;
+    background:
+      radial-gradient(1200px 700px at 20% -10%, rgba(158,120,255,.16), transparent 60%),
+      radial-gradient(1000px 600px at 85% 110%, rgba(227,91,168,.10), transparent 60%),
+      linear-gradient(155deg, var(--sw-bg1), var(--sw-bg2) 70%);
+    opacity: 0; transform: translateY(14px); pointer-events: none;
+    transition: opacity .4s ease, transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .fullchat.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .fc-rail {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 52px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px 0; gap: 8px;
+  }
+  .fc-rail button {
+    width: 32px; height: 32px; border: none; background: none; border-radius: 8px;
+    color: #cfc7e8; opacity: .75; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fc-rail button:hover { background: rgba(251,251,254,.07); opacity: 1; }
+  .fc-rail button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fc-rail .rail-bottom { margin-top: auto; }
+
+  .fc-new {
+    position: absolute; top: 18px; right: 20px;
+    width: 34px; height: 34px; border: none; background: none; border-radius: 8px;
+    color: #cfc7e8; cursor: pointer; opacity: .85;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fc-new:hover { background: rgba(251,251,254,.08); opacity: 1; }
+  .fc-new svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  .fc-scroll {
+    flex: 1; width: min(820px, calc(100% - 140px));
+    overflow-y: auto; padding: 34px 0 20px; min-height: 0;
+  }
+
+  .fc-user {
+    display: flex; justify-content: flex-end; margin-bottom: 30px;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .35s ease, transform .4s cubic-bezier(.22,1,.36,1);
+  }
+  .fc-user.in { opacity: 1; transform: translateY(0); }
+  .fc-user .pill {
+    background: #1d1930; border: 1px solid rgba(251,251,254,.07);
+    border-radius: 12px; padding: 13px 22px;
+    font-size: 15.5px; max-width: 75%;
+    box-shadow: 0 4px 18px rgba(0,0,0,.25);
+  }
+
+  .fc-ai { font-size: 15px; line-height: 1.65; color: var(--text-primary); }
+  .fc-ai p, .fc-ai ul {
+    margin-bottom: 14px;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .45s ease, transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .fc-ai p.in, .fc-ai ul.in { opacity: 1; transform: translateY(0); }
+  .fc-ai ul { margin-left: 24px; }
+  .fc-ai li { margin-bottom: 10px; }
+  .fc-ai strong { font-weight: 600; }
+
+  .fc-actions {
+    display: flex; gap: 4px; margin: 2px 0 26px;
+    opacity: 0; transition: opacity .4s ease;
+  }
+  .fc-actions.in { opacity: 1; }
+  .fc-actions button {
+    width: 28px; height: 28px; border: none; background: none; border-radius: 7px;
+    color: #cfc7e8; opacity: .8; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fc-actions button:hover { background: rgba(251,251,254,.08); opacity: 1; }
+  .fc-actions svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  .fc-sugs { display: flex; flex-direction: column; align-items: flex-start; gap: 13px; }
+  .fc-pill {
+    border: 1px solid rgba(158,120,255,.6); border-radius: 19px;
+    background: rgba(22,16,38,.55);
+    color: #e9e2ff; font-size: 14.5px; font-weight: 500; font-family: inherit;
+    padding: 10px 19px; cursor: pointer;
+    box-shadow: 0 0 16px rgba(138,99,255,.16);
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .4s ease, transform .45s cubic-bezier(.22,1,.36,1),
+                border-color .2s ease, box-shadow .25s ease;
+  }
+  .fc-pill.in { opacity: 1; transform: translateY(0); }
+  .fc-pill:hover { border-color: var(--sw-purple); box-shadow: 0 0 24px rgba(138,99,255,.32); }
+
+  .fc-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14.5px; font-weight: 600; color: var(--text-primary);
+    margin-bottom: 16px; cursor: default;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .35s ease, transform .4s cubic-bezier(.22,1,.36,1);
+  }
+  .fc-status.in { opacity: 1; transform: translateY(0); }
+  .fc-status .st-spark { width: 16px; height: 16px; fill: var(--sw-purple); flex-shrink: 0; }
+  .fc-status .st-chev { width: 11px; height: 11px; fill: none; stroke: var(--text-deemphasized); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .fc-spinner {
+    width: 17px; height: 17px; border-radius: 50%;
+    border: 2px solid rgba(158,120,255,.25); border-top-color: var(--sw-purple);
+    animation: fcspin .9s linear infinite;
+    margin: 2px 0 22px 3px;
+  }
+  @keyframes fcspin { to { transform: rotate(360deg); } }
+
+  .fc-ai .muted { color: var(--text-deemphasized); }
+  .fc-ai .group-pill { display: inline-flex; }
+
+  /* Send button flips to a stop state while the reply streams */
+  .sw-send .ic-stop { display: none; }
+  .sw-send.streaming { background: transparent; border: 2px solid var(--sw-purple); border-radius: 50%; width: 38px; color: var(--sw-lavender); }
+  .sw-send.streaming .ic-arrow { display: none; }
+  .sw-send.streaming .ic-stop { display: block; width: 10px; height: 10px; }
+
+  .fc-input-zone { display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .fc-input-wrap {
+    width: min(720px, calc(100% - 140px));
+    border-radius: 20px; padding: 1.5px;
+    background: linear-gradient(100deg, #8a63ff, #c86dd7 45%, #e35ba8 70%, #ffb45c);
+    box-shadow: -20px 6px 70px rgba(138,99,255,.28), 20px 14px 70px rgba(255,180,92,.16);
+  }
+  .fc-input { background: var(--sw-input); border-radius: 19px; padding: 16px 16px 12px; }
+  .fc-input input {
+    width: 100%; border: none; outline: none; background: none;
+    font-size: 16px; color: var(--text-primary); font-family: inherit;
+    margin-bottom: 14px;
+  }
+  .fc-input input::placeholder { color: #b7aed4; opacity: .85; }
+  .fc-note { font-size: 12.5px; color: var(--text-deemphasized); margin: 10px 0 16px; }
+
+  /* ============ Site view: a group tab is focused ============ */
+  .site-view {
+    position: absolute; top: 89px; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: flex;
+    opacity: 0; pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .site-view.open { opacity: 1; pointer-events: auto; }
+
+  .site-main { flex: 1; min-width: 0; background: var(--toolbar-bg); padding: 34px 48px; overflow: hidden; }
+  .site-header { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+  .site-header .favicon { width: 28px; height: 28px; border-radius: 7px; font-size: 13px; }
+  .site-header .site-name { font-size: 17px; font-weight: 600; }
+  .skel { background: rgba(251,251,254,.07); border-radius: 8px; margin-bottom: 14px; }
+  .skel.hero { height: 180px; border-radius: 12px; margin-bottom: 26px; }
+  .skel.row { height: 14px; }
+  .skel.w80 { width: 80%; } .skel.w60 { width: 60%; } .skel.w90 { width: 90%; } .skel.w45 { width: 45%; }
+  .skel-cards { display: flex; gap: 16px; margin-top: 26px; }
+  .skel-cards .skel { flex: 1; height: 120px; margin: 0; border-radius: 12px; }
+
+  .jt-sidebar {
+    width: 372px; flex-shrink: 0;
+    background: linear-gradient(170deg, #241a3e, #191128);
+    border-left: 1px solid rgba(158,120,255,.18);
+    display: flex; flex-direction: column;
+    transform: translateX(20px); opacity: 0;
+    transition: transform .5s cubic-bezier(.22,1,.36,1) .05s, opacity .4s ease .05s;
+  }
+  .site-view.open .jt-sidebar { transform: translateX(0); opacity: 1; }
+
+  .jt-head {
+    display: flex; align-items: center; gap: 9px;
+    padding: 14px 16px; border-bottom: 1px solid rgba(158,120,255,.14);
+  }
+  .jt-head .dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .jt-head .jt-title { font-size: 13.5px; font-weight: 600; flex: 1; }
+  .jt-head .jt-scope { font-size: 10.5px; color: var(--text-deemphasized); }
+
+  .jt-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+
+  .jt-divider {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 10.5px; font-weight: 600; letter-spacing: .4px;
+    color: var(--text-deemphasized); text-transform: uppercase;
+    margin: 4px 0 14px;
+  }
+  .jt-divider::before, .jt-divider::after {
+    content: ""; flex: 1; height: 1px; background: rgba(158,120,255,.16);
+  }
+
+  .jt-user { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+  .jt-user .pill {
+    background: #2a2142; border: 1px solid rgba(158,120,255,.2);
+    border-radius: 13px 13px 4px 13px; padding: 8px 13px;
+    font-size: 12.5px; max-width: 82%;
+  }
+  .jt-ai { font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); margin-bottom: 14px; }
+  .jt-ai strong { color: var(--text-primary); font-weight: 600; }
+  .jt-ai .muted { color: var(--text-deemphasized); }
+  .jt-ai .group-pill { display: inline-flex; opacity: 1; transform: none; margin-bottom: 10px; }
+
+  .jt-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .jt-chips .fc-pill { font-size: 12px; padding: 7px 13px; opacity: 1; transform: none; }
+
+  .jt-input-wrap { padding: 12px 14px 14px; border-top: 1px solid rgba(158,120,255,.14); }
+  .jt-input {
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(158,120,255,.3); border-radius: 11px;
+    padding: 9px 12px; background: rgba(19,16,34,.8);
+  }
+  .jt-input input {
+    flex: 1; border: none; outline: none; background: none;
+    font-size: 12.5px; color: var(--text-primary); font-family: inherit;
+  }
+  .jt-input input::placeholder { color: #b7aed4; opacity: .7; }
+
+  .tab-group .tab.active { box-shadow: inset 0 -2px 0 var(--group-color, var(--sw-purple)); background: var(--tab-active-bg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0ms !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="window">
+
+  <!-- Tab strip -->
+  <div class="tab-strip">
+    <div class="traffic-lights"><span class="tl-close"></span><span class="tl-min"></span><span class="tl-max"></span></div>
+    <div class="tabs" id="tabs">
+      <div class="tab" id="preexisting-tab">
+        <span class="favicon" style="background:#003580">B</span>
+        <span class="tab-title">Booking.com | Shibuya hotels</span>
+      </div>
+      <div class="tab active" id="newtab-tab">
+        <svg class="favicon" viewBox="0 0 16 16" style="background:none"><path d="M8 1.5l1.3 3.9 3.9 1.3-3.9 1.3L8 11.9 6.7 8 2.8 6.7l3.9-1.3z" fill="#9e78ff"/></svg>
+        <span class="tab-title">New tab</span>
+      </div>
+    </div>
+    <button class="new-tab-btn" title="Open a new tab">+</button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="tool-btn disabled" id="back-btn" title="Go back"><svg viewBox="0 0 16 16"><path d="M10.5 3.5 6 8l4.5 4.5"/></svg></button>
+    <button class="tool-btn disabled" title="Go forward"><svg viewBox="0 0 16 16"><path d="M5.5 3.5 10 8l-4.5 4.5"/></svg></button>
+    <button class="tool-btn" title="Reload page"><svg viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.8v2.4h-2.4"/></svg></button>
+    <div class="urlbar">
+      <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="m13.5 13.5-3.2-3.2"/></svg>
+      <span class="url-text" id="url-text">Search with Google or enter address</span>
+    </div>
+    <button class="tool-btn" title="Extensions"><svg viewBox="0 0 16 16"><path d="M6 2.8c0-.7.6-1.3 1.3-1.3s1.3.6 1.3 1.3v.7h2.9v2.9h.7c.7 0 1.3.6 1.3 1.3S12.9 9 12.2 9h-.7v2.9H8.6v.7c0 .7-.6 1.3-1.3 1.3S6 13.3 6 12.6v-.7H3.1V9h-.7C1.7 9 1.1 8.4 1.1 7.7s.6-1.3 1.3-1.3h.7V3.5H6v-.7z"/></svg></button>
+    <button class="tool-btn" title="Account"><svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.8 13.5c.9-2.4 2.9-3.7 5.2-3.7s4.3 1.3 5.2 3.7"/></svg></button>
+    <button class="tool-btn" title="Open application menu"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button>
+  </div>
+
+  <!-- Smart Window page -->
+  <div class="sw-page">
+    <div class="sw-inner">
+
+      <!-- Logo -->
+      <div class="sw-logo">
+        <svg viewBox="0 0 48 48">
+          <defs>
+            <linearGradient id="starg" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#8a63ff"/>
+              <stop offset="55%" stop-color="#e35ba8"/>
+              <stop offset="100%" stop-color="#ffb45c"/>
+            </linearGradient>
+          </defs>
+          <path d="M22 6c1.6 8.5 5.5 12.4 14 14-8.5 1.6-12.4 5.5-14 14-1.6-8.5-5.5-12.4-14-14 8.5-1.6 12.4-5.5 14-14z" fill="none" stroke="url(#starg)" stroke-width="3.4" stroke-linejoin="round"/>
+          <path d="M37 5c.5 2.8 1.8 4.1 4.6 4.6-2.8.5-4.1 1.8-4.6 4.6-.5-2.8-1.8-4.1-4.6-4.6 2.8-.5 4.1-1.8 4.6-4.6z" fill="url(#starg)"/>
+        </svg>
+        <span class="name">Smart Window</span>
+        <span class="beta">BETA</span>
+      </div>
+
+      <!-- Input -->
+      <div class="sw-input-wrap">
+        <div class="sw-input">
+          <input type="text" id="sw-field" placeholder="Use @ to mention recent tabs...">
+          <div class="sw-input-row">
+            <button class="sw-ic-btn" title="Add attachment">+</button>
+            <button class="sw-ic-btn" title="Browse prompts"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M6 5.5h4M6 8h4"/></svg></button>
+            <div class="sw-spacer"></div>
+            <button class="sw-mode">Flexible <svg viewBox="0 0 12 12"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg></button>
+            <button class="sw-send" id="sw-send" title="Send"><svg viewBox="0 0 16 16"><path d="M2.5 8h10M9 4.5 13 8l-4 3.5"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Starter chips: memory journeys + standard prompts -->
+      <div class="sw-chips" id="sw-chips">
+        <button class="sw-chip primary" data-starter="tokyo" title="From your recent activity">
+          <span class="chip-inner">
+            <svg class="chip-ic" viewBox="0 0 16 16"><path d="M8 1l1.8 4.5L14.5 7l-4.7 1.5L8 13 6.2 8.5 1.5 7l4.7-1.5z" fill="#cbb8f5"/></svg>
+            Pick up your Tokyo trip
+          </span>
+        </button>
+        <button class="sw-chip" data-starter="lacrosse" title="From your recent activity">
+          <svg class="chip-ic" viewBox="0 0 16 16"><path d="M8 1l1.8 4.5L14.5 7l-4.7 1.5L8 13 6.2 8.5 1.5 7l4.7-1.5z" fill="#9e78ff"/></svg>
+          Finish the lacrosse signup
+        </button>
+        <button class="sw-chip" data-starter="writing">
+          <svg class="chip-ic" viewBox="0 0 16 16"><path d="M3 13l1-3.2 7.2-7.2 2.2 2.2-7.2 7.2L3 13z" fill="none" stroke="#cfc7e8" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          Improve your writing
+        </button>
+        <button class="sw-chip" data-starter="plan">
+          <svg class="chip-ic" viewBox="0 0 16 16"><path d="M5.5 4h8M5.5 8h8M5.5 12h8" stroke="#cfc7e8" stroke-width="1.5" stroke-linecap="round"/><circle cx="2.7" cy="4" r="1.1" fill="#cfc7e8"/><circle cx="2.7" cy="8" r="1.1" fill="#cfc7e8"/><circle cx="2.7" cy="12" r="1.1" fill="#cfc7e8"/></svg>
+          Help me make a plan
+        </button>
+      </div>
+
+      <!-- Conversation thread -->
+      <div class="sw-thread" id="sw-thread"></div>
+
+      <!-- Shortcuts -->
+      <div class="sw-shortcuts" id="sw-shortcuts">
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#4285f4">D</span></div><span class="name">docs.google</span></div>
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#ea4335">M</span></div><span class="name">mail.google</span></div>
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#0fa47f">C</span></div><span class="name">chatgpt</span></div>
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#1a73e8">29</span></div><span class="name">calendar.g...</span></div>
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#24292f">G</span></div><span class="name">github</span></div>
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#5b5b66">W</span></div><span class="name">deploy-pre...</span></div>
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#c13584">I</span></div><span class="name">instagram</span></div>
+        <div class="sw-shortcut"><div class="tile"><span class="favicon" style="background:#0052cc">A</span></div><span class="name">home.atlas...</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Full page chat -->
+  <div class="fullchat" id="fullchat">
+    <div class="fc-rail">
+      <button title="Windows"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="9" rx="1.5"/><path d="M2 6h12"/></svg></button>
+      <button title="History"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg></button>
+      <button title="Bookmarks"><svg viewBox="0 0 16 16"><path d="M8 2l1.7 3.7 4 .5-3 2.8.8 4-3.5-2-3.5 2 .8-4-3-2.8 4-.5z"/></svg></button>
+      <button title="Passwords"><svg viewBox="0 0 16 16"><circle cx="5.5" cy="8" r="3"/><path d="M8.5 8h5M11.5 8v2.5"/></svg></button>
+      <button class="rail-bottom" title="Settings"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2M3.8 3.8l1.4 1.4M10.8 10.8l1.4 1.4M12.2 3.8l-1.4 1.4M5.2 10.8l-1.4 1.4"/></svg></button>
+    </div>
+    <button class="fc-new" id="fc-new" title="New tab"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.3"/><path d="M8 5.5v5M5.5 8h5"/></svg></button>
+    <div class="fc-scroll" id="fc-scroll"></div>
+    <div class="fc-input-zone">
+      <div class="fc-input-wrap">
+        <div class="fc-input">
+          <input type="text" id="fc-field" placeholder="Ask, search, or type a URL">
+          <div class="sw-input-row">
+            <button class="sw-ic-btn" title="Add attachment">+</button>
+            <button class="sw-ic-btn" title="Browse prompts"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M6 5.5h4M6 8h4"/></svg></button>
+            <div class="sw-spacer"></div>
+            <button class="sw-mode">Flexible <svg viewBox="0 0 12 12"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg></button>
+            <button class="sw-send" id="fc-send" title="Send"><svg class="ic-arrow" viewBox="0 0 16 16"><path d="M2.5 8h10M9 4.5 13 8l-4 3.5"/></svg><svg class="ic-stop" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" rx="1.5" fill="currentColor" stroke="none"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="fc-note">AI can make mistakes.</div>
+    </div>
+  </div>
+
+  <!-- Site view: a tab from the group is focused, journey chat rides along -->
+  <div class="site-view" id="site-view">
+    <div class="site-main">
+      <div class="site-header">
+        <span class="favicon" id="site-favicon" style="background:#4285f4">F</span>
+        <span class="site-name" id="site-name">Google Flights</span>
+      </div>
+      <div class="skel hero"></div>
+      <div class="skel row w80"></div>
+      <div class="skel row w60"></div>
+      <div class="skel row w90"></div>
+      <div class="skel row w45"></div>
+      <div class="skel-cards"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+    <div class="jt-sidebar">
+      <div class="jt-head">
+        <span class="dot" id="jt-dot" style="background:#ab71ff"></span>
+        <div style="flex:1; min-width:0">
+          <div class="jt-title" id="jt-title">Tokyo trip</div>
+          <div class="jt-scope">One conversation for this tab group</div>
+        </div>
+      </div>
+      <div class="jt-scroll" id="jt-scroll"></div>
+      <div class="jt-input-wrap">
+        <div class="jt-input">
+          <input type="text" id="jt-field" placeholder="Ask about this trip">
+          <button class="sw-send" id="jt-send" title="Send" style="width:26px;height:26px;border-radius:7px"><svg class="ic-arrow" viewBox="0 0 16 16" style="width:12px;height:12px"><path d="M2.5 8h10M9 4.5 13 8l-4 3.5"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= Data ================= */
+const SESSIONS = {
+  tokyo: {
+    name: "Tokyo trip", color: "#ab71ff",
+    userMsg: "Pick up my Tokyo trip planning",
+    tabs: [
+      { t: "Google Flights", c: "#4285f4", l: "F", u: "google.com/travel/flights" },
+      { t: "ANA | Book flights", c: "#13294b", l: "N", u: "ana.co.jp/en/us" },
+      { t: "Booking.com | Shibuya hotels", c: "#003580", l: "B", u: "booking.com/searchresults" },
+      { t: "Airbnb | Shinjuku", c: "#ff5a5f", l: "A", u: "airbnb.com/s/shinjuku" },
+      { t: "Cerulean Tower Hotel", c: "#37474f", l: "C", u: "ceruleantower-hotel.com" },
+      { t: "japan-guide.com", c: "#c1272d", l: "J", u: "japan-guide.com/e/e3014.html" },
+      { t: "Tokyo itinerary - Google Docs", c: "#4285f4", l: "D", u: "docs.google.com/document" },
+      { t: "Tabelog | Shibuya ramen", c: "#f2a900", l: "T", u: "tabelog.com/en/tokyo" },
+      { t: "r/JapanTravel", c: "#ff4500", l: "R", u: "reddit.com/r/JapanTravel" }
+    ],
+    pill: `Tab group created · 9 tabs`,
+    historyDay: "Yesterday",
+    history: [
+      { u: "Is the ryokan in Asakusa near a metro stop?" },
+      { a: "Yes. It is a 4 minute walk from Asakusa station on the Ginza line, about 35 minutes to Shibuya. Quiet street, and the rooftop bath faces the Skytree." },
+      { u: "Keep it in the running with the Cerulean." },
+      { a: "Done. Those two are your final hotel shortlist." }
+    ],
+    summary: [
+      "Reopened your 9 tabs in the background as <strong>Tokyo trip</strong>, including the Booking.com tab you already had open.",
+      "Here is where you left off: flights are narrowed to <strong>two ANA options for Oct 12 to 19</strong>, and you were mid-comparison on hotels. Cerulean Tower in Shibuya and the ryokan in Asakusa were the last two you looked at. Your itinerary doc covers days 1 to 3.",
+      "<span class=\"muted\">The hotel tabs were your most recent activity. Picking one would unlock the rest of the itinerary.</span>"
+    ],
+    chips: ["Compare the two hotels", "Draft days 4 and 5", "Check flight prices again"]
+  },
+  camps: {
+    name: "Summer camps", color: "#2ac3a2",
+    userMsg: "Pick up the summer camp search",
+    tabs: [
+      { t: "CampNavigator | Day camps", c: "#2e7d32", l: "C", u: "campnavigator.com/day-camps" },
+      { t: "YMCA summer programs", c: "#5e35b1", l: "Y", u: "ymca.org/summer" },
+      { t: "ActivityHero | STEM camps", c: "#00897b", l: "A", u: "activityhero.com/stem" },
+      { t: "Camp comparison - Sheets", c: "#188038", l: "S", u: "docs.google.com/spreadsheets" },
+      { t: "Gmail | Camp Evergreen", c: "#ea4335", l: "M", u: "mail.google.com" }
+    ],
+    pill: `Tab group created · 5 tabs`,
+    historyDay: "Friday",
+    history: [
+      { u: "Which one had the early-bird discount?" },
+      { a: "Camp Evergreen. The discount ends Friday and applies to the July session you asked about." }
+    ],
+    summary: [
+      "Reopened your 5 tabs in the background as <strong>Summer camps</strong>.",
+      "You compared three day camps in your spreadsheet: Camp Evergreen, the YMCA adventure program, and a STEM camp on ActivityHero. Camp Evergreen emailed you back about the July session, and its <strong>early-bird price ends Friday</strong>.",
+      "<span class=\"muted\">Your spreadsheet has ratings filled in for two of the three camps.</span>"
+    ],
+    chips: ["Finish the comparison sheet", "Reply to Camp Evergreen", "Check July availability"]
+  },
+  lacrosse: {
+    name: "Lacrosse signup", color: "#ff8a50",
+    userMsg: "Finish the lacrosse signup",
+    tabs: [
+      { t: "LeagueApps | Spring registration", c: "#1565c0", l: "L", u: "leagueapps.com/register" },
+      { t: "DICK'S | Lacrosse starter gear", c: "#00713d", l: "D", u: "dickssportinggoods.com/lacrosse" },
+      { t: "USA Lacrosse | Membership", c: "#0a2240", l: "U", u: "usalacrosse.com/membership" }
+    ],
+    pill: `Tab group created · 3 tabs`,
+    historyDay: "Tuesday",
+    history: [
+      { u: "What is left on the registration?" },
+      { a: "Just the USA Lacrosse membership number. Everything else is filled in, and the gear set is in your cart." }
+    ],
+    summary: [
+      "Reopened your 3 tabs in the background as <strong>Lacrosse signup</strong>.",
+      "The registration form is <strong>half filled out</strong>. It still needs a USA Lacrosse membership number, which is why that tab is open. The starter gear set is sitting in your cart.",
+      "<span class=\"muted\">Finishing the membership first gets you the number the form needs.</span>"
+    ],
+    chips: ["Finish the registration", "Review the gear cart"]
+  }
+};
+
+/* Prompts that do not open tabs get the full page chat */
+const STARTERS = {
+  plan: {
+    userMsg: "Help me make a plan",
+    reply: [
+      "<p>Happy to help. What are we planning?</p>",
+      `<ul>
+        <li><strong>A trip:</strong> flights, stays, and a day-by-day itinerary that leaves room to wander.</li>
+        <li><strong>A project at work:</strong> milestones, owners, and a timeline you can share.</li>
+        <li><strong>An event:</strong> guest list, venue, budget, and the run of show.</li>
+        <li><strong>A routine:</strong> a weekly schedule that survives contact with Monday.</li>
+      </ul>`,
+      "<p>Tell me which one, or describe it in your own words. If the research already lives in your tabs, use @ to bring them in.</p>"
+    ],
+    pills: ["Continue planning the Tokyo trip", "A project at work", "A family schedule for the fall"]
+  },
+  writing: {
+    userMsg: "Improve my writing",
+    reply: [
+      "<p>Glad to. What are we working on? Paste the text here, or use @ to point me at a tab, doc, or draft.</p>",
+      `<ul>
+        <li><strong>Tighten:</strong> same message, fewer words.</li>
+        <li><strong>Retone:</strong> warmer, firmer, or more formal without losing your voice.</li>
+        <li><strong>Restructure:</strong> reorder so the point lands first.</li>
+        <li><strong>Proofread:</strong> grammar and clarity only, no style changes.</li>
+      </ul>`
+    ],
+    pills: ["Proofread my Camp Evergreen reply", "Make my itinerary doc more concise", "Warm up the tone of an email"]
+  }
+};
+
+/* ================= Elements ================= */
+const tabsEl = document.getElementById("tabs");
+const newtabTab = document.getElementById("newtab-tab");
+const preexistingTab = document.getElementById("preexisting-tab");
+const chipsEl = document.getElementById("sw-chips");
+const shortcutsEl = document.getElementById("sw-shortcuts");
+const swField = document.getElementById("sw-field");
+const fullchat = document.getElementById("fullchat");
+const fcScroll = document.getElementById("fc-scroll");
+const fcField = document.getElementById("fc-field");
+const fcSendBtn = document.getElementById("fc-send");
+let openGroup = null;
+let animTimers = [];
+function clearTimers() { animTimers.forEach(clearTimeout); animTimers = []; }
+function later(fn, ms) { animTimers.push(setTimeout(fn, ms)); }
+function setStreaming(on) { fcSendBtn.classList.toggle("streaming", on); }
+
+/* ================= Starter chips =================
+   Every chip opens the full page chat. Memory journeys
+   run a "Searching tabs" pass and open the tab group in
+   the strip; standard prompts reply directly. */
+chipsEl.querySelectorAll(".sw-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    const key = chip.dataset.starter;
+    if (SESSIONS[key]) return openFullChat({ journey: SESSIONS[key] });
+    openFullChat(STARTERS[key]);
+  });
+});
+
+/* ================= Full page chat ================= */
+function openFullChat(data) {
+  clearTimers();
+  fcScroll.innerHTML = "";
+  fullchat.classList.add("open");
+
+  if (data.journey) {
+    addFcUser(data.journey.userMsg);
+    runJourney(data.journey);
+  } else {
+    addFcUser(data.userMsg);
+    setStreaming(true);
+    later(() => addFcReply(data.reply, data.pills), 500);
+  }
+  fcField.focus();
+  if (navDepth === 0) history.pushState({ d: 1 }, "");
+  navDepth = 1;
+  updateNav();
+}
+
+/* Journey: searching state, then the tab group forms in the strip, then the report */
+function runJourney(s) {
+  setStreaming(true);
+
+  const status = document.createElement("div");
+  status.className = "fc-status";
+  status.innerHTML = `
+    <svg class="st-spark" viewBox="0 0 16 16"><path d="M8 1l1.8 4.5L14.5 7l-4.7 1.5L8 13 6.2 8.5 1.5 7l4.7-1.5z"/></svg>
+    <span class="st-text">Searching tabs</span>
+    <svg class="st-chev" viewBox="0 0 12 12"><path d="M4.5 2.5 8 6l-3.5 3.5"/></svg>`;
+  fcScroll.appendChild(status);
+
+  const spin = document.createElement("div");
+  spin.className = "fc-spinner";
+  fcScroll.appendChild(spin);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => status.classList.add("in")));
+
+  later(() => {
+    spin.remove();
+    status.querySelector(".st-text").textContent = `Searched ${s.tabs.length} tabs`;
+    createGroup(s);
+  }, 1500);
+
+  later(() => {
+    const blocks = [
+      `<div class="group-pill"><span class="dot" style="background:${s.color}"></span>${s.pill}</div>`,
+      ...s.summary.map(html => `<p>${html}</p>`)
+    ];
+    addFcReply(blocks, s.chips);
+  }, 2150);
+}
+
+function createGroup(s) {
+  if (openGroup) { const g = openGroup; openGroup = null; g.classList.add("leaving"); setTimeout(() => g.remove(), 400); }
+  const group = document.createElement("div");
+  group.className = "tab-group";
+  if (s.tabs.length > 1) {
+    const label = document.createElement("span");
+    label.className = "group-label";
+    label.style.background = s.color;
+    label.textContent = s.name;
+    group.appendChild(label);
+  }
+  group.style.setProperty("--group-color", s.color);
+  s.tabs.forEach((t, i) => {
+    const tab = document.createElement("div");
+    tab.className = "tab";
+    tab.style.transitionDelay = `${0.12 + i * 0.05}s`;
+    tab.innerHTML = `<span class="favicon" style="background:${t.c}">${t.l}</span><span class="tab-title"></span>`;
+    tab.querySelector(".tab-title").textContent = t.t;
+    tab.style.cursor = "pointer";
+    tab.addEventListener("click", () => openTabView(s, t, tab));
+    group.appendChild(tab);
+  });
+  // The New tab (home of the chat) leads the strip, group follows it
+  tabsEl.insertBefore(newtabTab, tabsEl.firstChild);
+  tabsEl.insertBefore(group, newtabTab.nextSibling);
+  openGroup = group;
+  if (s.name === "Tokyo trip") preexistingTab.style.display = "none";
+  requestAnimationFrame(() => requestAnimationFrame(() => group.classList.add("in")));
+}
+
+/* ================= Site view: journey-scoped chat on a tab =================
+   One conversation per tab group. Clicking any tab in the group opens
+   that page with the same thread: what you asked the other day, then
+   today's pickup message from the New tab chat. */
+const siteView = document.getElementById("site-view");
+const jtScroll = document.getElementById("jt-scroll");
+const jtField = document.getElementById("jt-field");
+
+function openTabView(s, t, tabEl) {
+  fullchat.classList.remove("open");
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  tabEl.classList.add("active");
+
+  const fav = document.getElementById("site-favicon");
+  fav.style.background = t.c;
+  fav.textContent = t.l;
+  document.getElementById("site-name").textContent = t.t.split(" | ")[0].split(" - ")[0];
+  urlTextSet(t.u);
+
+  document.getElementById("jt-dot").style.background = s.color;
+  document.getElementById("jt-title").textContent = s.name;
+  buildJourneyThread(s);
+  siteView.classList.add("open");
+  if (navDepth < 2) history.pushState({ d: 2 }, "");
+  navDepth = 2;
+  updateNav();
+}
+
+function urlTextSet(u) {
+  const el = document.getElementById("url-text");
+  el.innerHTML = `<span class="domain"></span>`;
+  el.querySelector(".domain").textContent = u;
+}
+
+function buildJourneyThread(s) {
+  jtScroll.innerHTML = "";
+  const divider = label => {
+    const d = document.createElement("div");
+    d.className = "jt-divider";
+    d.textContent = label;
+    jtScroll.appendChild(d);
+  };
+  const userMsg = text => {
+    const u = document.createElement("div");
+    u.className = "jt-user";
+    u.innerHTML = `<div class="pill"></div>`;
+    u.querySelector(".pill").textContent = text;
+    jtScroll.appendChild(u);
+  };
+  const aiMsg = html => {
+    const a = document.createElement("div");
+    a.className = "jt-ai";
+    a.innerHTML = html;
+    jtScroll.appendChild(a);
+    return a;
+  };
+
+  divider(s.historyDay);
+  s.history.forEach(m => m.u ? userMsg(m.u) : aiMsg(m.a));
+
+  divider("Today · from your New tab chat");
+  aiMsg(
+    `<div class="group-pill"><span class="dot" style="background:${s.color}"></span>${s.pill}</div>` +
+    s.summary.map(p => `<p style="margin-bottom:9px">${p}</p>`).join("")
+  );
+
+  const chipsWrap = document.createElement("div");
+  chipsWrap.className = "jt-chips";
+  s.chips.forEach(text => {
+    const b = document.createElement("button");
+    b.className = "fc-pill";
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      userMsg(text);
+      aiMsg(`<span class="muted">Prototype note: "${text}" would continue this conversation.</span>`);
+      jtScroll.scrollTop = jtScroll.scrollHeight;
+    });
+    chipsWrap.appendChild(b);
+  });
+  jtScroll.appendChild(chipsWrap);
+  jtScroll.scrollTop = jtScroll.scrollHeight;
+}
+
+function jtSend() {
+  const text = jtField.value.trim();
+  if (!text) return;
+  jtField.value = "";
+  const u = document.createElement("div");
+  u.className = "jt-user";
+  u.innerHTML = `<div class="pill"></div>`;
+  u.querySelector(".pill").textContent = text;
+  jtScroll.appendChild(u);
+  const a = document.createElement("div");
+  a.className = "jt-ai";
+  a.innerHTML = `<span class="muted">Prototype note: "${text}" would continue this conversation.</span>`;
+  jtScroll.appendChild(a);
+  jtScroll.scrollTop = jtScroll.scrollHeight;
+}
+document.getElementById("jt-send").addEventListener("click", jtSend);
+jtField.addEventListener("keydown", e => { if (e.key === "Enter") jtSend(); });
+
+function closeSiteView() {
+  siteView.classList.remove("open");
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  newtabTab.classList.add("active");
+  urlTextSet("Search with Google or enter address");
+  document.getElementById("url-text").textContent = "Search with Google or enter address";
+  fullchat.classList.add("open");
+  updateNav();
+}
+
+function addFcUser(text) {
+  const u = document.createElement("div");
+  u.className = "fc-user";
+  u.innerHTML = `<div class="pill"></div>`;
+  u.querySelector(".pill").textContent = text;
+  fcScroll.appendChild(u);
+  requestAnimationFrame(() => requestAnimationFrame(() => u.classList.add("in")));
+}
+
+function addFcReply(blocks, pills) {
+  const ai = document.createElement("div");
+  ai.className = "fc-ai";
+  fcScroll.appendChild(ai);
+
+  const els = blocks.map(html => {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = html;
+    const el = wrap.firstElementChild;
+    ai.appendChild(el);
+    return el;
+  });
+
+  const actions = document.createElement("div");
+  actions.className = "fc-actions";
+  actions.innerHTML = `
+    <button title="Good response"><svg viewBox="0 0 16 16"><path d="M4.5 7.5v6h-2v-6h2zm0 0L7 2.5c.9 0 1.5.7 1.5 1.5v2.5h4c.8 0 1.4.7 1.2 1.5l-1 4.5c-.1.6-.7 1-1.3 1H4.5"/></svg></button>
+    <button title="Bad response"><svg viewBox="0 0 16 16"><path d="M11.5 8.5v-6h2v6h-2zm0 0L9 13.5c-.9 0-1.5-.7-1.5-1.5V9.5h-4c-.8 0-1.4-.7-1.2-1.5l1-4.5c.1-.6.7-1 1.3-1h6.9"/></svg></button>
+    <button title="Copy"><svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5v-2a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg></button>
+    <button title="Try again"><svg viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.8v2.4h-2.4"/></svg></button>
+    <button title="Save"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M8 5.5v4M6 7.5h4"/></svg></button>`;
+  ai.appendChild(actions);
+
+  let sugs = null, pillEls = [];
+  if (pills && pills.length) {
+    sugs = document.createElement("div");
+    sugs.className = "fc-sugs";
+    pillEls = pills.map(text => {
+      const b = document.createElement("button");
+      b.className = "fc-pill";
+      b.textContent = text;
+      b.addEventListener("click", () => fcFollowUp(text));
+      sugs.appendChild(b);
+      return b;
+    });
+    ai.appendChild(sugs);
+  }
+
+  els.forEach((el, i) => later(() => el.classList.add("in"), 350 + i * 420));
+  later(() => actions.classList.add("in"), 350 + els.length * 420);
+  pillEls.forEach((p, i) => later(() => p.classList.add("in"), 500 + els.length * 420 + i * 110));
+  later(() => setStreaming(false), 600 + els.length * 420 + pillEls.length * 110);
+  fcScroll.scrollTop = fcScroll.scrollHeight;
+}
+
+function fcFollowUp(text) {
+  addFcUser(text);
+  // The Tokyo pill bridges into the pickup journey, right here in the chat
+  if (text === "Continue planning the Tokyo trip") {
+    runJourney(SESSIONS.tokyo);
+    return;
+  }
+  setStreaming(true);
+  addFcReply([
+    `<p><span class="muted">Prototype note: "${text}" would continue the conversation here.</span></p>`
+  ], []);
+  fcScroll.scrollTop = fcScroll.scrollHeight;
+}
+
+function closeFullChat() {
+  fullchat.classList.remove("open");
+  setStreaming(false);
+  setTimeout(() => { fcScroll.innerHTML = ""; }, 400);
+}
+document.getElementById("fc-new").addEventListener("click", () => goHome());
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && navDepth > 0) history.back();
+});
+
+function fcSend() {
+  const text = fcField.value.trim();
+  if (!text) return;
+  fcField.value = "";
+  fcFollowUp(text);
+}
+document.getElementById("fc-send").addEventListener("click", fcSend);
+fcField.addEventListener("keydown", e => { if (e.key === "Enter") fcSend(); });
+
+/* ================= Back button =================
+   Backed by real browser history, so the prototype's back arrow,
+   the browser's own back button, and trackpad swipes all work. */
+const backBtn = document.getElementById("back-btn");
+let navDepth = 0; // 0 = new tab, 1 = full chat, 2 = site view
+
+function updateNav() {
+  backBtn.classList.toggle("disabled", navDepth === 0);
+}
+
+function applyDepth(d) {
+  if (d >= navDepth) { navDepth = d; updateNav(); return; }
+  if (d <= 1 && siteView.classList.contains("open")) closeSiteView();
+  if (d === 0) resetAll();
+  navDepth = d;
+  updateNav();
+}
+
+backBtn.addEventListener("click", () => { if (navDepth > 0) history.back(); });
+window.addEventListener("popstate", e => applyDepth((e.state && e.state.d) || 0));
+
+function goHome() { if (navDepth > 0) history.go(-navDepth); else resetAll(); }
+
+/* ================= Reset ================= */
+newtabTab.addEventListener("click", () => {
+  if (navDepth > 0 || openGroup) goHome();
+});
+
+function resetAll() {
+  clearTimers();
+  siteView.classList.remove("open");
+  closeFullChat();
+  preexistingTab.style.display = "";
+  newtabTab.classList.add("active");
+  document.getElementById("url-text").textContent = "Search with Google or enter address";
+  if (openGroup) {
+    const g = openGroup;
+    openGroup = null;
+    g.classList.add("leaving");
+    setTimeout(() => g.remove(), 400);
+  }
+  tabsEl.appendChild(newtabTab); // back to its usual spot on the right
+  updateNav();
+}
+
+/* Typing in the main field opens the full page chat */
+function fieldSend() {
+  const text = swField.value.trim();
+  if (!text) return;
+  swField.value = "";
+  openFullChat({
+    userMsg: text,
+    reply: [`<p><span style="color:var(--text-deemphasized)">Prototype note: "${text}" would start a conversation here. The wired flows are "Help me make a plan" and "Improve your writing".</span></p>`],
+    pills: []
+  });
+}
+document.getElementById("sw-send").addEventListener("click", fieldSend);
+swField.addEventListener("keydown", e => { if (e.key === "Enter") fieldSend(); });
+</script>
+</body>
+</html>
