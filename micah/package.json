@@ -1,0 +1,25 @@
+{
+  "name": "micah",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Micah: an AI engineer for the Firefox AI Pod.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "test": "npm run build && node --test packages/core/dist/test/*.test.js",
+    "cli": "node --enable-source-maps packages/cli/dist/index.js",
+    "slack": "node --enable-source-maps packages/slack/dist/index.js",
+    "github": "node --enable-source-maps packages/github/dist/index.js",
+    "matrix": "node --enable-source-maps packages/matrix/dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.3"
+  }
+}

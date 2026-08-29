@@ -1,0 +1,15 @@
+{
+  "name": "@micah/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "micah": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@micah/core": "*"
+  }
+}

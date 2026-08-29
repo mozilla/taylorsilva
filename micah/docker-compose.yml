@@ -1,0 +1,25 @@
+services:
+  slack:
+    build:
+      context: .
+      args:
+        ADAPTER: slack
+    image: micah-slack:dev
+    env_file: .env
+    environment:
+      MICAH_ADAPTER: slack
+    restart: unless-stopped
+
+  github:
+    build:
+      context: .
+      args:
+        ADAPTER: github
+    image: micah-github:dev
+    env_file: .env
+    environment:
+      MICAH_ADAPTER: github
+      GITHUB_PORT: "8787"
+    ports:
+      - "8787:8787"
+    restart: unless-stopped
